@@ -1,5 +1,5 @@
 # FileCruncher
-Filecruncher is a GUI tool for quickly finding all text occurences in multiple files in a directory, matching a specific file extension pattern.
+FileCruncher is a GUI tool for quickly finding all text occurences in multiple files in a directory, matching a specific file extension pattern.
 
 ## Dependencies
 
