@@ -39,22 +39,24 @@ interface
 //***************************************************************************************
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls;
+  ExtCtrls, ComCtrls, LCLType, SearchSettings;
 
 
 //***************************************************************************************
 // Type Definitions
 //***************************************************************************************
 type
+  //------------------------------ TUserInterfaceSetting --------------------------------
+  TUserInterfaceSetting = ( UIS_DEFAULT = 0,
+                            UIS_SEARCHING );
 
-  { TMainForm }
-
+  //------------------------------ TMainForm --------------------------------------------
   TMainForm = class(TForm)
     BtnBrowse: TButton;
     BtnSearch: TButton;
     CbxCaseSensitive: TCheckBox;
     CbxRecursive: TCheckBox;
-    CmdSearchPattern: TComboBox;
+    CmbSearchPattern: TComboBox;
     EdtDirectory: TEdit;
     EdtSearchText: TEdit;
     GbxSearchLocation: TGroupBox;
@@ -71,10 +73,17 @@ type
     PnlRecursive: TPanel;
     PnlDirectory: TPanel;
     PnlSearchPattern: TPanel;
+    SelectDirectoryDialog: TSelectDirectoryDialog;
     procedure BtnBrowseClick(Sender: TObject);
     procedure BtnSearchClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
+    FUISetting: TUserInterfaceSetting;
+    FSearchSettings: TSearchSettings;
+    procedure InitializeUserInterface;
+    procedure UpdateUserInterface;
+    procedure CollectSearchSettings;
     function  StartSearch: Boolean;
     procedure FinishSearch;
     procedure CancelSearch;
@@ -97,17 +106,13 @@ implementation
 
 { TMainForm }
 
-{ TODO : Add user interface state enum, class field and procedure UpdateUserInterface. }
-{ TODO : Add class with search settings or maybe add them individually as fields. }
 { TODO : Perhaps add progressbar or -label on the row with the search-button. }
-
-
 
 //***************************************************************************************
 // NAME:           FormCreate
 // PARAMETER:      Sender Source of the event.
 // RETURN VALUE:   none
-// DESCRIPTION:    Form constructor.
+// DESCRIPTION:    Event handler that gets called when the form is constructed.
 //
 //***************************************************************************************
 procedure TMainForm.FormCreate(Sender: TObject);
@@ -119,7 +124,27 @@ begin
   PnlSearchText.Caption := '';
   PnlCaseSensitive.Caption := '';
   PnlSearchPattern.Caption := '';
+  // Create instances of the search settings.
+  FSearchSettings := TSearchSettings.Create;
+  // Initialize fields to their default values.
+  FUISetting := UIS_DEFAULT;
+  // Initialize the user interface.
+  InitializeUserInterface;
 end; //*** end of FormCreate ***
+
+
+//***************************************************************************************
+// NAME:           FormDestroy
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the form is destroyed.
+//
+//***************************************************************************************
+procedure TMainForm.FormDestroy(Sender: TObject);
+begin
+  // Release the search settings instance.
+  FSearchSettings.Free;
+end; //*** end of FormDestroy ***
 
 
 //***************************************************************************************
@@ -131,7 +156,12 @@ end; //*** end of FormCreate ***
 //***************************************************************************************
 procedure TMainForm.BtnBrowseClick(Sender: TObject);
 begin
-  { TODO : Implement browse button clicked event handler. }
+  // Show directory selection dialog.
+  if SelectDirectoryDialog.Execute then
+  begin
+    // Show the selected directory in the edit box.
+    EdtDirectory.Text := SelectDirectoryDialog.FileName;
+  end;
 end; //*** end of BtnBrowseClick ***
 
 
@@ -143,9 +173,125 @@ end; //*** end of BtnBrowseClick ***
 //
 //***************************************************************************************
 procedure TMainForm.BtnSearchClick(Sender: TObject);
+var
+  boxStyle: Integer;
 begin
-  { TODO : Implement browse button clicked event handler. }
+  // The behavior of the event handler depends on the current user interface settings.
+  if FUISetting = UIS_DEFAULT then
+  begin
+    // Start the search operation.
+    if not StartSearch then
+    begin
+      // Configure the message box.
+      boxStyle := MB_ICONINFORMATION + MB_OK;
+      // Display the message box.
+      Application.MessageBox('Invalid search settings detected. Please correct them and try again.',
+                             'Problem detected', boxStyle);
+    end;
+  end
+  else
+  begin
+    // Cancel the search operation.
+    CancelSearch;
+  end;
 end; //*** end of BtnSearchClick ***
+
+
+//***************************************************************************************
+// NAME:           InitializeUserInterface
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Initializes the user interface.
+//
+//***************************************************************************************
+procedure TMainForm.InitializeUserInterface;
+var
+  idx: Integer;
+  filePatternMatchFound: Boolean;
+begin
+  // Initialize the user interface, based on currently set search settings.
+  EdtDirectory.Text := FSearchSettings.Directory;
+  CbxRecursive.Checked := FSearchSettings.Recursive;
+  EdtSearchText.Text := FSearchSettings.SearchText;
+  CbxCaseSensitive.Checked := FSearchSettings.CaseSensitive;
+  // Try to find a matching file pattern entry in the combobox.
+  filePatternMatchFound := False;
+  for Idx := 0 to (CmbSearchPattern.Items.Count - 1) do
+  begin
+    // Is this entry a match to the file pattern in the current search settings?
+    if CmbSearchPattern.Items[idx] = FSearchSettings.FilePattern then
+    begin
+      // Select this item in the combobox.
+      CmbSearchPattern.ItemIndex := idx;
+      // Set flag.
+      filePatternMatchFound := True;
+      // Match found, no need to continue looping.
+      Break;
+    end;
+  end;
+  // Check if a matching entry in the combobox was found.
+  if not filePatternMatchFound then
+  begin
+    // Select the default file pattern from the combobox, which is the first entry.
+    CmbSearchPattern.ItemIndex := 0;
+    FSearchSettings.FilePattern := CmbSearchPattern.Items[CmbSearchPattern.ItemIndex];
+  end;
+  // Clear search results
+  ClearSearchResults;
+  // Update the user interface based on the currently selected user interface setting.
+  UpdateUserInterface;
+end; //*** end of InitializeUserInterface ***
+
+
+//***************************************************************************************
+// NAME:           UpdateUserInterface
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Updates the user interface based on the currently configured setting.
+//
+//***************************************************************************************
+procedure TMainForm.UpdateUserInterface;
+begin
+  // Is the searching user interface setting selected?
+  if FUISetting = UIS_SEARCHING then
+  begin
+    EdtDirectory.Enabled := False;
+    BtnBrowse.Enabled := False;
+    CbxRecursive.Enabled := False;
+    EdtSearchText.Enabled := False;
+    CbxRecursive.Enabled := False;
+    CmbSearchPattern.Enabled := False;
+    BtnSearch.Caption := 'Cancel';
+  end
+  // The default setting must be selected.
+  else
+  begin
+    EdtDirectory.Enabled := True;
+    BtnBrowse.Enabled := True;
+    CbxRecursive.Enabled := True;
+    EdtSearchText.Enabled := True;
+    CbxRecursive.Enabled := True;
+    CmbSearchPattern.Enabled := True;
+    BtnSearch.Caption := 'Search';
+  end;
+end; //*** end of UpdateUserInterface ***
+
+
+//***************************************************************************************
+// NAME:           CollectSearchSettings
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Extracts the search settings from the user interface and stored them.
+//
+//***************************************************************************************
+procedure TMainForm.CollectSearchSettings;
+begin
+ FSearchSettings.Directory := EdtDirectory.Text;
+ FSearchSettings.Recursive := CbxRecursive.Checked;
+ FSearchSettings.SearchText := EdtSearchText.Text;
+ FSearchSettings.CaseSensitive := CbxCaseSensitive.Checked;
+ FSearchSettings.FilePattern := CmbSearchPattern.Text;
+end; //*** end of CollectSearchSettings ***/
 
 
 //***************************************************************************************
@@ -159,7 +305,21 @@ function TMainForm.StartSearch: Boolean;
 begin
   // Initialize the result.
   Result := False;
-  { TODO : Implement start of search operation. }
+  // Collect search settings from the user interface.
+  CollectSearchSettings;
+  // Check if the text to search for is not empty.
+  { TODO : Perhaps the future start of search operation can validate the search settings
+           instead of doing this here. }
+  if (Trim(FSearchSettings.SearchText) <> '') and
+     (Trim(FSearchSettings.Directory) <> '')  then
+  begin
+    // Update the user interface.
+    FUISetting := UIS_SEARCHING;
+    UpdateUserInterface;
+    { TODO : Implement start of search operation. }
+    // Update the result.
+    Result := True;
+  end;
 end; //*** end of StartSearch ***
 
 
@@ -173,6 +333,9 @@ end; //*** end of StartSearch ***
 procedure TMainForm.FinishSearch;
 begin
   { TODO : Implement finish of search operation. }
+  // Update the user interface.
+  FUISetting := UIS_DEFAULT;
+  UpdateUserInterface;
 end; //*** end of FinishSearch ***
 
 
@@ -185,7 +348,9 @@ end; //*** end of FinishSearch ***
 //***************************************************************************************
 procedure TMainForm.CancelSearch;
 begin
-  { TODO : Implement cancel search operation. }
+  // Update the user interface.
+  FUISetting := UIS_DEFAULT;
+  UpdateUserInterface;
 end; //*** end of CancelSearch ***
 
 

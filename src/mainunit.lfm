@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 520
+  Left = 939
   Height = 517
-  Top = 285
+  Top = 263
   Width = 838
   ActiveControl = EdtDirectory
   Caption = 'FileCruncher'
@@ -10,6 +10,7 @@ object MainForm: TMainForm
   Constraints.MinHeight = 400
   Constraints.MinWidth = 440
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   Position = poScreenCenter
   LCLVersion = '1.8.2.0'
   object GbxSearchLocation: TGroupBox
@@ -259,7 +260,7 @@ object MainForm: TMainForm
         Layout = tlCenter
         ParentColor = False
       end
-      object CmdSearchPattern: TComboBox
+      object CmbSearchPattern: TComboBox
         Left = 69
         Height = 32
         Hint = 'Limit the search to files with a specific extension. Seperate multiple entries with |'
@@ -308,5 +309,10 @@ object MainForm: TMainForm
       OnClick = BtnSearchClick
       TabOrder = 0
     end
+  end
+  object SelectDirectoryDialog: TSelectDirectoryDialog
+    Options = [ofPathMustExist, ofEnableSizing, ofViewDetail]
+    left = 600
+    top = 32
   end
 end
