@@ -1,9 +1,312 @@
 object MainForm: TMainForm
-  Left = 540
-  Height = 223
-  Top = 344
-  Width = 484
+  Left = 520
+  Height = 517
+  Top = 285
+  Width = 838
+  ActiveControl = EdtDirectory
   Caption = 'FileCruncher'
+  ClientHeight = 517
+  ClientWidth = 838
+  Constraints.MinHeight = 400
+  Constraints.MinWidth = 440
+  OnCreate = FormCreate
   Position = poScreenCenter
   LCLVersion = '1.8.2.0'
+  object GbxSearchLocation: TGroupBox
+    Left = 5
+    Height = 82
+    Top = 0
+    Width = 828
+    Align = alTop
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 5
+    Caption = 'Search in'
+    ClientHeight = 64
+    ClientWidth = 826
+    TabOrder = 0
+    object PnlDirectory: TPanel
+      Left = 0
+      Height = 32
+      Top = 0
+      Width = 826
+      Align = alTop
+      BevelOuter = bvNone
+      Caption = 'PnlDirectory'
+      ClientHeight = 32
+      ClientWidth = 826
+      Color = clForm
+      ParentColor = False
+      TabOrder = 0
+      object BtnBrowse: TButton
+        Left = 739
+        Height = 28
+        Top = 2
+        Width = 80
+        Align = alRight
+        BorderSpacing.Right = 5
+        BorderSpacing.Around = 2
+        Caption = 'Browse..'
+        Constraints.MinHeight = 28
+        Constraints.MinWidth = 80
+        OnClick = BtnBrowseClick
+        TabOrder = 1
+      end
+      object EdtDirectory: TEdit
+        Left = 69
+        Height = 28
+        Hint = 'Enter the base directory for the search operation or click the browse-button to select one'
+        Top = 2
+        Width = 668
+        Align = alClient
+        BorderSpacing.Around = 2
+        Constraints.MinHeight = 28
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+      end
+      object LblDirectory: TLabel
+        Left = 7
+        Height = 28
+        Top = 2
+        Width = 60
+        Align = alLeft
+        BorderSpacing.Left = 5
+        BorderSpacing.Around = 2
+        Caption = 'Directory:'
+        Constraints.MinHeight = 28
+        Constraints.MinWidth = 60
+        Layout = tlCenter
+        ParentColor = False
+      end
+    end
+    object PnlRecursive: TPanel
+      Left = 0
+      Height = 24
+      Top = 32
+      Width = 826
+      Align = alTop
+      BevelOuter = bvNone
+      Caption = 'PnlRecursive'
+      ClientHeight = 24
+      ClientWidth = 826
+      Color = clForm
+      ParentColor = False
+      TabOrder = 1
+      object CbxRecursive: TCheckBox
+        Left = 67
+        Height = 20
+        Hint = 'Check this box to include subdirectories as well'
+        Top = 2
+        Width = 150
+        Align = alLeft
+        BorderSpacing.Left = 65
+        BorderSpacing.Around = 2
+        Caption = 'Include subdirectories'
+        Checked = True
+        ParentShowHint = False
+        ShowHint = True
+        State = cbChecked
+        TabOrder = 0
+      end
+    end
+  end
+  object GbxSearchSpecification: TGroupBox
+    Left = 5
+    Height = 82
+    Top = 82
+    Width = 828
+    Align = alTop
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 5
+    Caption = 'Search for'
+    ClientHeight = 64
+    ClientWidth = 826
+    TabOrder = 1
+    object PnlSearchText: TPanel
+      Left = 0
+      Height = 32
+      Top = 0
+      Width = 826
+      Align = alTop
+      BevelOuter = bvNone
+      Caption = 'PnlSearchText'
+      ClientHeight = 32
+      ClientWidth = 826
+      Color = clForm
+      ParentColor = False
+      TabOrder = 0
+      object LblSearchText: TLabel
+        Left = 7
+        Height = 28
+        Top = 2
+        Width = 60
+        Align = alLeft
+        BorderSpacing.Left = 5
+        BorderSpacing.Around = 2
+        Caption = 'Text:'
+        Constraints.MinHeight = 28
+        Constraints.MinWidth = 60
+        Layout = tlCenter
+        ParentColor = False
+      end
+      object EdtSearchText: TEdit
+        Left = 69
+        Height = 28
+        Hint = 'Enter the text to search for in the files present in the specified directory'
+        Top = 2
+        Width = 750
+        Align = alClient
+        BorderSpacing.Right = 5
+        BorderSpacing.Around = 2
+        Constraints.MinHeight = 28
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+      end
+    end
+    object PnlCaseSensitive: TPanel
+      Left = 0
+      Height = 24
+      Top = 32
+      Width = 826
+      Align = alTop
+      BevelOuter = bvNone
+      Caption = 'PnlCaseSensitive'
+      ClientHeight = 24
+      ClientWidth = 826
+      Color = clForm
+      ParentColor = False
+      TabOrder = 1
+      object CbxCaseSensitive: TCheckBox
+        Left = 67
+        Height = 20
+        Hint = 'Check this box to search case-sensitive'
+        Top = 2
+        Width = 147
+        Align = alLeft
+        BorderSpacing.Left = 65
+        BorderSpacing.Around = 2
+        Caption = 'Search case-sensitive'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+      end
+    end
+  end
+  object GbxSearchResults: TGroupBox
+    Left = 5
+    Height = 258
+    Top = 254
+    Width = 828
+    Align = alClient
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 5
+    Caption = 'Search results'
+    ClientHeight = 240
+    ClientWidth = 826
+    TabOrder = 4
+    object MmoResults: TMemo
+      Left = 7
+      Height = 225
+      Top = 5
+      Width = 812
+      Align = alClient
+      BorderSpacing.Left = 2
+      BorderSpacing.Right = 2
+      BorderSpacing.Bottom = 5
+      BorderSpacing.Around = 5
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+  end
+  object GbxSearchLimitation: TGroupBox
+    Left = 5
+    Height = 55
+    Top = 164
+    Width = 828
+    Align = alTop
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 5
+    Caption = 'Search limitation'
+    ClientHeight = 37
+    ClientWidth = 826
+    TabOrder = 2
+    object PnlSearchPattern: TPanel
+      Left = 0
+      Height = 32
+      Top = 0
+      Width = 826
+      Align = alTop
+      BevelOuter = bvNone
+      Caption = 'PnlSearchPattern'
+      ClientHeight = 32
+      ClientWidth = 826
+      Color = clForm
+      ParentColor = False
+      TabOrder = 0
+      object LblSearchPattern: TLabel
+        Left = 7
+        Height = 28
+        Top = 2
+        Width = 60
+        Align = alLeft
+        BorderSpacing.Left = 5
+        BorderSpacing.Around = 2
+        Caption = 'Pattern:'
+        Constraints.MinHeight = 28
+        Constraints.MinWidth = 60
+        Layout = tlCenter
+        ParentColor = False
+      end
+      object CmdSearchPattern: TComboBox
+        Left = 69
+        Height = 32
+        Hint = 'Limit the search to files with a specific extension. Seperate multiple entries with |'
+        Top = 0
+        Width = 355
+        Align = alLeft
+        ItemHeight = 0
+        ItemIndex = 0
+        Items.Strings = (
+          '*.*'
+          '*.c|*.cpp|*.cc|*.h|*.hpp'
+          '*.php|*.css|*.html|*.html'
+        )
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        Text = '*.*'
+      end
+    end
+  end
+  object PnlBody: TPanel
+    Left = 0
+    Height = 35
+    Top = 219
+    Width = 838
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = 'PnlBody'
+    ClientHeight = 35
+    ClientWidth = 838
+    Color = clForm
+    ParentColor = False
+    TabOrder = 3
+    object BtnSearch: TButton
+      Left = 746
+      Height = 28
+      Top = 7
+      Width = 80
+      Align = alRight
+      BorderSpacing.Top = 5
+      BorderSpacing.Right = 10
+      BorderSpacing.Around = 2
+      Caption = 'Search'
+      Constraints.MinHeight = 28
+      Default = True
+      OnClick = BtnSearchClick
+      TabOrder = 0
+    end
+  end
 end
