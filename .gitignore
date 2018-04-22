@@ -1,4 +1,5 @@
 src/filecruncher
 src/filecruncher.lps
 src/filecruncher.res
+src/filecruncher.dbg
 src/lib/*

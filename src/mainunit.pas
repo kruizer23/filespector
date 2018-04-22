@@ -259,7 +259,7 @@ begin
     BtnBrowse.Enabled := False;
     CbxRecursive.Enabled := False;
     EdtSearchText.Enabled := False;
-    CbxRecursive.Enabled := False;
+    CbxCaseSensitive.Enabled := False;
     CmbSearchPattern.Enabled := False;
     BtnSearch.Caption := 'Cancel';
   end
@@ -270,7 +270,7 @@ begin
     BtnBrowse.Enabled := True;
     CbxRecursive.Enabled := True;
     EdtSearchText.Enabled := True;
-    CbxRecursive.Enabled := True;
+    CbxCaseSensitive.Enabled := True;
     CmbSearchPattern.Enabled := True;
     BtnSearch.Caption := 'Search';
   end;
