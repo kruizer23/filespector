@@ -332,7 +332,10 @@ begin
     UpdateUserInterface;
     { TODO : Implement start of search operation. }
     FTestCmdRunner.Command := 'ls -l /home/voorburg/Development/FileCruncher/src';
-    FTestCmdRunner.Start;
+    if not FTestCmdRunner.Start then
+    begin
+      MmoResults.Lines.Add('[Error] Could not start');
+    end;
     // Update the result.
     Result := True;
   end;
@@ -466,6 +469,7 @@ begin
   begin
     MmoResults.Lines.Add('  ' + FTestCmdRunner.Output[idx]);
   end;
+  FinishSearch;
 end; //*** end of TestCmdOnDone ***
 
 end.

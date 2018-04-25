@@ -39,6 +39,10 @@ interface
 // Includes
 //***************************************************************************************
 uses
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+    cthreads,
+    cmem, // the c memory manager is on some systems much faster for multi-threading
+  {$ENDIF}{$ENDIF}
   Classes, SysUtils;
 
 
@@ -46,6 +50,9 @@ uses
 // Type Definitions
 //***************************************************************************************
 type
+  // Forward declarations
+  TCommandRunner = class;
+
   //------------------------------ TCommandRunnerStartedEvent ---------------------------
   TCommandRunnerStartedEvent = procedure(Sender: TObject) of object;
 
@@ -55,23 +62,37 @@ type
   //------------------------------ TCommandRunnerDoneEvent ------------------------------
   TCommandRunnerDoneEvent = procedure(Sender: TObject) of object;
 
+  //------------------------------ TCommandRunnerThread ---------------------------------
+  TCommandRunnerThread = class(TThread)
+  private
+   protected
+     FCommand: String;
+     FCommandRunner: TCommandRunner;
+     procedure Execute; override;
+     procedure SynchronizeDoneEvent;
+    public
+      constructor Create(Command: String; CreateSuspended : Boolean; CommandRunner: TCommandRunner); reintroduce;
+    end;
+
+
   //------------------------------ TCommandRunner ---------------------------------------
   TCommandRunner = class (TObject)
   private
     FCommand: String;
-    FRunning: Boolean;
     FOutput: TStringList;
+    FWorkerThread: TCommandRunnerThread;
     FStartedEvent: TCommandRunnerStartedEvent;
     FCancelledEvent: TCommandRunnerCancelledEvent;
     FDoneEvent: TCommandRunnerDoneEvent;
     procedure SetCommand(Value: String);
+    function  GetRunning: Boolean;
   public
     constructor Create;
     destructor  Destroy; override;
     function Start: Boolean;
     procedure Cancel;
     property Command: String read FCommand write SetCommand;
-    property Running: Boolean read FRunning write FRunning;
+    property Running: Boolean read GetRunning;
     property Output: TStringList read FOutput;
     property OnStarted: TCommandRunnerStartedEvent read FStartedEvent write FStartedEvent;
     property OnCancelled: TCommandRunnerCancelledEvent read FCancelledEvent write FCancelledEvent;
@@ -97,10 +118,10 @@ begin
   FOutput := TStringList.Create;
   // Initialize fields to their default values.
   FCommand := '';
-  FRunning := False;
   FStartedEvent := nil;
   FCancelledEvent := nil;
   FDoneEvent := nil;
+  FWorkerThread := nil;
 end; //*** end of Create ***
 
 
@@ -113,6 +134,16 @@ end; //*** end of Create ***
 //***************************************************************************************
 destructor TCommandRunner.Destroy;
 begin
+  // Check if the worker thread is instanced.
+  if Assigned(FWorkerThread) then
+  begin
+    // Set termination request for the worker thread.
+    FWorkerThread.Terminate;
+    // Wait for thread termination to complete.
+    FWorkerThread.WaitFor;
+    // Release the thread instance.
+    FWorkerThread.Free;
+  end;
   // Free instance of the output stringlist.
   FOutput.Free;
   // Call inherited destructor.
@@ -142,6 +173,29 @@ end; //*** end of SetCommand ***
 
 
 //***************************************************************************************
+// NAME:           GetRunning
+// PARAMETER:      none
+// RETURN VALUE:   The value of the running property.
+// DESCRIPTION:    Getter of the running property.
+//
+//***************************************************************************************
+function  TCommandRunner.GetRunning: Boolean;
+begin
+  // Initialize the result value.
+  Result := False;
+  // Check if a worker thread was instanced.
+  if Assigned(FWorkerThread) then
+  begin
+    // Check if the worker thread is not yet finished.
+    if not FWorkerThread.Finished then
+    begin
+      Result := True;
+    end;
+  end;
+end; //*** end of GetRunning ***
+
+
+//***************************************************************************************
 // NAME:           Start
 // PARAMETER:      none
 // RETURN VALUE:   True if successful, False otherwise.
@@ -152,20 +206,38 @@ function TCommandRunner.Start: Boolean;
 begin
   // Initialize the result.
   Result := False;
-  // Only continue if another command is not already running and a valid command is set.
-  if (not FRunning) and (FCommand <> '') then
+  // Only continue if a valid command is set.
+  if FCommand <> '' then
   begin
     // Clear the output.
     FOutput.Clear;
-    // Set running flag.
-    FRunning := True;
-    { TODO : Implement start running of the command. }
-    // Update the result.
-    Result := True;
-    // Trigger event handler, if configured.
-    if Assigned(FStartedEvent) then
+    // Check if the worker thread is terminated but not yet freed from a previous update.
+    if Assigned(FWorkerThread) then
     begin
-      FStartedEvent(Self);
+      if FWorkerThread.Finished then
+      begin
+        // Free it.
+        FreeAndNil(FWorkerThread);
+      end;
+    end;
+    // Only start running a command if another one is not already in progress.
+    if not Assigned(FWorkerThread) then
+    begin
+      // Create the worker thread in a suspended state.
+      FWorkerThread := TCommandRunnerThread.Create(FCommand, True, Self);
+      // Only continue if the worker thread could be instanced.
+      if Assigned(FWorkerThread) then
+      begin
+        // Start the worker thread, which handles the actual command running.
+        FWorkerThread.Start;
+        // Update the result.
+        Result := True;
+        // Trigger event handler, if configured.
+        if Assigned(FStartedEvent) then
+        begin
+          FStartedEvent(Self);
+        end;
+      end;
     end;
   end;
 end; //*** end of Start ***
@@ -180,12 +252,15 @@ end; //*** end of Start ***
 //***************************************************************************************
 procedure TCommandRunner.Cancel;
 begin
-  // Only cancel if a command is actually running.
-  if FRunning then
+  // No need to stop the worker thread if it is not instanced.
+  if Assigned(FWorkerThread) then
   begin
-    { TODO : Implement cancellation of the running command. }
-    // Reset running flag.
-    FRunning := False;
+    // Set termination request for the worker thread.
+    FWorkerThread.Terminate;
+    // Wait for thread termination to complete.
+    FWorkerThread.WaitFor;
+    // Release the thread instance.
+    FreeAndNil(FWorkerThread);
   end;
   // Trigger event handler, if configured.
   if Assigned(FCancelledEvent) then
@@ -193,6 +268,85 @@ begin
     FCancelledEvent(Self);
   end;
 end; //*** end of Cancel ***
+
+
+//---------------------------------------------------------------------------------------
+//-------------------------------- TCommandRunnerThread ---------------------------------
+//---------------------------------------------------------------------------------------
+//***************************************************************************************
+// NAME:           Create
+// PARAMETER:      Command The command that should be run by this thread.
+//                 CreateSuspended True to suspend the thread after creation.
+//                 CommandRunner Instance of the TCommandRunner class, needed to trigger
+//                 its events.
+// RETURN VALUE:   none
+// DESCRIPTION:    Thread constructor.
+//
+//***************************************************************************************
+constructor TCommandRunnerThread.Create(Command: String; CreateSuspended : Boolean; CommandRunner: TCommandRunner);
+begin
+  // Call inherited constructor.
+  inherited Create(CreateSuspended);
+  // Configure the thread to not automatically free itself upon termination.
+  FreeOnTerminate := False;
+  // Initialize fields.
+  FCommand := Command;
+  FCommandRunner := CommandRunner;
+end; //*** end of Create ***
+
+
+//***************************************************************************************
+// NAME:           Execute
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Thread execution function.
+//
+//***************************************************************************************
+procedure TCommandRunnerThread.Execute;
+var
+  loopCounter: Integer;
+begin
+  // Enter thread's execution loop.
+  while not Terminated do
+  begin
+    { TODO: Implement command running here with TProcess. }
+    for loopCounter := 1 to 20 do
+    begin
+      Sleep(100);
+      // Check for cancellation event.
+      if Terminated then
+      begin
+        // Stop the thread without triggering its done event.
+        Exit;
+      end;
+    end;
+    // Completed so trigger the done event.
+    Synchronize(@SynchronizeDoneEvent);
+    // All done so no need to continue the thread.
+    Break;
+  end;
+end; //*** end of Execute ***
+
+
+//***************************************************************************************
+// NAME:           SynchronizeDoneEvent
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Synchronizes to the main thread to execute the code inside this
+//                 procedure. This function should only be called from thread level,
+//                 so from Execute-method in the following manner: Synchronize(@<name>).
+//
+//***************************************************************************************
+procedure TCommandRunnerThread.SynchronizeDoneEvent;
+begin
+  // Only continue if the event is set.
+  if Assigned(FCommandRunner.FDoneEvent) then
+  begin
+    // Trigger the event.
+    FCommandRunner.FDoneEvent(FCommandRunner);
+  end;
+end; //*** end of SynchronizeDoneEvent ***
+
 
 end.
 //******************************** end of commandrunner.pas *****************************
