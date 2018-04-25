@@ -94,7 +94,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="filecruncher.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -112,6 +112,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="SearchSettings"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="commandrunner.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="CommandRunner"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
