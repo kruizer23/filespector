@@ -58,16 +58,21 @@ type
   //------------------------------ TCommandRunner ---------------------------------------
   TCommandRunner = class (TObject)
   private
+    FCommand: String;
     FRunning: Boolean;
+    FOutput: TStringList;
     FStartedEvent: TCommandRunnerStartedEvent;
     FCancelledEvent: TCommandRunnerCancelledEvent;
     FDoneEvent: TCommandRunnerDoneEvent;
+    procedure SetCommand(Value: String);
   public
     constructor Create;
     destructor  Destroy; override;
     function Start: Boolean;
     procedure Cancel;
+    property Command: String read FCommand write SetCommand;
     property Running: Boolean read FRunning write FRunning;
+    property Output: TStringList read FOutput;
     property OnStarted: TCommandRunnerStartedEvent read FStartedEvent write FStartedEvent;
     property OnCancelled: TCommandRunnerCancelledEvent read FCancelledEvent write FCancelledEvent;
     property OnDone: TCommandRunnerDoneEvent read FDoneEvent write FDoneEvent;
@@ -88,7 +93,10 @@ constructor TCommandRunner.Create;
 begin
   // Call inherited constructor.
   inherited Create;
+  // Create instance of the output stringlist.
+  FOutput := TStringList.Create;
   // Initialize fields to their default values.
+  FCommand := '';
   FRunning := False;
   FStartedEvent := nil;
   FCancelledEvent := nil;
@@ -105,10 +113,32 @@ end; //*** end of Create ***
 //***************************************************************************************
 destructor TCommandRunner.Destroy;
 begin
-  { TODO : Release local instances and other general cleanup. }
+  // Free instance of the output stringlist.
+  FOutput.Free;
   // Call inherited destructor.
   inherited Destroy;
 end; //*** end of Destroy ***
+
+
+//***************************************************************************************
+// NAME:           SetCommand
+// PARAMETER:      Value The command to execute when started.
+// RETURN VALUE:   none
+// DESCRIPTION:    Setter for the command property.
+//
+//***************************************************************************************
+procedure TCommandRunner.SetCommand(Value: String);
+begin
+  // Only set the command, if it is not empty. Otherwise, set the default value.
+  if Trim(Value) <> '' then
+  begin
+    FCommand := Value;
+  end
+  else
+  begin
+    FCommand := '';
+  end;
+end; //*** end of SetCommand ***
 
 
 //***************************************************************************************
@@ -122,10 +152,21 @@ function TCommandRunner.Start: Boolean;
 begin
   // Initialize the result.
   Result := False;
-  // Only continue if another command is not already running.
-  if not FRunning then
+  // Only continue if another command is not already running and a valid command is set.
+  if (not FRunning) and (FCommand <> '') then
   begin
+    // Clear the output.
+    FOutput.Clear;
+    // Set running flag.
+    FRunning := True;
     { TODO : Implement start running of the command. }
+    // Update the result.
+    Result := True;
+    // Trigger event handler, if configured.
+    if Assigned(FStartedEvent) then
+    begin
+      FStartedEvent(Self);
+    end;
   end;
 end; //*** end of Start ***
 
@@ -139,10 +180,17 @@ end; //*** end of Start ***
 //***************************************************************************************
 procedure TCommandRunner.Cancel;
 begin
-  // Only continue if a command is actually running.
+  // Only cancel if a command is actually running.
   if FRunning then
   begin
     { TODO : Implement cancellation of the running command. }
+    // Reset running flag.
+    FRunning := False;
+  end;
+  // Trigger event handler, if configured.
+  if Assigned(FCancelledEvent) then
+  begin
+    FCancelledEvent(Self);
   end;
 end; //*** end of Cancel ***
 
