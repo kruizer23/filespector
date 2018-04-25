@@ -39,7 +39,7 @@ interface
 //***************************************************************************************
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls, LCLType, SearchSettings;
+  ExtCtrls, ComCtrls, LCLType, SearchSettings, CommandRunner;
 
 
 //***************************************************************************************
@@ -81,6 +81,7 @@ type
   private
     FUISetting: TUserInterfaceSetting;
     FSearchSettings: TSearchSettings;
+    FTestCmdRunner: TCommandRunner;
     procedure InitializeUserInterface;
     procedure UpdateUserInterface;
     procedure CollectSearchSettings;
@@ -90,6 +91,9 @@ type
     procedure ClearSearchResults;
     procedure AddSearchFileToResults(Filename: String);
     procedure AddSearchOccurenceToResults(LineNumber: LongWord; LineContents: String; SearchedFile: String);
+    procedure TestCmdOnStarted(Sender: TObject);
+    procedure TestCmdOnCancelled(Sender: TObject);
+    procedure TestCmdOnDone(Sender: TObject);
   public
   end;
 
@@ -126,6 +130,14 @@ begin
   PnlSearchPattern.Caption := '';
   // Create instances of the search settings.
   FSearchSettings := TSearchSettings.Create;
+  { TODO : Remove after testing. }
+  FSearchSettings.Directory := '/home/voorburg';
+  FSearchSettings.SearchText := 'test';
+  // Create instance of the test command runner.
+  FTestCmdRunner := TCommandRunner.Create;
+  FTestCmdRunner.OnStarted := @TestCmdOnStarted;
+  FTestCmdRunner.OnCancelled := @TestCmdOnCancelled;
+  FTestCmdRunner.OnDone := @TestCmdOnDone;
   // Initialize fields to their default values.
   FUISetting := UIS_DEFAULT;
   // Initialize the user interface.
@@ -142,6 +154,8 @@ end; //*** end of FormCreate ***
 //***************************************************************************************
 procedure TMainForm.FormDestroy(Sender: TObject);
 begin
+  // Release the test command runner instance.
+  FTestCmdRunner.Free;
   // Release the search settings instance.
   FSearchSettings.Free;
 end; //*** end of FormDestroy ***
@@ -317,6 +331,8 @@ begin
     FUISetting := UIS_SEARCHING;
     UpdateUserInterface;
     { TODO : Implement start of search operation. }
+    FTestCmdRunner.Command := 'ls -l /home/voorburg/Development/FileCruncher/src';
+    FTestCmdRunner.Start;
     // Update the result.
     Result := True;
   end;
@@ -348,6 +364,8 @@ end; //*** end of FinishSearch ***
 //***************************************************************************************
 procedure TMainForm.CancelSearch;
 begin
+  { TODO : Implement cancellation of search operation. }
+  FTestCmdRunner.Cancel;
   // Update the user interface.
   FUISetting := UIS_DEFAULT;
   UpdateUserInterface;
@@ -404,6 +422,51 @@ begin
   // Add the entry as a new line.
   MmoResults.Lines.Add(lineEntry);
 end; //*** end of AddSearchOccurenceToResults ***
+
+
+//***************************************************************************************
+// NAME:           TestCmdOnStarted
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the command runner started.
+//
+//***************************************************************************************
+procedure TMainForm.TestCmdOnStarted(Sender: TObject);
+begin
+  MmoResults.Lines.Add('Command runner started: ' + FTestCmdRunner.Command);
+end; //*** end of TestCmdOnStarted ***
+
+
+//***************************************************************************************
+// NAME:           TestCmdOnCancelled
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the command runner was cancelled.
+//
+//***************************************************************************************
+procedure TMainForm.TestCmdOnCancelled(Sender: TObject);
+begin
+  MmoResults.Lines.Add('Command runner cancelled');
+end; //*** end of TestCmdOnCancelled ***
+
+
+//***************************************************************************************
+// NAME:           TestCmdOnDone
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the command runner finished.
+//
+//***************************************************************************************
+procedure TMainForm.TestCmdOnDone(Sender: TObject);
+var
+  idx: Integer;
+begin
+  MmoResults.Lines.Add('Command runner finished. Output:');
+  for idx := 0 to (FTestCmdRunner.Output.Count - 1) do
+  begin
+    MmoResults.Lines.Add('  ' + FTestCmdRunner.Output[idx]);
+  end;
+end; //*** end of TestCmdOnDone ***
 
 end.
 //******************************** end of mainunit.pas **********************************
