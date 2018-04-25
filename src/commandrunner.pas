@@ -43,7 +43,7 @@ uses
     cthreads,
     cmem, // the c memory manager is on some systems much faster for multi-threading
   {$ENDIF}{$ENDIF}
-  Classes, SysUtils;
+  Classes, SysUtils, Process;
 
 
 //***************************************************************************************
@@ -304,26 +304,40 @@ end; //*** end of Create ***
 //***************************************************************************************
 procedure TCommandRunnerThread.Execute;
 var
-  loopCounter: Integer;
+  cmdProcess: TProcess;
 begin
   // Enter thread's execution loop.
   while not Terminated do
   begin
-    { TODO: Implement command running here with TProcess. }
-    for loopCounter := 1 to 20 do
+    // Create process instance.
+    cmdProcess := TProcess.Create(nil);
+    // Set the command to execute and its parameters.
+    { TODO : Split FCommand into executable and parameters. }
+    cmdProcess.Executable := 'ls';
+    cmdProcess.Parameters.Add('-l');
+    cmdProcess.Parameters.Add('/home/voorburg/Development/FileCruncher/src');
+    // Configure the process to wait for the command to complete and tell it that we want
+    // to read the output of the command, using a pipe.
+    { TODO : Do not block, because then it cannot be cancelled. }
+    cmdProcess.Options := cmdProcess.Options + [poWaitOnExit, poUsePipes];
+    // Run the command. This will not return until it is complete.
+    cmdProcess.Execute;
+    // Check for cancellation event.
+    if Terminated then
     begin
-      Sleep(100);
-      // Check for cancellation event.
-      if Terminated then
-      begin
-        // Stop the thread without triggering its done event.
-        Exit;
-      end;
+      // Stop the thread..
+      Break;
     end;
-    // Completed so trigger the done event.
-    Synchronize(@SynchronizeDoneEvent);
+    // Store the results.
+    { TODO : Pass intermediate results on via a new event handler. }
+    FCommandRunner.FOutput.LoadFromStream(cmdProcess.Output);
     // All done so no need to continue the thread.
     Break;
+  end;
+  // Trigger the done event, unless the thread was cancelled.
+  if not Terminated then
+  begin
+    Synchronize(@SynchronizeDoneEvent);
   end;
 end; //*** end of Execute ***
 

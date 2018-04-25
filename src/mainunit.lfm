@@ -218,6 +218,9 @@ object MainForm: TMainForm
       BorderSpacing.Right = 2
       BorderSpacing.Bottom = 5
       BorderSpacing.Around = 5
+      Font.Height = -12
+      Font.Name = 'Hack'
+      ParentFont = False
       ScrollBars = ssAutoBoth
       TabOrder = 0
     end

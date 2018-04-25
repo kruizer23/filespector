@@ -327,6 +327,8 @@ begin
   if (Trim(FSearchSettings.SearchText) <> '') and
      (Trim(FSearchSettings.Directory) <> '')  then
   begin
+    // Clear previous search results.
+    ClearSearchResults;
     // Update the user interface.
     FUISetting := UIS_SEARCHING;
     UpdateUserInterface;
