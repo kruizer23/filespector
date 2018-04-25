@@ -305,17 +305,32 @@ end; //*** end of Create ***
 procedure TCommandRunnerThread.Execute;
 var
   cmdProcess: TProcess;
+  cmdSplitter: TStringList;
+  cmdSplitterIdx: Integer;
 begin
   // Enter thread's execution loop.
   while not Terminated do
   begin
     // Create process instance.
     cmdProcess := TProcess.Create(nil);
-    // Set the command to execute and its parameters.
-    { TODO : Split FCommand into executable and parameters. }
-    cmdProcess.Executable := 'ls';
-    cmdProcess.Parameters.Add('-l');
-    cmdProcess.Parameters.Add('/home/voorburg/Development/FileCruncher/src');
+    // Create string list instance.
+    cmdSplitter := TStringList.Create;
+    // Break the command apart into the executable and its parameters.
+    CommandToList(FCommand, cmdSplitter);
+    // It must have at least one entry, which is the executable.
+    Assert(cmdSplitter.Count >= 1);
+    // Store the executable.
+    cmdProcess.Executable := cmdSplitter[0];
+    // Store the parameters, if any.
+    if cmdSplitter.Count > 1 then
+    begin
+      for cmdSplitterIdx := 1 to (cmdSplitter.Count - 1) do
+      begin
+        cmdProcess.Parameters.Add(cmdSplitter[cmdSplitterIdx]);
+      end;
+    end;
+    // Release string list instance.
+    cmdSplitter.Free;
     // Configure the process to wait for the command to complete and tell it that we want
     // to read the output of the command, using a pipe.
     { TODO : Do not block, because then it cannot be cancelled. }
