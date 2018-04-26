@@ -303,16 +303,29 @@ end; //*** end of Create ***
 //
 //***************************************************************************************
 procedure TCommandRunnerThread.Execute;
+const
+  BUF_SIZE = 1024;
 var
   cmdProcess: TProcess;
   cmdSplitter: TStringList;
   cmdSplitterIdx: Integer;
+  outputBuffer: array[0..(BUF_SIZE - 1)] of Byte;
+  bytesRead: Longword;
+  stringStream: TStringStream;
+  idx: Integer;
 begin
+  // Initialize the output buffer with all zeroes.
+  for idx := 0 to  (SizeOf(outputBuffer) - 1) do
+  begin
+    outputBuffer[idx] := 0;
+  end;
+  // Create process instance.
+  cmdProcess := TProcess.Create(nil);
+  // Create string stream instance.
+  stringStream := TStringStream.Create('');
   // Enter thread's execution loop.
   while not Terminated do
   begin
-    // Create process instance.
-    cmdProcess := TProcess.Create(nil);
     // Create string list instance.
     cmdSplitter := TStringList.Create;
     // Break the command apart into the executable and its parameters.
@@ -331,21 +344,30 @@ begin
     end;
     // Release string list instance.
     cmdSplitter.Free;
-    // Configure the process to wait for the command to complete and tell it that we want
-    // to read the output of the command, using a pipe.
-    { TODO : Do not block, because then it cannot be cancelled. }
-    cmdProcess.Options := cmdProcess.Options + [poWaitOnExit, poUsePipes];
+    // Configure the process to use a pipe so the output of the command can be read.
+    cmdProcess.Options := [poUsePipes];
     // Run the command. This will not return until it is complete.
     cmdProcess.Execute;
-    // Check for cancellation event.
-    if Terminated then
-    begin
-      // Stop the thread..
-      Break;
-    end;
-    // Store the results.
-    { TODO : Pass intermediate results on via a new event handler. }
-    FCommandRunner.FOutput.LoadFromStream(cmdProcess.Output);
+    // Read all output from the pipe into the buffer.
+    repeat
+      // Read a chunk of data from the pipe. Note that this blocks until the data is
+      // available.
+      bytesRead := cmdProcess.Output.Read(outputBuffer, BUF_SIZE);
+      // Convert the raw data to a string stream.
+      stringStream.Size := 0;
+      stringStream.Write(outputBuffer, bytesRead);
+      { TODO : Chop this up in lines using LineEnding and string find somehow and then
+               add line per line and also invoke a new update event handler per line. }
+               // NOTE: Windows \r\n and Linux \n=10=0ah
+      // Store the results.
+      FCommandRunner.FOutput.Text := FCommandRunner.FOutput.Text + stringStream.DataString;
+      // Check for cancellation event.
+      if Terminated then
+      begin
+        // Stop the thread..
+        Break;
+      end;
+    until bytesRead = 0;
     // All done so no need to continue the thread.
     Break;
   end;
@@ -354,6 +376,9 @@ begin
   begin
     Synchronize(@SynchronizeDoneEvent);
   end;
+  // Release instances.
+  stringStream.Free;
+  cmdProcess.Free;
 end; //*** end of Execute ***
 
 
