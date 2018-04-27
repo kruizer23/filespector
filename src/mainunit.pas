@@ -94,6 +94,7 @@ type
     procedure TestCmdOnStarted(Sender: TObject);
     procedure TestCmdOnCancelled(Sender: TObject);
     procedure TestCmdOnDone(Sender: TObject);
+    procedure TestCmdOnUpdate(Sender: TObject; OutputLine: String);
   public
   end;
 
@@ -138,6 +139,7 @@ begin
   FTestCmdRunner.OnStarted := @TestCmdOnStarted;
   FTestCmdRunner.OnCancelled := @TestCmdOnCancelled;
   FTestCmdRunner.OnDone := @TestCmdOnDone;
+  FTestCmdRunner.OnUpdate := @TestCmdOnUpdate;
   // Initialize fields to their default values.
   FUISetting := UIS_DEFAULT;
   // Initialize the user interface.
@@ -463,16 +465,24 @@ end; //*** end of TestCmdOnCancelled ***
 //
 //***************************************************************************************
 procedure TMainForm.TestCmdOnDone(Sender: TObject);
-var
-  idx: Integer;
 begin
-  MmoResults.Lines.Add('Command runner finished. Output:');
-  for idx := 0 to (FTestCmdRunner.Output.Count - 1) do
-  begin
-    MmoResults.Lines.Add('  ' + FTestCmdRunner.Output[idx]);
-  end;
+  MmoResults.Lines.Add('Command runner finished');
   FinishSearch;
 end; //*** end of TestCmdOnDone ***
+
+
+//***************************************************************************************
+// NAME:           TestCmdOnUpdate
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when a new line was read from the
+//                 standard output pipe, while running a command.
+//
+//***************************************************************************************
+procedure TMainForm.TestCmdOnUpdate(Sender: TObject; OutputLine: String);
+begin
+  MmoResults.Lines.Add('  ' + OutputLine);
+end; //*** end of TestCmdOnUpdate ***
 
 end.
 //******************************** end of mainunit.pas **********************************

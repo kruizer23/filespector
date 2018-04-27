@@ -62,17 +62,22 @@ type
   //------------------------------ TCommandRunnerDoneEvent ------------------------------
   TCommandRunnerDoneEvent = procedure(Sender: TObject) of object;
 
+  //------------------------------ TCommandRunnerUpdateEvent ----------------------------
+  TCommandRunnerUpdateEvent = procedure(Sender: TObject; OutputLine: String) of object;
+
   //------------------------------ TCommandRunnerThread ---------------------------------
   TCommandRunnerThread = class(TThread)
   private
-   protected
-     FCommand: String;
-     FCommandRunner: TCommandRunner;
-     procedure Execute; override;
-     procedure SynchronizeDoneEvent;
-    public
-      constructor Create(Command: String; CreateSuspended : Boolean; CommandRunner: TCommandRunner); reintroduce;
-    end;
+  protected
+    FCommand: String;
+    FCommandRunner: TCommandRunner;
+    FUpdateString: String;
+    procedure Execute; override;
+    procedure SynchronizeDoneEvent;
+    procedure SynchronizeUpdateEvent;
+  public
+    constructor Create(Command: String; CreateSuspended : Boolean; CommandRunner: TCommandRunner); reintroduce;
+  end;
 
 
   //------------------------------ TCommandRunner ---------------------------------------
@@ -84,6 +89,7 @@ type
     FStartedEvent: TCommandRunnerStartedEvent;
     FCancelledEvent: TCommandRunnerCancelledEvent;
     FDoneEvent: TCommandRunnerDoneEvent;
+    FUpdateEvent: TCommandRunnerUpdateEvent;
     procedure SetCommand(Value: String);
     function  GetRunning: Boolean;
   public
@@ -97,6 +103,7 @@ type
     property OnStarted: TCommandRunnerStartedEvent read FStartedEvent write FStartedEvent;
     property OnCancelled: TCommandRunnerCancelledEvent read FCancelledEvent write FCancelledEvent;
     property OnDone: TCommandRunnerDoneEvent read FDoneEvent write FDoneEvent;
+    property OnUpdate: TCommandRunnerUpdateEvent read FUpdateEvent write FUpdateEvent;
   end;
 
 implementation
@@ -121,6 +128,7 @@ begin
   FStartedEvent := nil;
   FCancelledEvent := nil;
   FDoneEvent := nil;
+  FUpdateEvent := nil;
   FWorkerThread := nil;
 end; //*** end of Create ***
 
@@ -292,6 +300,7 @@ begin
   // Initialize fields.
   FCommand := Command;
   FCommandRunner := CommandRunner;
+  FUpdateString := '';
 end; //*** end of Create ***
 
 
@@ -383,7 +392,10 @@ begin
             Delete(conversionStr, 1, lfPos);
             // Add the line to the command output.
             FCommandRunner.FOutput.Add(lineStr);
-            { TODO : Trigger new OnUpdate event for the new lien in a synchronized manner. }
+            // Store the line such that it can be used in the synchronized update event.
+            FUpdateString := lineStr;
+            // Trigger the update event to pass on the newly read line from the pipe.
+            Synchronize(@SynchronizeUpdateEvent);
           end;
         until lfPos = 0;
         // Empty string stream now that its data has been processed.
@@ -436,6 +448,25 @@ begin
   end;
 end; //*** end of SynchronizeDoneEvent ***
 
+
+//***************************************************************************************
+// NAME:           SynchronizeUpdateEvent
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Synchronizes to the main thread to execute the code inside this
+//                 procedure. This function should only be called from thread level,
+//                 so from Execute-method in the following manner: Synchronize(@<name>).
+//
+//***************************************************************************************
+procedure TCommandRunnerThread.SynchronizeUpdateEvent;
+begin
+  // Only continue if the event is set.
+  if Assigned(FCommandRunner.FUpdateEvent) then
+  begin
+    // Trigger the event.
+    FCommandRunner.FUpdateEvent(FCommandRunner, FUpdateString);
+  end;
+end; //*** end of SynchronizeUpdateEvent ***
 
 end.
 //******************************** end of commandrunner.pas *****************************
