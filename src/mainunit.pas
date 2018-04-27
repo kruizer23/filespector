@@ -335,7 +335,9 @@ begin
     FUISetting := UIS_SEARCHING;
     UpdateUserInterface;
     { TODO : Implement start of search operation. }
-    FTestCmdRunner.Command := 'ls -l /home/voorburg/Development/FileCruncher/src';
+    { TODO : Note that double-quotes need to be added around the search directory, due
+             to possible spaces in the directory. }
+    FTestCmdRunner.Command := 'ls -l "/home/voorburg/Development/FileCruncher/src"';
     if not FTestCmdRunner.Start then
     begin
       MmoResults.Lines.Add('[Error] Could not start');
