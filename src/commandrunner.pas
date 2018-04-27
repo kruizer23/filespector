@@ -304,7 +304,7 @@ end; //*** end of Create ***
 //***************************************************************************************
 procedure TCommandRunnerThread.Execute;
 const
-  BUF_SIZE = 1024;
+  BUF_SIZE = 128;
 var
   cmdProcess: TProcess;
   cmdSplitter: TStringList;
@@ -313,6 +313,9 @@ var
   bytesRead: Longword;
   stringStream: TStringStream;
   idx: Integer;
+  conversionStr: String;
+  lineStr: String;
+  lfPos: Integer;
 begin
   // Initialize the output buffer with all zeroes.
   for idx := 0 to  (SizeOf(outputBuffer) - 1) do
@@ -323,6 +326,8 @@ begin
   cmdProcess := TProcess.Create(nil);
   // Create string stream instance.
   stringStream := TStringStream.Create('');
+  // Start with an empty stream.
+  stringStream.Size := 0;
   // Enter thread's execution loop.
   while not Terminated do
   begin
@@ -351,16 +356,46 @@ begin
     // Read all output from the pipe into the buffer.
     repeat
       // Read a chunk of data from the pipe. Note that this blocks until the data is
-      // available.
+      // available. Therefore BUF_SIZE should not be set too big.
       bytesRead := cmdProcess.Output.Read(outputBuffer, BUF_SIZE);
-      // Convert the raw data to a string stream.
-      stringStream.Size := 0;
-      stringStream.Write(outputBuffer, bytesRead);
-      { TODO : Chop this up in lines using LineEnding and string find somehow and then
-               add line per line and also invoke a new update event handler per line. }
-               // NOTE: Windows \r\n and Linux \n=10=0ah
-      // Store the results.
-      FCommandRunner.FOutput.Text := FCommandRunner.FOutput.Text + stringStream.DataString;
+      // Only process the data from the pipe if there was data available.
+      if bytesRead > 0 then
+      begin
+        // Convert the raw data to a string stream.
+        stringStream.Write(outputBuffer, bytesRead);
+        // Copy the read-only datastring into a temporary string for conversion purposes.
+        conversionStr := stringStream.DataString;
+        // Windows line endings are \r\n and Linux line endings are \n. Remove all
+        // occurences of \r to have a common base.
+        conversionStr := StringReplace(conversionStr, #13, '', [rfReplaceAll]);
+        // Extract all complete lines from the conversion string.
+        repeat
+          // Determine position of the next line feed.
+          lfPos := Pos(#10, conversionStr);
+          // Was a linefeed found?
+          if lfPos > 0 then
+          begin
+            // Copy the line including the linefeed.
+            lineStr := Copy(conversionStr, 1, lfPos);
+            // Replace the linefeed with a string termination.
+            lineStr := StringReplace(lineStr, #10, #0, [rfReplaceAll]);
+            // Remove the line from the conversion string now that it is copied.
+            Delete(conversionStr, 1, lfPos);
+            // Add the line to the command output.
+            FCommandRunner.FOutput.Add(lineStr);
+            { TODO : Trigger new OnUpdate event for the new lien in a synchronized manner. }
+          end;
+        until lfPos = 0;
+        // Empty string stream now that its data has been processed.
+        stringStream.Size := 0;
+        // Check if there is a partial line left in the conversion string.
+        if Length(conversionStr) > 0 then
+        begin
+          // Place the remainder back in the string stream so it will be processed during
+          // the next data read from the pipe.
+          stringStream.WriteString(conversionStr);
+        end;
+      end;
       // Check for cancellation event.
       if Terminated then
       begin
