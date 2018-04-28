@@ -7,4 +7,3 @@ Comment=Find text occurences in multiple files
 Exec=/usr/bin/filecruncher
 Icon=/usr/share/filecruncher/filecruncher.ico
 Terminal=false
-Name[en_US]=filecruncher.desktop
