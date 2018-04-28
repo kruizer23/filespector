@@ -100,7 +100,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="filecruncher.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -123,6 +123,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="CommandRunner"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="filecontentsearcher.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="FileContentSearcher"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

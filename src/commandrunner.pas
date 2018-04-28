@@ -79,7 +79,6 @@ type
     constructor Create(Command: String; CreateSuspended : Boolean; CommandRunner: TCommandRunner); reintroduce;
   end;
 
-
   //------------------------------ TCommandRunner ---------------------------------------
   TCommandRunner = class (TObject)
   private
