@@ -55,17 +55,18 @@ type
   //------------------------------ TFileContentSearcherCancelledEvent -------------------
   TFileContentSearcherCancelledEvent = procedure(Sender: TObject) of object;
 
-  //------------------------------ TFileContentSearcherFileFoundEvent -------------------
-  TFileContentSearcherFileFoundEvent = procedure(Sender: TObject; FoundFile: String) of object;
-
-  //------------------------------ TFileContentSearcherFileSearchedEvent ----------------
-  TFileContentSearcherFileSearchedEvent = procedure(Sender: TObject; SearchedFile: String; Hits: TStrings) of object;
-
   //------------------------------ TFileContentSearcherDoneEvent ------------------------
   TFileContentSearcherDoneEvent = procedure(Sender: TObject) of object;
 
-  //------------------------------ TFileContentSearcherErrorEvent -----------------------
-  TFileContentSearcherErrorEvent = procedure(Sender: TObject; ErrorInfo: String) of object;
+  //------------------------------ TFileContentSearcherFileFoundEvent -------------------
+  TFileContentSearcherFileFoundEvent = procedure(Sender: TObject; FoundFile: String) of object;
+
+  //------------------------------ TFileContentSearcherFileSearchStartedEvent -----------
+  TFileContentSearcherFileSearchStartedEvent = procedure(Sender: TObject; SearchFile: String) of object;
+
+  //------------------------------ TFileContentSearcherFileSearchHitEvent ---------------
+  TFileContentSearcherFileSearchHitEvent = procedure(Sender: TObject; SearchFile: String; HitLine: String) of object;
+
 
   //------------------------------ TFileContentSearcher ---------------------------------
   TFileContentSearcher = class (TObject)
@@ -74,10 +75,10 @@ type
     FCommandRunner: TCommandRunner;
     FStartedEvent: TFileContentSearcherStartedEvent;
     FCancelledEvent: TFileContentSearcherCancelledEvent;
-    FFileFoundEvent: TFileContentSearcherFileFoundEvent;
-    FFileSearchedEvent: TFileContentSearcherFileSearchedEvent;
     FDoneEvent: TFileContentSearcherDoneEvent;
-    FErrorEvent: TFileContentSearcherErrorEvent;
+    FFileFoundEvent: TFileContentSearcherFileFoundEvent;
+    FFileSearchStartedEvent: TFileContentSearcherFileSearchStartedEvent;
+    FFileSearchHitEvent: TFileContentSearcherFileSearchHitEvent;
   public
     constructor Create;
     destructor  Destroy; override;
@@ -85,10 +86,10 @@ type
     procedure Cancel;
     property OnStarted: TFileContentSearcherStartedEvent read FStartedEvent write FStartedEvent;
     property OnCancelled: TFileContentSearcherCancelledEvent read FCancelledEvent write FCancelledEvent;
-    property OnFileFoundEvent: TFileContentSearcherFileFoundEvent read FFileFoundEvent write FFileFoundEvent;
-    property OnFileSearchedEvent: TFileContentSearcherFileSearchedEvent read FFileSearchedEvent write FFileSearchedEvent;
-    property OnDoneEvent: TFileContentSearcherDoneEvent read FDoneEvent write FDoneEvent;
-    property OnErrorEvent: TFileContentSearcherErrorEvent read FErrorEvent write FErrorEvent;
+    property OnDone: TFileContentSearcherDoneEvent read FDoneEvent write FDoneEvent;
+    property OnFileFound: TFileContentSearcherFileFoundEvent read FFileFoundEvent write FFileFoundEvent;
+    property OnFileSearchStarted: TFileContentSearcherFileSearchStartedEvent read FFileSearchStartedEvent write FFileSearchStartedEvent;
+    property OnFileSearchHit: TFileContentSearcherFileSearchHitEvent read FFileSearchHitEvent write FFileSearchHitEvent;
   end;
 
 
@@ -111,10 +112,10 @@ begin
   FSearchSettings := nil;
   FStartedEvent := nil;
   FCancelledEvent := nil;
-  FFileFoundEvent := nil;
-  FFileSearchedEvent := nil;
   FDoneEvent := nil;
-  FErrorEvent := nil;
+  FFileFoundEvent := nil;
+  FFileSearchStartedEvent := nil;
+  FFileSearchHitEvent := nil;
   // Create instance of the command runner.
   FCommandRunner := TCommandRunner.Create;
   // Create instance of the search settings.
