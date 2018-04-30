@@ -65,14 +65,14 @@ type
   TFileContentSearcherFileSearchStartedEvent = procedure(Sender: TObject; SearchFile: String) of object;
 
   //------------------------------ TFileContentSearcherFileSearchHitEvent ---------------
-  TFileContentSearcherFileSearchHitEvent = procedure(Sender: TObject; SearchFile: String; HitLine: String) of object;
-
+  TFileContentSearcherFileSearchHitEvent = procedure(Sender: TObject; SearchFile: String; HitLine: String; LineNumber: Longword) of object;
 
   //------------------------------ TFileContentSearcher ---------------------------------
   TFileContentSearcher = class (TObject)
   private
     FSearchSettings: TSearchSettings;
     FCommandRunner: TCommandRunner;
+    { TODO : Might need an OnError type event if the worker thread could exit without calling OnDone. }
     FStartedEvent: TFileContentSearcherStartedEvent;
     FCancelledEvent: TFileContentSearcherCancelledEvent;
     FDoneEvent: TFileContentSearcherDoneEvent;
@@ -159,7 +159,16 @@ begin
   FSearchSettings.SearchText := SearchSettings.SearchText;
   FSearchSettings.CaseSensitive := SearchSettings.CaseSensitive;
   FSearchSettings.FilePattern := SearchSettings.FilePattern;
-  { TODO : Implement start functionality. }
+  // Validate search settings before actually starting the search operation.
+  if (Trim(FSearchSettings.SearchText) <> '') and
+     (Trim(FSearchSettings.Directory) <> '')  then
+  begin
+    { TODO : Implement start functionality. }
+    { TODO : Note that the directory should be in double-quotes if it contains spaces
+             and is added as a command parameter. This should be done when specifying
+             the command runner command inside the worker thread. }
+    Result := True;
+  end;
 end; //*** end of Start ***
 
 

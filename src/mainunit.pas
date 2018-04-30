@@ -39,7 +39,7 @@ interface
 //***************************************************************************************
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls, LCLType, SearchSettings, CommandRunner;
+  ExtCtrls, ComCtrls, LCLType, SearchSettings, FileContentSearcher;
 
 
 //***************************************************************************************
@@ -81,7 +81,7 @@ type
   private
     FUISetting: TUserInterfaceSetting;
     FSearchSettings: TSearchSettings;
-    FTestCmdRunner: TCommandRunner;
+    FFileContentSearcher: TFileContentSearcher;
     procedure InitializeUserInterface;
     procedure UpdateUserInterface;
     procedure CollectSearchSettings;
@@ -91,10 +91,9 @@ type
     procedure ClearSearchResults;
     procedure AddSearchFileToResults(Filename: String);
     procedure AddSearchOccurenceToResults(LineNumber: LongWord; LineContents: String; SearchedFile: String);
-    procedure TestCmdOnStarted(Sender: TObject);
-    procedure TestCmdOnCancelled(Sender: TObject);
-    procedure TestCmdOnDone(Sender: TObject);
-    procedure TestCmdOnUpdate(Sender: TObject; OutputLine: String);
+    procedure FileContentSearcherOnDone(Sender: TObject);
+    procedure FileContentSearcherOnFileSearchStarted(Sender: TObject; SearchFile: String);
+    procedure FileContentSearcherOnFileSearchHit(Sender: TObject; SearchFile: String; HitLine: String; LineNumber: Longword);
   public
   end;
 
@@ -133,13 +132,13 @@ begin
   FSearchSettings := TSearchSettings.Create;
   { TODO : Remove after testing. }
   FSearchSettings.Directory := '/home/voorburg';
-  FSearchSettings.SearchText := 'test';
-  // Create instance of the test command runner.
-  FTestCmdRunner := TCommandRunner.Create;
-  FTestCmdRunner.OnStarted := @TestCmdOnStarted;
-  FTestCmdRunner.OnCancelled := @TestCmdOnCancelled;
-  FTestCmdRunner.OnDone := @TestCmdOnDone;
-  FTestCmdRunner.OnUpdate := @TestCmdOnUpdate;
+  FSearchSettings.SearchText := 'FormCreate';
+  // Create instance of the file content searcher.
+  FFileContentSearcher := TFileContentSearcher.Create;
+  // Configure event handlers.
+  FFileContentSearcher.OnDone := @FileContentSearcherOnDone;
+  FFileContentSearcher.OnFileSearchStarted := @FileContentSearcherOnFileSearchStarted;
+  FFileContentSearcher.OnFileSearchHit :=@FileContentSearcherOnFileSearchHit;
   // Initialize fields to their default values.
   FUISetting := UIS_DEFAULT;
   // Initialize the user interface.
@@ -156,8 +155,8 @@ end; //*** end of FormCreate ***
 //***************************************************************************************
 procedure TMainForm.FormDestroy(Sender: TObject);
 begin
-  // Release the test command runner instance.
-  FTestCmdRunner.Free;
+  // Release the file content search instance.
+  FFileContentSearcher.Free;
   // Release the search settings instance.
   FSearchSettings.Free;
 end; //*** end of FormDestroy ***
@@ -323,25 +322,14 @@ begin
   Result := False;
   // Collect search settings from the user interface.
   CollectSearchSettings;
-  // Check if the text to search for is not empty.
-  { TODO : Perhaps the future start of search operation can validate the search settings
-           instead of doing this here. }
-  if (Trim(FSearchSettings.SearchText) <> '') and
-     (Trim(FSearchSettings.Directory) <> '')  then
+  // Clear previous search results.
+  ClearSearchResults;
+  // Attempt to start the search operation.
+  if FFileContentSearcher.Start(FSearchSettings) then
   begin
-    // Clear previous search results.
-    ClearSearchResults;
     // Update the user interface.
     FUISetting := UIS_SEARCHING;
     UpdateUserInterface;
-    { TODO : Implement start of search operation. }
-    { TODO : Note that double-quotes need to be added around the search directory, due
-             to possible spaces in the directory. }
-    FTestCmdRunner.Command := 'ls -l "/home/voorburg/Development/FileCruncher/src"';
-    if not FTestCmdRunner.Start then
-    begin
-      MmoResults.Lines.Add('[Error] Could not start');
-    end;
     // Update the result.
     Result := True;
   end;
@@ -357,7 +345,6 @@ end; //*** end of StartSearch ***
 //***************************************************************************************
 procedure TMainForm.FinishSearch;
 begin
-  { TODO : Implement finish of search operation. }
   // Update the user interface.
   FUISetting := UIS_DEFAULT;
   UpdateUserInterface;
@@ -373,8 +360,10 @@ end; //*** end of FinishSearch ***
 //***************************************************************************************
 procedure TMainForm.CancelSearch;
 begin
-  { TODO : Implement cancellation of search operation. }
-  FTestCmdRunner.Cancel;
+  // Cancellation the search operation.
+  FFileContentSearcher.Cancel;
+  // Clear possibly incomplete search results.
+  ClearSearchResults;
   // Update the user interface.
   FUISetting := UIS_DEFAULT;
   UpdateUserInterface;
@@ -434,57 +423,52 @@ end; //*** end of AddSearchOccurenceToResults ***
 
 
 //***************************************************************************************
-// NAME:           TestCmdOnStarted
-// PARAMETER:      none
+// NAME:           FileContentSearcherOnDone
+// PARAMETER:      Sender Source of the event.
 // RETURN VALUE:   none
-// DESCRIPTION:    Event handler that gets called when the command runner started.
+// DESCRIPTION:    Event handler that gets called when the file content searcher
+//                 completed successfully.
 //
 //***************************************************************************************
-procedure TMainForm.TestCmdOnStarted(Sender: TObject);
+procedure TMainForm.FileContentSearcherOnDone(Sender: TObject);
 begin
-  MmoResults.Lines.Add('Command runner started: ' + FTestCmdRunner.Command);
-end; //*** end of TestCmdOnStarted ***
-
-
-//***************************************************************************************
-// NAME:           TestCmdOnCancelled
-// PARAMETER:      none
-// RETURN VALUE:   none
-// DESCRIPTION:    Event handler that gets called when the command runner was cancelled.
-//
-//***************************************************************************************
-procedure TMainForm.TestCmdOnCancelled(Sender: TObject);
-begin
-  MmoResults.Lines.Add('Command runner cancelled');
-end; //*** end of TestCmdOnCancelled ***
-
-
-//***************************************************************************************
-// NAME:           TestCmdOnDone
-// PARAMETER:      none
-// RETURN VALUE:   none
-// DESCRIPTION:    Event handler that gets called when the command runner finished.
-//
-//***************************************************************************************
-procedure TMainForm.TestCmdOnDone(Sender: TObject);
-begin
-  MmoResults.Lines.Add('Command runner finished');
+  // Wrap up the search operation.
   FinishSearch;
-end; //*** end of TestCmdOnDone ***
+end; //*** end of FileContentSearcherOnDone ***
 
 
 //***************************************************************************************
-// NAME:           TestCmdOnUpdate
-// PARAMETER:      none
+// NAME:           FileContentSearcherOnFileSearchStarted
+// PARAMETER:      Sender Source of the event.
+//                 SearchFile The file who's content is now being searched through.
 // RETURN VALUE:   none
-// DESCRIPTION:    Event handler that gets called when a new line was read from the
-//                 standard output pipe, while running a command.
+// DESCRIPTION:    Event handler that gets called when the file content searcher just
+//                 started searching the contents of the next file.
 //
 //***************************************************************************************
-procedure TMainForm.TestCmdOnUpdate(Sender: TObject; OutputLine: String);
+procedure TMainForm.FileContentSearcherOnFileSearchStarted(Sender: TObject; SearchFile: String);
 begin
-  MmoResults.Lines.Add('  ' + OutputLine);
-end; //*** end of TestCmdOnUpdate ***
+  // Show the file in the results view.
+  AddSearchFileToResults(SearchFile);
+end; //*** end of FileContentSearcherOnFileSearchStarted ***
+
+
+//***************************************************************************************
+// NAME:           FileContentSearcherOnFileSearchHit
+// PARAMETER:      Sender Source of the event.
+//                 SearchFile The file who's content contains the match.
+//                 HitLine The entire line in the file that contains the search text.
+//                 LineNumber Line number in which the search text was found.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the file content searcher found
+//                 a match of the search for text in a file.
+//
+//***************************************************************************************
+procedure TMainForm.FileContentSearcherOnFileSearchHit(Sender: TObject; SearchFile: String; HitLine: String; LineNumber: Longword);
+begin
+  // Show the search hit information in the results view.
+  AddSearchOccurenceToResults(LineNumber, HitLine, SearchFile);
+end; //*** end of FileContentSearcherOnFileSearchHit ***
 
 end.
 //******************************** end of mainunit.pas **********************************
