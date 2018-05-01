@@ -39,7 +39,7 @@ interface
 //***************************************************************************************
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls, LCLType, SearchSettings, FileContentSearcher;
+  ExtCtrls, ComCtrls, DateUtils, LCLType, SearchSettings, FileContentSearcher;
 
 
 //***************************************************************************************
@@ -82,6 +82,11 @@ type
     FUISetting: TUserInterfaceSetting;
     FSearchSettings: TSearchSettings;
     FFileContentSearcher: TFileContentSearcher;
+    FTotalFilesSearchCount: LongWord;
+    FFilesWithHitCount: LongWord;
+    FTotalSearchHitCount: LongWord;
+    FFileWithLastHit: String;
+    FSearchStartTime: TDateTime;
     procedure InitializeUserInterface;
     procedure UpdateUserInterface;
     procedure CollectSearchSettings;
@@ -146,6 +151,11 @@ begin
   FFileContentSearcher.OnFileFound := @FileContentSearcherFileFound;
   // Initialize fields to their default values.
   FUISetting := UIS_DEFAULT;
+  FTotalFilesSearchCount := 0;
+  FFilesWithHitCount := 0;
+  FTotalSearchHitCount := 0;
+  FFileWithLastHit := '';
+  FSearchStartTime := Now;
   // Initialize the user interface.
   InitializeUserInterface;
 end; //*** end of FormCreate ***
@@ -325,6 +335,11 @@ function TMainForm.StartSearch: Boolean;
 begin
   // Initialize the result.
   Result := False;
+  // Initialize fields used for search tracking and statistics.
+  FTotalFilesSearchCount := 0;
+  FFilesWithHitCount := 0;
+  FTotalSearchHitCount := 0;
+  FFileWithLastHit := '';
   // Collect search settings from the user interface.
   CollectSearchSettings;
   // Clear previous search results.
@@ -332,6 +347,8 @@ begin
   // Attempt to start the search operation.
   if FFileContentSearcher.Start(FSearchSettings) then
   begin
+    // Set the start time.
+    FSearchStartTime := Now;
     // Update the user interface.
     FUISetting := UIS_SEARCHING;
     UpdateUserInterface;
@@ -349,10 +366,18 @@ end; //*** end of StartSearch ***
 //
 //***************************************************************************************
 procedure TMainForm.FinishSearch;
+var
+  infoStr: String;
 begin
   // Update the user interface.
   FUISetting := UIS_DEFAULT;
   UpdateUserInterface;
+  // Show search statistics.
+  infoStr := IntToStr(FTotalSearchHitCount) + ' hits found in ' +
+             IntToStr(FFilesWithHitCount) + ' of ' + IntToStr(FTotalFilesSearchCount) +
+             ' files (took ' + IntToStr(MilliSecondsBetween(Now, FSearchStartTime)) +
+             ' ms)';
+  MmoResults.Lines.Add('----- ' + infoStr + ' -----');
 end; //*** end of FinishSearch ***
 
 
@@ -487,10 +512,10 @@ end; //*** end of FileContentSearcherOnError ***
 //***************************************************************************************
 procedure TMainForm.FileContentSearcherFileFound(Sender: TObject; FoundFile: String);
 begin
-  // Nothing needs to be done here for now. Could be used to keep track of home many
-  // file were detected in real-time.
   // Suppress hint for unused parameter.
   FoundFile := FoundFile;
+  // Update total files found counter.
+  FTotalFilesSearchCount := FTotalFilesSearchCount + 1;
 end; //*** end of FileContentSearcherFileFound ***
 
 
@@ -505,8 +530,9 @@ end; //*** end of FileContentSearcherFileFound ***
 //***************************************************************************************
 procedure TMainForm.FileContentSearcherOnFileSearchStarted(Sender: TObject; SearchFile: String);
 begin
-  // Show the file in the results view.
-  AddSearchFileToResults(SearchFile);
+  // Nothing needs to be done here for now.
+  // Suppress hint for unused parameter.
+  SearchFile := SearchFile;
 end; //*** end of FileContentSearcherOnFileSearchStarted ***
 
 
@@ -523,6 +549,18 @@ end; //*** end of FileContentSearcherOnFileSearchStarted ***
 //***************************************************************************************
 procedure TMainForm.FileContentSearcherOnFileSearchHit(Sender: TObject; SearchFile: String; HitLine: String; LineNumber: Longword);
 begin
+  // Is this hit in a new file?
+  if SearchFile <> FFileWithLastHit then
+  begin
+    // Show the file in the results view.
+    AddSearchFileToResults(SearchFile);
+    // Store this file to be able to detect hits in a new file.
+    FFileWithLastHit := SearchFile;
+    // Update counter.
+    FFilesWithHitCount := FFilesWithHitCount + 1;
+  end;
+  // Increment hit counter.
+  FTotalSearchHitCount := FTotalSearchHitCount + 1;
   // Show the search hit information in the results view.
   AddSearchOccurenceToResults(LineNumber, HitLine, SearchFile);
 end; //*** end of FileContentSearcherOnFileSearchHit ***

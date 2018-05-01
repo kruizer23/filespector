@@ -111,6 +111,13 @@ type
 
 
 implementation
+{ TODO : After cancelling a long search operation from the GUI, starting a next one
+         doesn't seem to find anything. It just looks like it is working but no hits
+         come in. Needs debugging.
+         * Actually, it is the long search that seems to hang. I tried it on
+           ~/Development/*.* for text FormCreate. A few hits come in and then nothing
+           else happens.
+}
 //***************************************************************************************
 // NAME:           StringListFilenameCompare
 // PARAMETER:      Sender Source of the event.
