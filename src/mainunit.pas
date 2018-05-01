@@ -88,10 +88,12 @@ type
     function  StartSearch: Boolean;
     procedure FinishSearch;
     procedure CancelSearch;
+    procedure HandleSearchError(ErrorInfo: String);
     procedure ClearSearchResults;
     procedure AddSearchFileToResults(Filename: String);
     procedure AddSearchOccurenceToResults(LineNumber: LongWord; LineContents: String; SearchedFile: String);
     procedure FileContentSearcherOnDone(Sender: TObject);
+    procedure FileContentSearcherOnError(Sender: TObject; ErrorInfo: String);
     procedure FileContentSearcherOnFileSearchStarted(Sender: TObject; SearchFile: String);
     procedure FileContentSearcherOnFileSearchHit(Sender: TObject; SearchFile: String; HitLine: String; LineNumber: Longword);
   public
@@ -371,6 +373,29 @@ end; //*** end of CancelSearch ***
 
 
 //***************************************************************************************
+// NAME:           HandleSearchError
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Processes and error that occured during the search operation.
+//
+//***************************************************************************************
+procedure TMainForm.HandleSearchError(ErrorInfo: String);
+var
+  boxStyle: Integer;
+begin
+  // Configure the message box.
+  boxStyle := MB_ICONERROR + MB_OK;
+  // Display the message box.
+  Application.MessageBox(PChar(ErrorInfo), 'Error detected', boxStyle);
+  // Clear possibly incomplete search results.
+  ClearSearchResults;
+  // Update the user interface.
+  FUISetting := UIS_DEFAULT;
+  UpdateUserInterface;
+end; //*** end of HandleSearchError ***
+
+
+//***************************************************************************************
 // NAME:           ClearSearchResults
 // PARAMETER:      none
 // RETURN VALUE:   none
@@ -435,6 +460,21 @@ begin
   // Wrap up the search operation.
   FinishSearch;
 end; //*** end of FileContentSearcherOnDone ***
+
+
+//***************************************************************************************
+// NAME:           FileContentSearcherOnError
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the file content searcher
+//                 aborted due to an error.
+//
+//***************************************************************************************
+procedure TMainForm.FileContentSearcherOnError(Sender: TObject; ErrorInfo: String);
+begin
+  // Pass the error event on to the error handler.
+  HandleSearchError(ErrorInfo);
+end; //*** end of FileContentSearcherOnError ***
 
 
 //***************************************************************************************

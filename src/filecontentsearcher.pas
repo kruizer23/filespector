@@ -58,6 +58,9 @@ type
   //------------------------------ TFileContentSearcherDoneEvent ------------------------
   TFileContentSearcherDoneEvent = procedure(Sender: TObject) of object;
 
+  //------------------------------ TFileContentSearcherErrorEvent -----------------------
+  TFileContentSearcherErrorEvent = procedure(Sender: TObject; ErrorInfo: String) of object;
+
   //------------------------------ TFileContentSearcherFileFoundEvent -------------------
   TFileContentSearcherFileFoundEvent = procedure(Sender: TObject; FoundFile: String) of object;
 
@@ -76,9 +79,11 @@ type
     FStartedEvent: TFileContentSearcherStartedEvent;
     FCancelledEvent: TFileContentSearcherCancelledEvent;
     FDoneEvent: TFileContentSearcherDoneEvent;
+    FErrorEvent: TFileContentSearcherErrorEvent;
     FFileFoundEvent: TFileContentSearcherFileFoundEvent;
     FFileSearchStartedEvent: TFileContentSearcherFileSearchStartedEvent;
     FFileSearchHitEvent: TFileContentSearcherFileSearchHitEvent;
+    function StartFileDetection: Boolean;
   public
     constructor Create;
     destructor  Destroy; override;
@@ -87,6 +92,7 @@ type
     property OnStarted: TFileContentSearcherStartedEvent read FStartedEvent write FStartedEvent;
     property OnCancelled: TFileContentSearcherCancelledEvent read FCancelledEvent write FCancelledEvent;
     property OnDone: TFileContentSearcherDoneEvent read FDoneEvent write FDoneEvent;
+    property OnError: TFileContentSearcherErrorEvent read FErrorEvent write FErrorEvent;
     property OnFileFound: TFileContentSearcherFileFoundEvent read FFileFoundEvent write FFileFoundEvent;
     property OnFileSearchStarted: TFileContentSearcherFileSearchStartedEvent read FFileSearchStartedEvent write FFileSearchStartedEvent;
     property OnFileSearchHit: TFileContentSearcherFileSearchHitEvent read FFileSearchHitEvent write FFileSearchHitEvent;
@@ -113,6 +119,7 @@ begin
   FStartedEvent := nil;
   FCancelledEvent := nil;
   FDoneEvent := nil;
+  FErrorEvent := nil;
   FFileFoundEvent := nil;
   FFileSearchStartedEvent := nil;
   FFileSearchHitEvent := nil;
@@ -183,6 +190,22 @@ procedure TFileContentSearcher.Cancel;
 begin
   { TODO : Implement cancel functionality. }
 end; //*** end of Cancel ***
+
+
+//***************************************************************************************
+// NAME:           StartFileDetection
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Configures and starts the running the command for building a list of
+//                 files that need to be searched.
+//
+//***************************************************************************************
+function TFileContentSearcher.StartFileDetection: Boolean;
+begin
+  // Initialize the result.
+  Result := False;
+  { TODO : Run the find / sort command. }
+end; //*** end of StartFileDetection ***
 
 end.
 //******************************** end of filecontentsearcher.pas ***********************
