@@ -1,5 +1,5 @@
 # FileCruncher
-FileCruncher is a GUI tool for quickly finding all text occurences in multiple files in a directory, matching a specific file extension pattern.
+FileCruncher is a GUI tool for quickly finding all text occurences in multiple files in a directory, matching a specific file extension pattern. It is developed for GNU/Linux systems.
 
 ## Status
 
@@ -7,7 +7,7 @@ The project is currently in the **pre-alpha** status, as it is still under devel
 
 ## Dependencies
 
-The packages **find**, **sort** and **grep** are needed to run FileCruncher.
+The packages **find** and **grep** are needed to run FileCruncher. These are installed by default on most GNU/Linux distributions.
 
 ## Building
 

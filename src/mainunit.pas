@@ -140,6 +140,7 @@ begin
   FFileContentSearcher := TFileContentSearcher.Create;
   // Configure event handlers.
   FFileContentSearcher.OnDone := @FileContentSearcherOnDone;
+  FFileContentSearcher.OnError := @FileContentSearcherOnError;
   FFileContentSearcher.OnFileSearchStarted := @FileContentSearcherOnFileSearchStarted;
   FFileContentSearcher.OnFileSearchHit :=@FileContentSearcherOnFileSearchHit;
   FFileContentSearcher.OnFileFound := @FileContentSearcherFileFound;
@@ -387,8 +388,6 @@ begin
   boxStyle := MB_ICONERROR + MB_OK;
   // Display the message box.
   Application.MessageBox(PChar(ErrorInfo), 'Error detected', boxStyle);
-  // Clear possibly incomplete search results.
-  ClearSearchResults;
   // Update the user interface.
   FUISetting := UIS_DEFAULT;
   UpdateUserInterface;
@@ -488,8 +487,10 @@ end; //*** end of FileContentSearcherOnError ***
 //***************************************************************************************
 procedure TMainForm.FileContentSearcherFileFound(Sender: TObject; FoundFile: String);
 begin
-  { TODO : Temporary test code to be able to show file list. Remove after testing. }
-  MmoResults.Lines.Add(FoundFile);
+  // Nothing needs to be done here for now. Could be used to keep track of home many
+  // file were detected in real-time.
+  // Suppress hint for unused parameter.
+  FoundFile := FoundFile;
 end; //*** end of FileContentSearcherFileFound ***
 
 

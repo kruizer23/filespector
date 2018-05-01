@@ -83,6 +83,7 @@ type
     FSearchSettings: TSearchSettings;
     FCommandRunner: TCommandRunner;
     FFileList: TStringList;
+    FCurrentFileIdx: Integer;
     FStartedEvent: TFileContentSearcherStartedEvent;
     FCancelledEvent: TFileContentSearcherCancelledEvent;
     FDoneEvent: TFileContentSearcherDoneEvent;
@@ -91,6 +92,7 @@ type
     FFileSearchStartedEvent: TFileContentSearcherFileSearchStartedEvent;
     FFileSearchHitEvent: TFileContentSearcherFileSearchHitEvent;
     function StartFileDetection: Boolean;
+    function StartFileSearching(ListIdx: Integer): Boolean;
     procedure CommandRunnerOnDone(Sender: TObject);
     procedure CommandRunnerOnUpdate(Sender: TObject; OutputLine: String);
   public
@@ -109,8 +111,6 @@ type
 
 
 implementation
-{ TODO : Note that the directories and filenames with spaces in them should be in double-
-         quotes if it is added as a command parameter.  }
 //***************************************************************************************
 // NAME:           StringListFilenameCompare
 // PARAMETER:      Sender Source of the event.
@@ -168,6 +168,7 @@ begin
   inherited Create;
   // Initialize fields.
   FState := FCSS_IDLE;
+  FCurrentFileIdx := 0;
   FSearchSettings := nil;
   FStartedEvent := nil;
   FCancelledEvent := nil;
@@ -260,8 +261,8 @@ end; //*** end of Cancel ***
 //***************************************************************************************
 // NAME:           StartFileDetection
 // PARAMETER:      none
-// RETURN VALUE:   none
-// DESCRIPTION:    Configures and starts the running the command for building a list of
+// RETURN VALUE:   True if successful, False otherwise.
+// DESCRIPTION:    Configures and starts running the command for building a list of
 //                 files that need to be searched.
 //
 //***************************************************************************************
@@ -333,11 +334,77 @@ begin
       // Update the state and result.
       FState := FCSS_IDLE;
       Result := False;
+    end
+    // Command successfully started.
+    else
+    begin
+      // Trigger event handler, if configured.
+      if Assigned(FStartedEvent) then
+      begin
+        FStartedEvent(Self);
+      end;
     end;
   end;
   // Release the list.
   patternList.Free;
 end; //*** end of StartFileDetection ***
+
+
+//***************************************************************************************
+// NAME:           StartFileSearching
+// PARAMETER:      none
+// RETURN VALUE:   True if successful, False otherwise.
+// DESCRIPTION:    Configures and starts the running the command for searching the file
+//                 at the specified index.
+//
+//***************************************************************************************
+function TFileContentSearcher.StartFileSearching(ListIdx: Integer): Boolean;
+var
+  command: String;
+  caseSensitive: String;
+  searchFile: String;
+begin
+  // Initialize the result.
+  Result := False;
+  // Validate list index.
+  Assert(ListIdx >= 0);
+  Assert(ListIdx < FFileList.Count);
+  // Set the filename.
+  searchFile := FFileList[ListIdx];
+  // Only continue if the file actually exists.
+  if FileExists(searchFile) then
+  begin
+    // Add double-quotes around the file name, if it contains spaces.
+    if Pos(' ', searchFile) > 0 then
+      searchFile := '"' + searchFile + '"';
+    // Set option to configure recursiveness of the search operation.
+    caseSensitive := '';
+    if not FSearchSettings.CaseSensitive then
+      caseSensitive := ' -i';
+    // Construct the command and its parameters.
+    command := 'grep -I -n' + caseSensitive + ' "' + FSearchSettings.SearchText + '" ' +
+               searchFile;
+    // Set the command.
+    FCommandRunner.Command := command;
+    // Update the result.
+    Result := True;
+    // Start the command.
+    if not FCommandRunner.Start then
+    begin
+      // Update the state and result.
+      FState := FCSS_IDLE;
+      Result := False;
+    end
+    else
+    begin
+      // Trigger event handler, if configured.
+      if Assigned(FFileSearchStartedEvent) then
+      begin
+        FFileSearchStartedEvent(Self, FFileList[ListIdx]);
+      end;
+    end;
+  end;
+end; //*** end of StartFileSearching ***
 
 
 //***************************************************************************************
@@ -351,23 +418,74 @@ end; //*** end of StartFileDetection ***
 procedure TFileContentSearcher.CommandRunnerOnDone(Sender: TObject);
 begin
   // Handle the event based on the internal state.
+  // ---------------------  FCSS_BUILDING_FILE_LIST -------------------------------------
   if FState = FCSS_BUILDING_FILE_LIST then
   begin
-    // Sort the file list contents based on the both directory and filename.
-    FFileList.CustomSort(@StringListFilenameCompare);
-    { TODO : Switch to the FCSS_SEARCHING_FILE and kick it off. }
-    { TODO : Remove temporary test code once done with it. }
-    // Set state back to idle.
-    FState := FCSS_IDLE;
-    // Trigger event handler, if configured.
-    if Assigned(FDoneEvent) then
+    // Transition to the file searching state if files were found.
+    if FFileList.Count > 0 then
     begin
-      FDoneEvent(Self);
+      // Sort the file list contents based on the both directory and filename.
+      FFileList.CustomSort(@StringListFilenameCompare);
+      // Prepare file searching state by setting the index to the first file in the list.
+      FCurrentFileIdx := 0;
+      // Transition to the new state.
+      FState := FCSS_SEARCHING_FILE;
+      // Kick of the file searching starting iwth the first one in the list.
+      if not StartFileSearching(FCurrentFileIdx) then
+      begin
+        // Could not start the file search. Go back to idle state and report the error.
+        FState := FCSS_IDLE;
+        // Trigger event handler, if configured.
+        if Assigned(FErrorEvent) then
+        begin
+          FErrorEvent(Self, 'Could not start the search operation for file ' +
+                      ExtractFileName(FFileList[FCurrentFileIdx]) + '.');
+        end;
+      end;
+    end
+    else
+    begin
+      // No files found so all is done.
+      FState := FCSS_IDLE;
+      // Trigger event handler, if configured.
+      if Assigned(FDoneEvent) then
+      begin
+        FDoneEvent(Self);
+      end;
     end;
   end
+  // ---------------------  FCSS_SEARCHING_FILE -----------------------------------------
   else if FState = FCSS_SEARCHING_FILE then
   begin
-    { TODO : Implement OnDone handler. }
+    // Increment the current file indexer.
+    FCurrentFileIdx := FCurrentFileIdx + 1;
+    // Are there still files left to search?
+    if FCurrentFileIdx < FFileList.Count then
+    begin
+      // Kick of the file searching starting iwth the first one in the list.
+      if not StartFileSearching(FCurrentFileIdx) then
+      begin
+        // Could not start the file search. Go back to idle state and report the error.
+        FState := FCSS_IDLE;
+        // Trigger event handler, if configured.
+        if Assigned(FErrorEvent) then
+        begin
+          FErrorEvent(Self, 'Could not start the search operation for file ' +
+                      ExtractFileName(FFileList[FCurrentFileIdx]) + '.');
+        end;
+      end;
+    end
+    // All done so finish up the search.
+    else
+    begin
+      // Set state back to idle.
+      FState := FCSS_IDLE;
+      // Trigger event handler, if configured.
+      if Assigned(FDoneEvent) then
+      begin
+        FDoneEvent(Self);
+      end;
+    end;
   end;
 end; //*** end of CommandRunnerOnDone ***
 
@@ -381,8 +499,15 @@ end; //*** end of CommandRunnerOnDone ***
 //
 //***************************************************************************************
 procedure TFileContentSearcher.CommandRunnerOnUpdate(Sender: TObject; OutputLine: String);
+var
+  searchFile: String;
+  hitLine: String;
+  lineNumber: Longword;
+  lineNumberStr: String;
+  colonPos: Longword;
 begin
   // Handle the event based on the internal state.
+  // ---------------------  FCSS_BUILDING_FILE_LIST -------------------------------------
   if FState = FCSS_BUILDING_FILE_LIST then
   begin
     // The expected output is a filename. Verify this by checking the existance of it.
@@ -397,9 +522,45 @@ begin
       end;
     end;
   end
+  // ---------------------  FCSS_SEARCHING_FILE -----------------------------------------
   else if FState = FCSS_SEARCHING_FILE then
   begin
-    { TODO : Implement OnUpdate handler. }
+    // The expected output is expected to have the following format:
+    //  <linenumber>:<linecontents>.
+    // Verify that the collon is present.
+    colonPos := Pos(':', LowerCase(OutputLine));
+    if (colonPos > 1) and (colonPos <= 11) then
+    begin
+      // Collect info regarding the search hit.
+      searchFile := FFileList[FCurrentFileIdx];
+      // For now copy the entire output line to the hitline. The linenumber part will be
+      // removed later on.
+      hitLine := OutputLine;
+      // Copy the part up to but excluding the first colon, which should then start with
+      // the linenumber.
+      lineNumberStr := Copy(hitLine, 1, colonPos - 1);
+      // Remove the same part from the hitline but now including the color, so the
+      // hitline actually contains what it is supposed to contain.
+      Delete(hitLine, 1, colonPos);
+      // Attempt to convert the contents of lineNumberStr to an actual line number
+      // integer value.
+      try
+        lineNumber := StrToInt(lineNumberStr);
+      except
+        on Exception : EConvertError do
+          // Invalidate the hitline simply by setting it to empty.
+          hitLine := '';
+      end;
+      // Only continue if hitline is valid.
+      if hitLine <> '' then
+      begin
+        // Trigger event handler, if configured.
+        if Assigned(FFileSearchHitEvent) then
+        begin
+          FFileSearchHitEvent(Self, searchFile, hitLine, lineNumber);
+        end;
+      end;
+    end;
   end;
 end; //*** end of CommandRunnerOnUpdate ***
 
