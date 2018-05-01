@@ -82,7 +82,7 @@ type
     FState: TFileContentSearcherState;
     FSearchSettings: TSearchSettings;
     FCommandRunner: TCommandRunner;
-    FFileList: TStrings;
+    FFileList: TStringList;
     FStartedEvent: TFileContentSearcherStartedEvent;
     FCancelledEvent: TFileContentSearcherCancelledEvent;
     FDoneEvent: TFileContentSearcherDoneEvent;
@@ -111,6 +111,47 @@ type
 implementation
 { TODO : Note that the directories and filenames with spaces in them should be in double-
          quotes if it is added as a command parameter.  }
+//***************************************************************************************
+// NAME:           StringListFilenameCompare
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Utility function that can be used as a custom sort routine on a
+//                 TStringList if it contains a list of files.
+//
+//***************************************************************************************
+function StringListFilenameCompare(List: TStringList; Index1, Index2: Integer): Integer;
+var
+  dir1: String;
+  dir2: String;
+  file1: String;
+  file2: String;
+begin
+  // Initialize the result.
+  Result := 0;
+  // Only continue if both entries are actually valid files.
+  if (FileExists(List[Index1])) and (FileExists(List[Index2])) then
+  begin
+    // Extract directory and filenames.
+    dir1 := ExtractFilePath(List[Index1]);
+    dir2 := ExtractFilePath(List[Index2]);
+    file1 := ExtractFileName(List[Index1]);
+    file2 := ExtractFileName(List[Index2]);
+    // Check if files are in the same directory.
+    if dir1 = dir2 then
+    begin
+      // Compare based on filename.
+      Result := CompareStr(file1, file2);
+    end
+    // File are in different directories.
+    else
+    begin
+      // Compare based on directory.
+      Result := CompareStr(dir1, dir2);
+    end;
+  end;
+end;  //*** end of StringListFilenameCompare ***
+
+
 //---------------------------------------------------------------------------------------
 //-------------------------------- TFileContentSearcher ---------------------------------
 //---------------------------------------------------------------------------------------
@@ -312,6 +353,8 @@ begin
   // Handle the event based on the internal state.
   if FState = FCSS_BUILDING_FILE_LIST then
   begin
+    // Sort the file list contents based on the both directory and filename.
+    FFileList.CustomSort(@StringListFilenameCompare);
     { TODO : Switch to the FCSS_SEARCHING_FILE and kick it off. }
     { TODO : Remove temporary test code once done with it. }
     // Set state back to idle.
