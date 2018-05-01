@@ -43,11 +43,17 @@ uses
     cthreads,
     cmem, // the c memory manager is on some systems much faster for multi-threading
   {$ENDIF}{$ENDIF}
-  Classes, SysUtils, CommandRunner, SearchSettings;
+  Classes, SysUtils, StrUtils, CommandRunner, SearchSettings;
 
 type
   // Forward declarations
   TFileContentSearcher = class;
+
+  //------------------------------ TFirmwareUpdateState ---------------------------------
+  TFileContentSearcherState = ( FCSS_IDLE = 0,
+                                FCSS_BUILDING_FILE_LIST,
+                                FCSS_SEARCHING_FILE,
+                                FCSS_FINISHING_UP );
 
   //------------------------------ TFileContentSearcherStartedEvent ---------------------
   TFileContentSearcherStartedEvent = procedure(Sender: TObject) of object;
@@ -73,9 +79,10 @@ type
   //------------------------------ TFileContentSearcher ---------------------------------
   TFileContentSearcher = class (TObject)
   private
+    FState: TFileContentSearcherState;
     FSearchSettings: TSearchSettings;
     FCommandRunner: TCommandRunner;
-    { TODO : Might need an OnError type event if the worker thread could exit without calling OnDone. }
+    FFileList: TStrings;
     FStartedEvent: TFileContentSearcherStartedEvent;
     FCancelledEvent: TFileContentSearcherCancelledEvent;
     FDoneEvent: TFileContentSearcherDoneEvent;
@@ -84,6 +91,8 @@ type
     FFileSearchStartedEvent: TFileContentSearcherFileSearchStartedEvent;
     FFileSearchHitEvent: TFileContentSearcherFileSearchHitEvent;
     function StartFileDetection: Boolean;
+    procedure CommandRunnerOnDone(Sender: TObject);
+    procedure CommandRunnerOnUpdate(Sender: TObject; OutputLine: String);
   public
     constructor Create;
     destructor  Destroy; override;
@@ -100,6 +109,8 @@ type
 
 
 implementation
+{ TODO : Note that the directories and filenames with spaces in them should be in double-
+         quotes if it is added as a command parameter.  }
 //---------------------------------------------------------------------------------------
 //-------------------------------- TFileContentSearcher ---------------------------------
 //---------------------------------------------------------------------------------------
@@ -115,6 +126,7 @@ begin
   // Call inherited constructor.
   inherited Create;
   // Initialize fields.
+  FState := FCSS_IDLE;
   FSearchSettings := nil;
   FStartedEvent := nil;
   FCancelledEvent := nil;
@@ -125,8 +137,13 @@ begin
   FFileSearchHitEvent := nil;
   // Create instance of the command runner.
   FCommandRunner := TCommandRunner.Create;
+  // Configure the command runner event handlers.
+  FCommandRunner.OnDone := @CommandRunnerOnDone;
+  FCommandRunner.OnUpdate :=@CommandRunnerOnUpdate;
   // Create instance of the search settings.
   FSearchSettings := TSearchSettings.Create;
+  // Create instance of the file list.
+  FFileList := TStringList.Create;
 end; //*** end of Create ***
 
 
@@ -139,6 +156,8 @@ end; //*** end of Create ***
 //***************************************************************************************
 destructor TFileContentSearcher.Destroy;
 begin
+  // Release file list instance.
+  FFileList.Free;
   // Release the search settings instance.
   FSearchSettings.Free;
   // Release command runner instance.
@@ -170,11 +189,8 @@ begin
   if (Trim(FSearchSettings.SearchText) <> '') and
      (Trim(FSearchSettings.Directory) <> '')  then
   begin
-    { TODO : Implement start functionality. }
-    { TODO : Note that the directory should be in double-quotes if it contains spaces
-             and is added as a command parameter. This should be done when specifying
-             the command runner command inside the worker thread. }
-    Result := True;
+    // Kick of the search operation by building a list of files that need to be searched.
+    Result := StartFileDetection;
   end;
 end; //*** end of Start ***
 
@@ -188,7 +204,15 @@ end; //*** end of Start ***
 //***************************************************************************************
 procedure TFileContentSearcher.Cancel;
 begin
-  { TODO : Implement cancel functionality. }
+  // Cancel the command runner.
+  FCommandRunner.Cancel;
+  // Set idle state.
+  FState := FCSS_IDLE;
+  // Trigger event handler, if configured.
+  if Assigned(FCancelledEvent) then
+  begin
+    FCancelledEvent(Self);
+  end;
 end; //*** end of Cancel ***
 
 
@@ -201,11 +225,140 @@ end; //*** end of Cancel ***
 //
 //***************************************************************************************
 function TFileContentSearcher.StartFileDetection: Boolean;
+var
+  command: String;
+  recursive: String;
+  directory: String;
+  patternList: TStringList;
+  patternIdx: Integer;
 begin
   // Initialize the result.
   Result := False;
-  { TODO : Run the find / sort command. }
+  // Empty out the file list.
+  FFileList.Clear;
+  // Set option to configure recursiveness of the search operation.
+  recursive := '';
+  if not FSearchSettings.Recursive then
+    recursive := ' -maxdepth 1';
+  // Add double-quotes around the base directory, if it contains spaces.
+  directory := FSearchSettings.Directory;
+  if Pos(' ', directory) > 0 then
+    directory := '"' + directory + '"';
+  // Build string list with file extensions that should be searched.
+  patternList := TStringList.Create;
+  try
+    patternList.Delimiter := '|';
+    patternList.DelimitedText := DelSpace(FSearchSettings.FilePattern);
+  except
+    // Split operation failed. Resort to a default pattern for all file extensions.
+    patternList.Clear;
+    patternList.Add('*.*');
+  end;
+  // Only continue if at least one pattern is in the list.
+  if patternList.Count > 0 then
+  begin
+    // Check all patterns. They should always start with '*.' and be at least 3 characters
+    // long.
+    for patternIdx := 0 to (patternList.Count - 1) do
+    begin
+      if (Pos('*.', patternList[patternIdx]) <> 1) or (Length(patternList[patternIdx]) < 3) then
+      begin
+        // Invalid pattern detected. Resort to a default pattern for all file extensions.
+        // Split operation failed. Resort to a default pattern for all file extensions.
+        patternList.Clear;
+        patternList.Add('*.*');
+        // Stop looping.
+        Break;
+      end;
+    end;
+    // Construct the command and its parameters.
+    command := 'find ' + directory + recursive + ' -mount -readable -type f';
+    // Add the patterns.
+    for patternIdx := 0 to (patternList.Count - 1) do
+    begin
+      if patternIdx = 0 then
+        command := command + ' -name "' + patternList[patternIdx] + '"'
+      else
+        command := command + ' -o -name "' + patternList[patternIdx] + '"';
+    end;
+    // Set the command.
+    FCommandRunner.Command := command;
+    // Update the state and result.
+    FState := FCSS_BUILDING_FILE_LIST;
+    Result := True;
+    // Start the command.
+    if not FCommandRunner.Start then
+    begin
+      // Update the state and result.
+      FState := FCSS_IDLE;
+      Result := False;
+    end;
+  end;
+  // Release the list.
+  patternList.Free;
 end; //*** end of StartFileDetection ***
+
+
+//***************************************************************************************
+// NAME:           CommandRunnerOnDone
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the command runner completed
+//                 successfully.
+//
+//***************************************************************************************
+procedure TFileContentSearcher.CommandRunnerOnDone(Sender: TObject);
+begin
+  // Handle the event based on the internal state.
+  if FState = FCSS_BUILDING_FILE_LIST then
+  begin
+    { TODO : Switch to the FCSS_SEARCHING_FILE and kick it off. }
+    { TODO : Remove temporary test code once done with it. }
+    // Set state back to idle.
+    FState := FCSS_IDLE;
+    // Trigger event handler, if configured.
+    if Assigned(FDoneEvent) then
+    begin
+      FDoneEvent(Self);
+    end;
+  end
+  else if FState = FCSS_SEARCHING_FILE then
+  begin
+    { TODO : Implement OnDone handler. }
+  end;
+end; //*** end of CommandRunnerOnDone ***
+
+
+//***************************************************************************************
+// NAME:           CommandRunnerOnUpdate
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the command runner detected a new
+//                 line on the standard output.
+//
+//***************************************************************************************
+procedure TFileContentSearcher.CommandRunnerOnUpdate(Sender: TObject; OutputLine: String);
+begin
+  // Handle the event based on the internal state.
+  if FState = FCSS_BUILDING_FILE_LIST then
+  begin
+    // The expected output is a filename. Verify this by checking the existance of it.
+    if FileExists(OutputLine) then
+    begin
+      // Add it to the internal file list.
+      FFileList.Add(OutputLine);
+      // Trigger event handler, if configured.
+      if Assigned(FFileFoundEvent) then
+      begin
+        FFileFoundEvent(Self, OutputLine);
+      end;
+    end;
+  end
+  else if FState = FCSS_SEARCHING_FILE then
+  begin
+    { TODO : Implement OnUpdate handler. }
+  end;
+end; //*** end of CommandRunnerOnUpdate ***
 
 end.
 //******************************** end of filecontentsearcher.pas ***********************

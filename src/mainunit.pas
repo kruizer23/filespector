@@ -94,6 +94,7 @@ type
     procedure AddSearchOccurenceToResults(LineNumber: LongWord; LineContents: String; SearchedFile: String);
     procedure FileContentSearcherOnDone(Sender: TObject);
     procedure FileContentSearcherOnError(Sender: TObject; ErrorInfo: String);
+    procedure FileContentSearcherFileFound(Sender: TObject; FoundFile: String);
     procedure FileContentSearcherOnFileSearchStarted(Sender: TObject; SearchFile: String);
     procedure FileContentSearcherOnFileSearchHit(Sender: TObject; SearchFile: String; HitLine: String; LineNumber: Longword);
   public
@@ -133,7 +134,7 @@ begin
   // Create instances of the search settings.
   FSearchSettings := TSearchSettings.Create;
   { TODO : Remove after testing. }
-  FSearchSettings.Directory := '/home/voorburg';
+  FSearchSettings.Directory := '/home/voorburg/Development/FileCruncher/src';
   FSearchSettings.SearchText := 'FormCreate';
   // Create instance of the file content searcher.
   FFileContentSearcher := TFileContentSearcher.Create;
@@ -141,6 +142,7 @@ begin
   FFileContentSearcher.OnDone := @FileContentSearcherOnDone;
   FFileContentSearcher.OnFileSearchStarted := @FileContentSearcherOnFileSearchStarted;
   FFileContentSearcher.OnFileSearchHit :=@FileContentSearcherOnFileSearchHit;
+  FFileContentSearcher.OnFileFound := @FileContentSearcherFileFound;
   // Initialize fields to their default values.
   FUISetting := UIS_DEFAULT;
   // Initialize the user interface.
@@ -364,8 +366,6 @@ procedure TMainForm.CancelSearch;
 begin
   // Cancellation the search operation.
   FFileContentSearcher.Cancel;
-  // Clear possibly incomplete search results.
-  ClearSearchResults;
   // Update the user interface.
   FUISetting := UIS_DEFAULT;
   UpdateUserInterface;
@@ -475,6 +475,22 @@ begin
   // Pass the error event on to the error handler.
   HandleSearchError(ErrorInfo);
 end; //*** end of FileContentSearcherOnError ***
+
+
+//***************************************************************************************
+// NAME:           FileContentSearcherFileFound
+// PARAMETER:      Sender Source of the event.
+//                 FoundFile Detected file.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the file content searcher
+//                 found a while, while it is building a list of files to search through.
+//
+//***************************************************************************************
+procedure TMainForm.FileContentSearcherFileFound(Sender: TObject; FoundFile: String);
+begin
+  { TODO : Temporary test code to be able to show file list. Remove after testing. }
+  MmoResults.Lines.Add(FoundFile);
+end; //*** end of FileContentSearcherFileFound ***
 
 
 //***************************************************************************************
