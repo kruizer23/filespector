@@ -99,7 +99,7 @@ type
     procedure AddSearchOccurenceToResults(LineNumber: LongWord; LineContents: String; SearchedFile: String);
     procedure FileContentSearcherOnDone(Sender: TObject);
     procedure FileContentSearcherOnError(Sender: TObject; ErrorInfo: String);
-    procedure FileContentSearcherFileFound(Sender: TObject; FoundFile: String);
+    procedure FileContentSearcherOnFileFound(Sender: TObject; FoundFile: String);
     procedure FileContentSearcherOnFileSearchStarted(Sender: TObject; SearchFile: String);
     procedure FileContentSearcherOnFileSearchHit(Sender: TObject; SearchFile: String; HitLine: String; LineNumber: Longword);
   public
@@ -153,7 +153,7 @@ begin
   FFileContentSearcher.OnError := @FileContentSearcherOnError;
   FFileContentSearcher.OnFileSearchStarted := @FileContentSearcherOnFileSearchStarted;
   FFileContentSearcher.OnFileSearchHit :=@FileContentSearcherOnFileSearchHit;
-  FFileContentSearcher.OnFileFound := @FileContentSearcherFileFound;
+  FFileContentSearcher.OnFileFound := @FileContentSearcherOnFileFound;
   // Initialize fields to their default values.
   FUISetting := UIS_DEFAULT;
   FTotalFilesSearchCount := 0;
@@ -514,7 +514,7 @@ end; //*** end of FileContentSearcherOnError ***
 
 
 //***************************************************************************************
-// NAME:           FileContentSearcherFileFound
+// NAME:           FileContentSearcherOnFileFound
 // PARAMETER:      Sender Source of the event.
 //                 FoundFile Detected file.
 // RETURN VALUE:   none
@@ -522,13 +522,13 @@ end; //*** end of FileContentSearcherOnError ***
 //                 found a while, while it is building a list of files to search through.
 //
 //***************************************************************************************
-procedure TMainForm.FileContentSearcherFileFound(Sender: TObject; FoundFile: String);
+procedure TMainForm.FileContentSearcherOnFileFound(Sender: TObject; FoundFile: String);
 begin
   // Suppress hint for unused parameter.
   FoundFile := FoundFile;
   // Update total files found counter.
   FTotalFilesSearchCount := FTotalFilesSearchCount + 1;
-end; //*** end of FileContentSearcherFileFound ***
+end; //*** end of FileContentSearcherOnFileFound ***
 
 
 //***************************************************************************************
