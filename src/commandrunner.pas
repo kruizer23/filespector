@@ -453,8 +453,12 @@ begin
             FCommandRunner.FOutput.Add(lineStr);
             // Store the line such that it can be used in the synchronized update event.
             FUpdateString := lineStr;
-            // Trigger the update event to pass on the newly read line from the pipe.
-            Synchronize(@SynchronizeUpdateEvent);
+            // Trigger the update event (if set) to pass on the newly read line from the
+            // pipe.
+            if Assigned(FCommandRunner.FUpdateEvent) then
+            begin
+              Synchronize(@SynchronizeUpdateEvent);
+            end;
           end;
         until lfPos = 0;
         // Empty string stream now that its data has been processed.
@@ -497,16 +501,14 @@ end; //*** end of Execute ***
 // DESCRIPTION:    Synchronizes to the main thread to execute the code inside this
 //                 procedure. This function should only be called from thread level,
 //                 so from Execute-method in the following manner: Synchronize(@<name>).
+//                 Note that the caller of this routine needs to check if FUpdateEvent
+//                 is actually assigned.
 //
 //***************************************************************************************
 procedure TCommandRunnerThread.SynchronizeUpdateEvent;
 begin
-  // Only continue if the event is set.
-  if Assigned(FCommandRunner.FUpdateEvent) then
-  begin
-    // Trigger the event.
-    FCommandRunner.FUpdateEvent(FCommandRunner, FUpdateString);
-  end;
+  // Trigger the event.
+  FCommandRunner.FUpdateEvent(FCommandRunner, FUpdateString);
 end; //*** end of SynchronizeUpdateEvent ***
 
 end.
