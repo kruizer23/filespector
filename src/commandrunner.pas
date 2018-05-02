@@ -65,10 +65,15 @@ type
   //------------------------------ TCommandRunnerUpdateEvent ----------------------------
   TCommandRunnerUpdateEvent = procedure(Sender: TObject; OutputLine: String) of object;
 
+  //------------------------------ TCommandRunnerThreadState ----------------------------
+  TCommandRunnerThreadState = ( CRTS_IDLE = 0,
+                                CRTS_BUSY );
+
   //------------------------------ TCommandRunnerThread ---------------------------------
   TCommandRunnerThread = class(TThread)
   private
   protected
+    FState: TCommandRunnerThreadState;
     FCommand: String;
     FCommandRunner: TCommandRunner;
     FUpdateString: String;
@@ -82,6 +87,7 @@ type
   TCommandRunnerFinishThread = class(TThread)
   private
   protected
+    FState: TCommandRunnerThreadState;
     FCommandRunner: TCommandRunner;
     procedure SynchronizeDoneEvent;
     procedure Execute; override;
@@ -136,6 +142,12 @@ begin
   FOutput := TStringList.Create;
   // Create instance of the finish thread.
   FFinishThread := TCommandRunnerFinishThread.Create(True, Self);
+  // Start the finish thread in idle mode if it was successfully be instanced.
+  if Assigned(FFinishThread) then
+  begin
+    FFinishThread.FState := CRTS_IDLE;
+    FFinishThread.Start;
+  end;
   // Initialize fields to their default values.
   FCommand := '';
   FStartedEvent := nil;
@@ -165,10 +177,16 @@ begin
     // Release the thread instance.
     FWorkerThread.Free;
   end;
-  // Terminate and free instance of the finish thread.
-  FFinishThread.Terminate;
-  // Release the thread instance.
-  FFinishThread.Free;
+  // Check if the finish thread is instanced.
+  if Assigned(FWorkerThread) then
+  begin
+    // Terminate and free instance of the finish thread.
+    FFinishThread.Terminate;
+    // Wait for thread termination to complete.
+    FFinishThread.WaitFor;
+    // Release the thread instance.
+    FFinishThread.Free;
+  end;
   // Free instance of the output stringlist.
   FOutput.Free;
   // Call inherited destructor.
@@ -311,23 +329,12 @@ end; //*** end of Cancel ***
 //
 //***************************************************************************************
 procedure TCommandRunner.Finish;
-var
-  finishThread: TCommandRunnerFinishThread;
 begin
-  // Create an instance of the finish thraed in a suspended state.
-  finishThread := TCommandRunnerFinishThread.Create(True, Self);
-  // Start the thread if it could be instanced.
-  if Assigned(finishThread) then
-  begin
-    // Note that this thread automatically frees itself upon termination, so no need to
-    // worry about that.
-    finishThread.Start;
-  end
-  // Thread could not be instanced.
-  else
-  begin
-    { TODO : Trigger error handler and do cleanup. }
-  end;
+  // Sanity check. The finish thread should be in idle state at this point.
+  Assert(FFinishThread.FState = CRTS_IDLE);
+  // Kick of the finish thread. Note that it is already running. It just needs to be set
+  // to busy.
+  FFinishThread.FState := CRTS_BUSY;
 end; //*** end of Finish ***
 
 
@@ -351,6 +358,7 @@ begin
   // Configure the thread to not automatically free itself upon termination.
   FreeOnTerminate := False;
   // Initialize fields.
+  FState := CRTS_IDLE;
   FCommand := Command;
   FCommandRunner := CommandRunner;
   FUpdateString := '';
@@ -527,6 +535,7 @@ begin
   // Configure the thread to not automatically free itself upon termination.
   FreeOnTerminate := False;
   // Initialize fields.
+  FState := CRTS_IDLE;
   FCommandRunner := CommandRunner;
 end; //*** end of Create ***
 
@@ -540,18 +549,37 @@ end; //*** end of Create ***
 //***************************************************************************************
 procedure TCommandRunnerFinishThread.Execute;
 begin
-  // No need to stop the worker thread if it is not instanced.
-  if Assigned(FCommandRunner.FWorkerThread) then
+  while not Terminated do
   begin
-    // Set termination request for the worker thread.
-    FCommandRunner.FWorkerThread.Terminate;
-    // Wait for thread termination to complete.
-    FCommandRunner.FWorkerThread.WaitFor;
-    // Release the thread instance.
-    FreeAndNil(FCommandRunner.FWorkerThread);
+    if FState = CRTS_BUSY then
+    begin
+      // No need to stop the worker thread if it is not instanced.
+      if Assigned(FCommandRunner.FWorkerThread) then
+      begin
+        // Set termination request for the worker thread.
+        FCommandRunner.FWorkerThread.Terminate;
+        // Wait for thread termination to complete.
+        FCommandRunner.FWorkerThread.WaitFor;
+        // Release the thread instance.
+        FreeAndNil(FCommandRunner.FWorkerThread);
+      end;
+      // Trigger the OnDone event.
+      Synchronize(@SynchronizeDoneEvent);
+      // Switch back to idle state.
+      FState := CRTS_IDLE;
+    end
+    else if FState = CRTS_IDLE then
+    begin
+      // Check for cancellation event.
+      if Terminated then
+      begin
+        // Stop the thread.
+        Break;
+      end;
+      // Don't starve the CPU while idling.
+      Sleep(2);
+    end;
   end;
-  // Trigger the OnDone event.
-  Synchronize(@SynchronizeDoneEvent);
 end; //*** end of Execute ***
 
 

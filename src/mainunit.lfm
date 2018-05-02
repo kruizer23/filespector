@@ -3,7 +3,7 @@ object MainForm: TMainForm
   Height = 517
   Top = 263
   Width = 838
-  ActiveControl = EdtDirectory
+  ActiveControl = EdtSearchText
   Caption = 'FileCruncher'
   ClientHeight = 517
   ClientWidth = 838

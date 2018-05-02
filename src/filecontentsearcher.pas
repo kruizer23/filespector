@@ -52,8 +52,7 @@ type
   //------------------------------ TFirmwareUpdateState ---------------------------------
   TFileContentSearcherState = ( FCSS_IDLE = 0,
                                 FCSS_BUILDING_FILE_LIST,
-                                FCSS_SEARCHING_FILE,
-                                FCSS_FINISHING_UP );
+                                FCSS_SEARCHING_FILE );
 
   //------------------------------ TFileContentSearcherStartedEvent ---------------------
   TFileContentSearcherStartedEvent = procedure(Sender: TObject) of object;

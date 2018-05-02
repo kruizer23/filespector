@@ -138,9 +138,8 @@ begin
   PnlSearchPattern.Caption := '';
   // Create instances of the search settings.
   FSearchSettings := TSearchSettings.Create;
-  { TODO : Remove after testing. }
-  FSearchSettings.Directory := '/home/voorburg/Development/FileCruncher/src';
-  FSearchSettings.SearchText := 'FormCreate';
+  // Initialize default search settings.
+  FSearchSettings.Directory :=  GetCurrentDir;
   // Create instance of the file content searcher.
   FFileContentSearcher := TFileContentSearcher.Create;
   // Configure event handlers.
