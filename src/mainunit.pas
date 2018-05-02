@@ -111,6 +111,10 @@ type
 //***************************************************************************************
 var
   MainForm: TMainForm;
+  CmdLineIgnoreCaseOption: Boolean;
+  CmdLineNotRecursiveOption: Boolean;
+  CmdLineDirectoryOption: String;
+
 
 implementation
 
@@ -129,7 +133,7 @@ implementation
 //***************************************************************************************
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
-  // Clear captions of panels that are only used for layour purposes.
+  // Clear captions of panels that are only used for layout purposes.
   PnlBody.Caption := '';
   PnlDirectory.Caption := '';
   PnlRecursive.Caption := '';
@@ -155,6 +159,13 @@ begin
   FTotalSearchHitCount := 0;
   FFileWithLastHit := '';
   FSearchStartTime := Now;
+  // Update search settings based on the info specified as command line options.
+  if CmdLineIgnoreCaseOption then
+    FSearchSettings.CaseSensitive := False;
+  if CmdLineNotRecursiveOption then
+    FSearchSettings.Recursive := False;
+  if CmdLineDirectoryOption <> '' then
+    FSearchSettings.Directory := CmdLineDirectoryOption;
   // Initialize the user interface.
   InitializeUserInterface;
 end; //*** end of FormCreate ***
