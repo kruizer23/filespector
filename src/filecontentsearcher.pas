@@ -43,7 +43,7 @@ uses
     cthreads,
     cmem, // the c memory manager is on some systems much faster for multi-threading
   {$ENDIF}{$ENDIF}
-  Classes, SysUtils, StrUtils, CommandRunner, SearchSettings;
+  Classes, SysUtils, StrUtils, LazFileUtils, CommandRunner, SearchSettings;
 
 type
   // Forward declarations
@@ -509,15 +509,19 @@ begin
   // ---------------------  FCSS_BUILDING_FILE_LIST -------------------------------------
   if FState = FCSS_BUILDING_FILE_LIST then
   begin
-    // The expected output is a filename. Verify this by checking the existance of it.
+    // The expected output is a filename. Verify this by checking the existance of it,
+    // making sure it is not a binary file and checking that it is readable.
     if FileExists(OutputLine) then
     begin
-      // Add it to the internal file list.
-      FFileList.Add(OutputLine);
-      // Trigger event handler, if configured.
-      if Assigned(FFileFoundEvent) then
+      if FileIsText(OutputLine) and FileIsReadable(OutputLine) then
       begin
-        FFileFoundEvent(Self, OutputLine);
+        // Add it to the internal file list.
+        FFileList.Add(OutputLine);
+        // Trigger event handler, if configured.
+        if Assigned(FFileFoundEvent) then
+        begin
+          FFileFoundEvent(Self, OutputLine);
+        end;
       end;
     end;
   end

@@ -79,20 +79,10 @@ type
     FUpdateString: String;
     procedure Execute; override;
     procedure SynchronizeUpdateEvent;
-  public
-    constructor Create(Command: String; CreateSuspended : Boolean; CommandRunner: TCommandRunner); reintroduce;
-  end;
-
-  //------------------------------ TCommandRunnerFinishThread ---------------------------
-  TCommandRunnerFinishThread = class(TThread)
-  private
-  protected
-    FState: TCommandRunnerThreadState;
-    FCommandRunner: TCommandRunner;
     procedure SynchronizeDoneEvent;
-    procedure Execute; override;
   public
     constructor Create(CreateSuspended : Boolean; CommandRunner: TCommandRunner); reintroduce;
+    property Command: String read FCommand write FCommand;
   end;
 
   //------------------------------ TCommandRunner ---------------------------------------
@@ -101,7 +91,6 @@ type
     FCommand: String;
     FOutput: TStringList;
     FWorkerThread: TCommandRunnerThread;
-    FFinishThread: TCommandRunnerFinishThread;
     FStartedEvent: TCommandRunnerStartedEvent;
     FCancelledEvent: TCommandRunnerCancelledEvent;
     FDoneEvent: TCommandRunnerDoneEvent;
@@ -113,7 +102,6 @@ type
     destructor  Destroy; override;
     function Start: Boolean;
     procedure Cancel;
-    procedure Finish;
     property Command: String read FCommand write SetCommand;
     property Running: Boolean read GetRunning;
     property Output: TStringList read FOutput;
@@ -140,13 +128,13 @@ begin
   inherited Create;
   // Create instance of the output stringlist.
   FOutput := TStringList.Create;
-  // Create instance of the finish thread.
-  FFinishThread := TCommandRunnerFinishThread.Create(True, Self);
-  // Start the finish thread in idle mode if it was successfully be instanced.
-  if Assigned(FFinishThread) then
+  // Create instance of the worker thread.
+  FWorkerThread := TCommandRunnerThread.Create(True, Self);
+  // Start the worker thread in idle mode if it was successfully instanced.
+  if Assigned(FWorkerThread) then
   begin
-    FFinishThread.FState := CRTS_IDLE;
-    FFinishThread.Start;
+    FWorkerThread.FState := CRTS_IDLE;
+    FWorkerThread.Start;
   end;
   // Initialize fields to their default values.
   FCommand := '';
@@ -154,7 +142,6 @@ begin
   FCancelledEvent := nil;
   FDoneEvent := nil;
   FUpdateEvent := nil;
-  FWorkerThread := nil;
 end; //*** end of Create ***
 
 
@@ -176,16 +163,6 @@ begin
     FWorkerThread.WaitFor;
     // Release the thread instance.
     FWorkerThread.Free;
-  end;
-  // Check if the finish thread is instanced.
-  if Assigned(FWorkerThread) then
-  begin
-    // Terminate and free instance of the finish thread.
-    FFinishThread.Terminate;
-    // Wait for thread termination to complete.
-    FFinishThread.WaitFor;
-    // Release the thread instance.
-    FFinishThread.Free;
   end;
   // Free instance of the output stringlist.
   FOutput.Free;
@@ -230,7 +207,7 @@ begin
   if Assigned(FWorkerThread) then
   begin
     // Check if the worker thread is not yet finished.
-    if not FWorkerThread.Finished then
+    if FWorkerThread.FState <> CRTS_IDLE then
     begin
       Result := True;
     end;
@@ -249,38 +226,22 @@ function TCommandRunner.Start: Boolean;
 begin
   // Initialize the result.
   Result := False;
-  // Only continue if a valid command is set.
-  if FCommand <> '' then
+  // Only continue if a valid command is set and the worker thread is idling.
+  if (FCommand <> '') and (FWorkerThread.FState = CRTS_IDLE) then
   begin
     // Clear the output.
     FOutput.Clear;
-    // Check if the worker thread is terminated but not yet freed from a previous update.
-    if Assigned(FWorkerThread) then
+    // Pass the command on to the worker thread.
+    FWorkerThread.Command := FCommand;
+    // Kick of the worker thread. Note that it is already running. It just needs to be set
+    // to busy.
+    FWorkerThread.FState := CRTS_BUSY;
+    // Update the result.
+    Result := True;
+    // Trigger event handler, if configured.
+    if Assigned(FStartedEvent) then
     begin
-      if FWorkerThread.Finished then
-      begin
-        // Free it.
-        FreeAndNil(FWorkerThread);
-      end;
-    end;
-    // Only start running a command if another one is not already in progress.
-    if not Assigned(FWorkerThread) then
-    begin
-      // Create the worker thread in a suspended state.
-      FWorkerThread := TCommandRunnerThread.Create(FCommand, True, Self);
-      // Only continue if the worker thread could be instanced.
-      if Assigned(FWorkerThread) then
-      begin
-        // Start the worker thread, which handles the actual command running.
-        FWorkerThread.Start;
-        // Update the result.
-        Result := True;
-        // Trigger event handler, if configured.
-        if Assigned(FStartedEvent) then
-        begin
-          FStartedEvent(Self);
-        end;
-      end;
+      FStartedEvent(Self);
     end;
   end;
 end; //*** end of Start ***
@@ -298,12 +259,8 @@ begin
   // No need to stop the worker thread if it is not instanced.
   if Assigned(FWorkerThread) then
   begin
-    // Set termination request for the worker thread.
-    FWorkerThread.Terminate;
-    // Wait for thread termination to complete.
-    FWorkerThread.WaitFor;
-    // Release the thread instance.
-    FreeAndNil(FWorkerThread);
+    // Switch the thread back to idle mode.
+    FWorkerThread.FState := CRTS_IDLE;
   end;
   // Trigger event handler, if configured.
   if Assigned(FCancelledEvent) then
@@ -311,31 +268,6 @@ begin
     FCancelledEvent(Self);
   end;
 end; //*** end of Cancel ***
-
-
-//***************************************************************************************
-// NAME:           Finish
-// PARAMETER:      none
-// RETURN VALUE:   none
-// DESCRIPTION:    Finishes a currently running command that was done. This routine is
-//                 called by the internal worker thread. If the OnDone event is triggered
-//                 here, the event handler runs at this thread level. This unfortunately
-//                 means that no new command can be started, even though the previous
-//                 command is done. For this reason, a deferred calling of the OnDone
-//                 event is needed, which is implemented via a seperate one-shot thread.
-//                 All that needs to be done here is instancing and starting of this
-//                 finish thread. This newly instanced finish thread then handle the
-//                 termination of the worker thread and triggers the OnDone event.
-//
-//***************************************************************************************
-procedure TCommandRunner.Finish;
-begin
-  // Sanity check. The finish thread should be in idle state at this point.
-  Assert(FFinishThread.FState = CRTS_IDLE);
-  // Kick of the finish thread. Note that it is already running. It just needs to be set
-  // to busy.
-  FFinishThread.FState := CRTS_BUSY;
-end; //*** end of Finish ***
 
 
 //---------------------------------------------------------------------------------------
@@ -351,7 +283,7 @@ end; //*** end of Finish ***
 // DESCRIPTION:    Thread constructor.
 //
 //***************************************************************************************
-constructor TCommandRunnerThread.Create(Command: String; CreateSuspended : Boolean; CommandRunner: TCommandRunner);
+constructor TCommandRunnerThread.Create(CreateSuspended : Boolean; CommandRunner: TCommandRunner);
 begin
   // Call inherited constructor.
   inherited Create(CreateSuspended);
@@ -359,7 +291,7 @@ begin
   FreeOnTerminate := False;
   // Initialize fields.
   FState := CRTS_IDLE;
-  FCommand := Command;
+  FCommand := '';
   FCommandRunner := CommandRunner;
   FUpdateString := '';
 end; //*** end of Create ***
@@ -377,6 +309,7 @@ const
   BUF_SIZE = 128;
 var
   cmdProcess: TProcess;
+  cmdProcessStarted: Boolean;
   cmdSplitter: TStringList;
   cmdSplitterIdx: Integer;
   outputBuffer: array[0..(BUF_SIZE - 1)] of Byte;
@@ -392,107 +325,139 @@ begin
   begin
     outputBuffer[idx] := 0;
   end;
-  // Create process instance.
-  cmdProcess := TProcess.Create(nil);
   // Create string stream instance.
   stringStream := TStringStream.Create('');
   // Start with an empty stream.
   stringStream.Size := 0;
+  // Create string list instance.
+  cmdSplitter := TStringList.Create;
   // Enter thread's execution loop.
   while not Terminated do
   begin
-    // Create string list instance.
-    cmdSplitter := TStringList.Create;
-    // Break the command apart into the executable and its parameters.
-    CommandToList(FCommand, cmdSplitter);
-    // It must have at least one entry, which is the executable.
-    Assert(cmdSplitter.Count >= 1);
-    // Store the executable.
-    cmdProcess.Executable := cmdSplitter[0];
-    // Store the parameters, if any.
-    if cmdSplitter.Count > 1 then
+    if FState = CRTS_BUSY then
     begin
-      for cmdSplitterIdx := 1 to (cmdSplitter.Count - 1) do
+      // Clear the string list.
+      cmdSplitter.Clear;
+      // Break the command apart into the executable and its parameters.
+      CommandToList(FCommand, cmdSplitter);
+      // It must have at least one entry, which is the executable.
+      Assert(cmdSplitter.Count >= 1);
+      // Create process instance.
+      cmdProcess := TProcess.Create(nil);
+      // Store the executable.
+      cmdProcess.Executable := cmdSplitter[0];
+      // Store the parameters, if any.
+      if cmdSplitter.Count > 1 then
       begin
-        cmdProcess.Parameters.Add(cmdSplitter[cmdSplitterIdx]);
-      end;
-    end;
-    // Release string list instance.
-    cmdSplitter.Free;
-    // Configure the process to use a pipe so the output of the command can be read.
-    cmdProcess.Options := [poUsePipes];
-    // Run the command.
-    cmdProcess.Execute;
-    // Read all output from the pipe into the buffer.
-    repeat
-      // Read a chunk of data from the pipe. Note that this blocks until the data is
-      // available. Therefore BUF_SIZE should not be set too big.
-      bytesRead := cmdProcess.Output.Read(outputBuffer, BUF_SIZE);
-      // Only process the data from the pipe if there was data available.
-      if bytesRead > 0 then
-      begin
-        // Convert the raw data to a string stream.
-        stringStream.Write(outputBuffer, bytesRead);
-        // Copy the read-only datastring into a temporary string for conversion purposes.
-        conversionStr := stringStream.DataString;
-        // Windows line endings are \r\n and Linux line endings are \n. Remove all
-        // occurences of \r to have a common base.
-        conversionStr := StringReplace(conversionStr, #13, '', [rfReplaceAll]);
-        // Extract all complete lines from the conversion string.
-        repeat
-          // Determine position of the next line feed.
-          lfPos := Pos(#10, conversionStr);
-          // Was a linefeed found?
-          if lfPos > 0 then
-          begin
-            // Copy the line including the linefeed.
-            lineStr := Copy(conversionStr, 1, lfPos);
-            // Replace the linefeed with a string termination.
-            lineStr := StringReplace(lineStr, #10, #0, [rfReplaceAll]);
-            // Remove the line from the conversion string now that it is copied.
-            Delete(conversionStr, 1, lfPos);
-            // Add the line to the command output.
-            FCommandRunner.FOutput.Add(lineStr);
-            // Store the line such that it can be used in the synchronized update event.
-            FUpdateString := lineStr;
-            // Trigger the update event (if set) to pass on the newly read line from the
-            // pipe.
-            if Assigned(FCommandRunner.FUpdateEvent) then
-            begin
-              Synchronize(@SynchronizeUpdateEvent);
-            end;
-          end;
-        until lfPos = 0;
-        // Empty string stream now that its data has been processed.
-        stringStream.Size := 0;
-        // Check if there is a partial line left in the conversion string.
-        if Length(conversionStr) > 0 then
+        for cmdSplitterIdx := 1 to (cmdSplitter.Count - 1) do
         begin
-          // Place the remainder back in the string stream so it will be processed during
-          // the next data read from the pipe.
-          stringStream.WriteString(conversionStr);
+          cmdProcess.Parameters.Add(cmdSplitter[cmdSplitterIdx]);
         end;
       end;
+      // Configure the process to use a pipe so the output of the command can be read.
+      cmdProcess.Options := [poUsePipes];
+      // Set flag
+      cmdProcessStarted := True;
+      // Attempt to start command execution. This might cause an exception if the OS
+      // cannot create a fork for the process.
+      try
+        // Run the command.
+        cmdProcess.Execute;
+      except
+        // Set flag that command could not be started.
+        cmdProcessStarted := False;
+      end;
+      // Only continue with reading from the pip if the command is running.
+      if cmdProcessStarted then
+      begin
+        // Read all output from the pipe into the buffer.
+        repeat
+          // Read a chunk of data from the pipe. Note that this blocks until the data is
+          // available. Therefore BUF_SIZE should not be set too big.
+          bytesRead := cmdProcess.Output.Read(outputBuffer, BUF_SIZE);
+          // Only process the data from the pipe if there was data available.
+          if bytesRead > 0 then
+          begin
+            // Convert the raw data to a string stream.
+            stringStream.Write(outputBuffer, bytesRead);
+            // Copy the read-only datastring into a temporary string for conversion purposes.
+            conversionStr := stringStream.DataString;
+            // Windows line endings are \r\n and Linux line endings are \n. Remove all
+            // occurences of \r to have a common base.
+            conversionStr := StringReplace(conversionStr, #13, '', [rfReplaceAll]);
+            // Extract all complete lines from the conversion string.
+            repeat
+              // Determine position of the next line feed.
+              lfPos := Pos(#10, conversionStr);
+              // Was a linefeed found?
+              if lfPos > 0 then
+              begin
+                // Copy the line including the linefeed.
+                lineStr := Copy(conversionStr, 1, lfPos);
+                // Replace the linefeed with a string termination.
+                lineStr := StringReplace(lineStr, #10, #0, [rfReplaceAll]);
+                // Remove the line from the conversion string now that it is copied.
+                Delete(conversionStr, 1, lfPos);
+                // Add the line to the command output.
+                FCommandRunner.FOutput.Add(lineStr);
+                // Store the line such that it can be used in the synchronized update event.
+                FUpdateString := lineStr;
+                // Trigger the update event (if set) to pass on the newly read line from the
+                // pipe.
+                if Assigned(FCommandRunner.FUpdateEvent) then
+                begin
+                  Synchronize(@SynchronizeUpdateEvent);
+                end;
+              end;
+              // Check for termination and cancellation event.
+              if (Terminated) or (FState = CRTS_IDLE) then
+              begin
+                // Transition to idle state and stop looping.
+                FState := CRTS_IDLE;
+                Break;
+              end;
+            until lfPos = 0;
+            // Empty string stream now that its data has been processed.
+            stringStream.Size := 0;
+            // Check if there is a partial line left in the conversion string.
+            if Length(conversionStr) > 0 then
+            begin
+              // Place the remainder back in the string stream so it will be processed during
+              // the next data read from the pipe.
+              stringStream.WriteString(conversionStr);
+            end;
+          end;
+          // Check for termination and cancellation event.
+          if (Terminated) or (FState = CRTS_IDLE) then
+          begin
+            // Transition to idle state and stop looping.
+            FState := CRTS_IDLE;
+            Break;
+          end;
+        until bytesRead = 0;
+      end;
+      // Release the process instance.
+      cmdProcess.Free;
+      // All done so its time to transition to the idle state.
+      FState := CRTS_IDLE;
+      // Trigger the OnDone event.
+      Synchronize(@SynchronizeDoneEvent);
+    end
+    else if FState = CRTS_IDLE then
+    begin
       // Check for cancellation event.
       if Terminated then
       begin
-        // Stop the thread..
+        // Stop the thread.
         Break;
       end;
-    until bytesRead = 0;
-    // All done so no need to continue the thread.
-    Break;
-  end;
-  // Trigger the done event, unless the thread was cancelled.
-  if not Terminated then
-  begin
-    // Request the parent instance to finish this thread and call the done event
-    // afterwards.
-    FCommandRunner.Finish;
+      // Don't starve the CPU while idling.
+      Sleep(2);
+    end;
   end;
   // Release instances.
+  cmdSplitter.Free;
   stringStream.Free;
-  cmdProcess.Free;
 end; //*** end of Execute ***
 
 
@@ -516,73 +481,6 @@ begin
 end; //*** end of SynchronizeUpdateEvent ***
 
 
-//---------------------------------------------------------------------------------------
-//-------------------------------- TCommandRunnerFinishThread ---------------------------
-//---------------------------------------------------------------------------------------
-//***************************************************************************************
-// NAME:           Create
-// PARAMETER:      CreateSuspended True to suspend the thread after creation.
-//                 WorkerThread Instance of the TCommandRunnerThread class, needed to
-//                 call some of its methods.
-// RETURN VALUE:   none
-// DESCRIPTION:    Thread constructor.
-//
-//***************************************************************************************
-constructor TCommandRunnerFinishThread.Create(CreateSuspended : Boolean; CommandRunner: TCommandRunner);
-begin
-  // Call inherited constructor.
-  inherited Create(CreateSuspended);
-  // Configure the thread to not automatically free itself upon termination.
-  FreeOnTerminate := False;
-  // Initialize fields.
-  FState := CRTS_IDLE;
-  FCommandRunner := CommandRunner;
-end; //*** end of Create ***
-
-
-//***************************************************************************************
-// NAME:           Execute
-// PARAMETER:      none
-// RETURN VALUE:   none
-// DESCRIPTION:    Thread execution function.
-//
-//***************************************************************************************
-procedure TCommandRunnerFinishThread.Execute;
-begin
-  while not Terminated do
-  begin
-    if FState = CRTS_BUSY then
-    begin
-      // No need to stop the worker thread if it is not instanced.
-      if Assigned(FCommandRunner.FWorkerThread) then
-      begin
-        // Set termination request for the worker thread.
-        FCommandRunner.FWorkerThread.Terminate;
-        // Wait for thread termination to complete.
-        FCommandRunner.FWorkerThread.WaitFor;
-        // Release the thread instance.
-        FreeAndNil(FCommandRunner.FWorkerThread);
-      end;
-      // Trigger the OnDone event.
-      Synchronize(@SynchronizeDoneEvent);
-      // Switch back to idle state.
-      FState := CRTS_IDLE;
-    end
-    else if FState = CRTS_IDLE then
-    begin
-      // Check for cancellation event.
-      if Terminated then
-      begin
-        // Stop the thread.
-        Break;
-      end;
-      // Don't starve the CPU while idling.
-      Sleep(2);
-    end;
-  end;
-end; //*** end of Execute ***
-
-
 //***************************************************************************************
 // NAME:           SynchronizeDoneEvent
 // PARAMETER:      none
@@ -592,7 +490,7 @@ end; //*** end of Execute ***
 //                 so from Execute-method in the following manner: Synchronize(@<name>).
 //
 //***************************************************************************************
-procedure TCommandRunnerFinishThread.SynchronizeDoneEvent;
+procedure TCommandRunnerThread.SynchronizeDoneEvent;
 begin
   // Only trigger the event if set.
   if Assigned(FCommandRunner.FDoneEvent) then
