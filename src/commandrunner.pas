@@ -78,20 +78,30 @@ type
     constructor Create(Command: String; CreateSuspended : Boolean; CommandRunner: TCommandRunner); reintroduce;
   end;
 
+  //------------------------------ TCommandRunnerFinishThread ---------------------------
+  TCommandRunnerFinishThread = class(TThread)
+  private
+  protected
+    FCommandRunner: TCommandRunner;
+    procedure SynchronizeDoneEvent;
+    procedure Execute; override;
+  public
+    constructor Create(CreateSuspended : Boolean; CommandRunner: TCommandRunner); reintroduce;
+  end;
+
   //------------------------------ TCommandRunner ---------------------------------------
   TCommandRunner = class (TObject)
   private
     FCommand: String;
     FOutput: TStringList;
     FWorkerThread: TCommandRunnerThread;
-    FFinishTimer: TTimer;
+    FFinishThread: TCommandRunnerFinishThread;
     FStartedEvent: TCommandRunnerStartedEvent;
     FCancelledEvent: TCommandRunnerCancelledEvent;
     FDoneEvent: TCommandRunnerDoneEvent;
     FUpdateEvent: TCommandRunnerUpdateEvent;
     procedure SetCommand(Value: String);
     function  GetRunning: Boolean;
-    procedure FinishTimerOnTimer(Sender: TObject);
   public
     constructor Create;
     destructor  Destroy; override;
@@ -124,11 +134,8 @@ begin
   inherited Create;
   // Create instance of the output stringlist.
   FOutput := TStringList.Create;
-  // Create instance of the finish timer and initialize it.
-  FFinishTimer := TTimer.Create(nil);
-  FFinishTimer.Enabled := False;
-  FFinishTimer.Interval := 1;
-  FFinishTimer.OnTimer:= @FinishTimerOnTimer;
+  // Create instance of the finish thread.
+  FFinishThread := TCommandRunnerFinishThread.Create(True, Self);
   // Initialize fields to their default values.
   FCommand := '';
   FStartedEvent := nil;
@@ -158,8 +165,10 @@ begin
     // Release the thread instance.
     FWorkerThread.Free;
   end;
-  // Free instance of the finish timer.
-  FFinishTimer.Free;
+  // Terminate and free instance of the finish thread.
+  FFinishThread.Terminate;
+  // Release the thread instance.
+  FFinishThread.Free;
   // Free instance of the output stringlist.
   FOutput.Free;
   // Call inherited destructor.
@@ -292,50 +301,35 @@ end; //*** end of Cancel ***
 // RETURN VALUE:   none
 // DESCRIPTION:    Finishes a currently running command that was done. This routine is
 //                 called by the internal worker thread. If the OnDone event is triggered
-//                 here, the event handler runs at thread level. This unfortunately means
-//                 that no new command can be started, even though the previous command
-//                 is done. For this reason, a deferred calling of the OnDone event is
-//                 needed, which is implemented via a TTimer. All that needs to be done
-//                 here is starting the timer for the smallest interval possible. The
-//                 OnTimer event handler can then handle the termination of the worker
-//                 thread and trigger the OnDone event.
+//                 here, the event handler runs at this thread level. This unfortunately
+//                 means that no new command can be started, even though the previous
+//                 command is done. For this reason, a deferred calling of the OnDone
+//                 event is needed, which is implemented via a seperate one-shot thread.
+//                 All that needs to be done here is instancing and starting of this
+//                 finish thread. This newly instanced finish thread then handle the
+//                 termination of the worker thread and triggers the OnDone event.
 //
 //***************************************************************************************
 procedure TCommandRunner.Finish;
+var
+  finishThread: TCommandRunnerFinishThread;
 begin
-  // Enable the finish timer to be able to call the OnDone event in a deffered way, such
-  // that the internal worker thread is terminated before the OnDone event is called.
-  FFinishTimer.Enabled := True;
+  // Create an instance of the finish thraed in a suspended state.
+  finishThread := TCommandRunnerFinishThread.Create(True, Self);
+  // Start the thread if it could be instanced.
+  if Assigned(finishThread) then
+  begin
+    // Note that this thread automatically frees itself upon termination, so no need to
+    // worry about that.
+    finishThread.Start;
+  end
+  // Thread could not be instanced.
+  else
+  begin
+    { TODO : Trigger error handler and do cleanup. }
+  end;
 end; //*** end of Finish ***
 
-
-//***************************************************************************************
-// NAME:           FinishTimerOnTimer
-// PARAMETER:      Sender Source of the event.
-// RETURN VALUE:   none
-// DESCRIPTION:    Event handler that gets called when the timer expires.
-//
-//***************************************************************************************
-procedure TCommandRunner.FinishTimerOnTimer(Sender: TObject);
-begin
-  // Disable the timer.
-  FFinishTimer.Enabled := False;
-  // No need to stop the worker thread if it is not instanced.
-  if Assigned(FWorkerThread) then
-  begin
-    // Set termination request for the worker thread.
-    FWorkerThread.Terminate;
-    // Wait for thread termination to complete.
-    FWorkerThread.WaitFor;
-    // Release the thread instance.
-    FreeAndNil(FWorkerThread);
-  end;
-  // Trigger event handler, if configured.
-  if Assigned(FDoneEvent) then
-  begin
-    FDoneEvent(Self);
-  end;
-end; //*** end of FinishTimerOnTimer ***
 
 //---------------------------------------------------------------------------------------
 //-------------------------------- TCommandRunnerThread ---------------------------------
@@ -419,7 +413,7 @@ begin
     cmdSplitter.Free;
     // Configure the process to use a pipe so the output of the command can be read.
     cmdProcess.Options := [poUsePipes];
-    // Run the command. This will not return until it is complete.
+    // Run the command.
     cmdProcess.Execute;
     // Read all output from the pipe into the buffer.
     repeat
@@ -501,15 +495,84 @@ end; //*** end of Execute ***
 // DESCRIPTION:    Synchronizes to the main thread to execute the code inside this
 //                 procedure. This function should only be called from thread level,
 //                 so from Execute-method in the following manner: Synchronize(@<name>).
-//                 Note that the caller of this routine needs to check if FUpdateEvent
-//                 is actually assigned.
 //
 //***************************************************************************************
 procedure TCommandRunnerThread.SynchronizeUpdateEvent;
 begin
-  // Trigger the event.
-  FCommandRunner.FUpdateEvent(FCommandRunner, FUpdateString);
+  // Only trigger the event if set.
+  if Assigned(FCommandRunner.FUpdateEvent) then
+  begin
+    // Trigger the event.
+    FCommandRunner.FUpdateEvent(FCommandRunner, FUpdateString);
+  end;
 end; //*** end of SynchronizeUpdateEvent ***
+
+
+//---------------------------------------------------------------------------------------
+//-------------------------------- TCommandRunnerFinishThread ---------------------------
+//---------------------------------------------------------------------------------------
+//***************************************************************************************
+// NAME:           Create
+// PARAMETER:      CreateSuspended True to suspend the thread after creation.
+//                 WorkerThread Instance of the TCommandRunnerThread class, needed to
+//                 call some of its methods.
+// RETURN VALUE:   none
+// DESCRIPTION:    Thread constructor.
+//
+//***************************************************************************************
+constructor TCommandRunnerFinishThread.Create(CreateSuspended : Boolean; CommandRunner: TCommandRunner);
+begin
+  // Call inherited constructor.
+  inherited Create(CreateSuspended);
+  // Configure the thread to not automatically free itself upon termination.
+  FreeOnTerminate := False;
+  // Initialize fields.
+  FCommandRunner := CommandRunner;
+end; //*** end of Create ***
+
+
+//***************************************************************************************
+// NAME:           Execute
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Thread execution function.
+//
+//***************************************************************************************
+procedure TCommandRunnerFinishThread.Execute;
+begin
+  // No need to stop the worker thread if it is not instanced.
+  if Assigned(FCommandRunner.FWorkerThread) then
+  begin
+    // Set termination request for the worker thread.
+    FCommandRunner.FWorkerThread.Terminate;
+    // Wait for thread termination to complete.
+    FCommandRunner.FWorkerThread.WaitFor;
+    // Release the thread instance.
+    FreeAndNil(FCommandRunner.FWorkerThread);
+  end;
+  // Trigger the OnDone event.
+  Synchronize(@SynchronizeDoneEvent);
+end; //*** end of Execute ***
+
+
+//***************************************************************************************
+// NAME:           SynchronizeDoneEvent
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Synchronizes to the main thread to execute the code inside this
+//                 procedure. This function should only be called from thread level,
+//                 so from Execute-method in the following manner: Synchronize(@<name>).
+//
+//***************************************************************************************
+procedure TCommandRunnerFinishThread.SynchronizeDoneEvent;
+begin
+  // Only trigger the event if set.
+  if Assigned(FCommandRunner.FDoneEvent) then
+  begin
+    // Trigger the event.
+    FCommandRunner.FDoneEvent(FCommandRunner);
+  end;
+end; //*** end of SynchronizeDoneEvent ***
 
 end.
 //******************************** end of commandrunner.pas *****************************
