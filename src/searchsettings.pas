@@ -83,7 +83,7 @@ begin
   FDirectory := '';
   FRecursive := True;
   FSearchText := '';
-  FCaseSensitive := True;
+  FCaseSensitive := False;
   FFilePattern := '*.*';
 end; //*** end of Create ***
 

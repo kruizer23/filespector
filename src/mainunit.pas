@@ -111,7 +111,9 @@ type
 //***************************************************************************************
 var
   MainForm: TMainForm;
+  CmdLineCaseOptionFound: Boolean;
   CmdLineIgnoreCaseOption: Boolean;
+  CmdLineRecursiveOptionFound: Boolean;
   CmdLineNotRecursiveOption: Boolean;
   CmdLineDirectoryOption: String;
 
@@ -160,10 +162,10 @@ begin
   FFileWithLastHit := '';
   FSearchStartTime := Now;
   // Update search settings based on the info specified as command line options.
-  if CmdLineIgnoreCaseOption then
-    FSearchSettings.CaseSensitive := False;
-  if CmdLineNotRecursiveOption then
-    FSearchSettings.Recursive := False;
+  if CmdLineCaseOptionFound then
+    FSearchSettings.CaseSensitive := not CmdLineIgnoreCaseOption;
+  if CmdLineRecursiveOptionFound then
+    FSearchSettings.Recursive := not CmdLineNotRecursiveOption;
   if CmdLineDirectoryOption <> '' then
     FSearchSettings.Directory := CmdLineDirectoryOption;
   // Initialize the user interface.

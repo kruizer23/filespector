@@ -63,7 +63,9 @@ begin
   WriteLn('  -?, --help                    Show help options');
   WriteLn('');
   WriteLn('Application Options:');
+  WriteLn('  -c, --case-sensitive          Perform case-sensitive search');
   WriteLn('  -i, --ignore-case             Perform case-insensitive search');
+  WriteLn('  -r, --recursive               Recurse into subdirectories');
   WriteLn('  -n, --not-recursive           Do not recurse into subdirectories');
   WriteLn('  -l, --lang=CODE               Set user interface language');
   WriteLn('');
@@ -90,22 +92,38 @@ begin
     halt;
   end;
   // Initialize command line option related global vars.
+  CmdLineCaseOptionFound := False;
   CmdLineIgnoreCaseOption := False;
+  CmdLineRecursiveOptionFound := False;
   CmdLineNotRecursiveOption := False;
   CmdLineDirectoryOption := '';
   // Check the supported command line options.
-  CheckResult := Application.CheckOptions('?inl:', 'help ignore-case not-recursive lang:');
+  CheckResult := Application.CheckOptions('?cirnl:', 'help case-sensitive ignore-case recursive not-recursive lang:');
   // Only extract the command line options if valid ones were specified.
   if CheckResult = '' then
   begin
-    // Extract ignore case option.
+    // Extract case-sensitive option.
+    if Application.HasOption('c', 'case-sensitive') then
+    begin
+      CmdLineCaseOptionFound := True;
+      CmdLineIgnoreCaseOption := False;
+    end;
+    // Extract ignore-case option.
     if Application.HasOption('i', 'ignore-case') then
     begin
+      CmdLineCaseOptionFound := True;
       CmdLineIgnoreCaseOption := True;
+    end;
+    // Extract recursive search option.
+    if Application.HasOption('r', 'recursive') then
+    begin
+      CmdLineRecursiveOptionFound := True;
+      CmdLineNotRecursiveOption := False;
     end;
     // Extract not-recursive search option.
     if Application.HasOption('n', 'not-recursive') then
     begin
+      CmdLineRecursiveOptionFound := True;
       CmdLineNotRecursiveOption := True;
     end;
     // Extract initial search directory.
