@@ -383,7 +383,7 @@ begin
             // Copy the read-only datastring into a temporary string for conversion purposes.
             conversionStr := stringStream.DataString;
             // Windows line endings are \r\n and Linux line endings are \n. Remove all
-            // occurences of \r to have a common base.
+            // occurrences of \r to have a common base.
             conversionStr := StringReplace(conversionStr, #13, '', [rfReplaceAll]);
             // Extract all complete lines from the conversion string.
             repeat
