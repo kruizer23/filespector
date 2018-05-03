@@ -62,6 +62,9 @@ type
   //------------------------------ TCommandRunnerDoneEvent ------------------------------
   TCommandRunnerDoneEvent = procedure(Sender: TObject) of object;
 
+  //------------------------------ TCommandRunnerErrorEvent -----------------------
+  TCommandRunnerErrorEvent = procedure(Sender: TObject; ErrorInfo: String) of object;
+
   //------------------------------ TCommandRunnerUpdateEvent ----------------------------
   TCommandRunnerUpdateEvent = procedure(Sender: TObject; OutputLine: String) of object;
 
@@ -77,9 +80,11 @@ type
     FCommand: String;
     FCommandRunner: TCommandRunner;
     FUpdateString: String;
+    FErrorString: String;
     procedure Execute; override;
     procedure SynchronizeUpdateEvent;
     procedure SynchronizeDoneEvent;
+    procedure SynchronizeErrorEvent;
   public
     constructor Create(CreateSuspended : Boolean; CommandRunner: TCommandRunner); reintroduce;
     property Command: String read FCommand write FCommand;
@@ -94,6 +99,7 @@ type
     FStartedEvent: TCommandRunnerStartedEvent;
     FCancelledEvent: TCommandRunnerCancelledEvent;
     FDoneEvent: TCommandRunnerDoneEvent;
+    FErrorEvent: TCommandRunnerErrorEvent;
     FUpdateEvent: TCommandRunnerUpdateEvent;
     procedure SetCommand(Value: String);
     function  GetRunning: Boolean;
@@ -108,6 +114,7 @@ type
     property OnStarted: TCommandRunnerStartedEvent read FStartedEvent write FStartedEvent;
     property OnCancelled: TCommandRunnerCancelledEvent read FCancelledEvent write FCancelledEvent;
     property OnDone: TCommandRunnerDoneEvent read FDoneEvent write FDoneEvent;
+    property OnError: TCommandRunnerErrorEvent read FErrorEvent write FErrorEvent;
     property OnUpdate: TCommandRunnerUpdateEvent read FUpdateEvent write FUpdateEvent;
   end;
 
@@ -141,6 +148,7 @@ begin
   FStartedEvent := nil;
   FCancelledEvent := nil;
   FDoneEvent := nil;
+  FErrorEvent := nil;
   FUpdateEvent := nil;
 end; //*** end of Create ***
 
@@ -294,6 +302,7 @@ begin
   FCommand := '';
   FCommandRunner := CommandRunner;
   FUpdateString := '';
+  FErrorString := '';
 end; //*** end of Create ***
 
 
@@ -309,7 +318,6 @@ const
   BUF_SIZE = 128;
 var
   cmdProcess: TProcess;
-  cmdProcessStarted: Boolean;
   cmdSplitter: TStringList;
   cmdSplitterIdx: Integer;
   outputBuffer: array[0..(BUF_SIZE - 1)] of Byte;
@@ -319,7 +327,10 @@ var
   conversionStr: String;
   lineStr: String;
   lfPos: Integer;
+  errorDetected: Boolean;
 begin
+  // Reset error flag.
+  errorDetected := False;
   // Initialize the output buffer with all zeroes.
   for idx := 0 to  (SizeOf(outputBuffer) - 1) do
   begin
@@ -336,6 +347,8 @@ begin
   begin
     if FState = CRTS_BUSY then
     begin
+      // Reset error flag.
+      errorDetected := False;
       // Clear the string list.
       cmdSplitter.Clear;
       // Break the command apart into the executable and its parameters.
@@ -356,19 +369,19 @@ begin
       end;
       // Configure the process to use a pipe so the output of the command can be read.
       cmdProcess.Options := [poUsePipes];
-      // Set flag
-      cmdProcessStarted := True;
       // Attempt to start command execution. This might cause an exception if the OS
       // cannot create a fork for the process.
       try
         // Run the command.
         cmdProcess.Execute;
       except
-        // Set flag that command could not be started.
-        cmdProcessStarted := False;
+        // Set error flag and store related info. The error event handler will be
+        // triggered at a later point.
+        errorDetected := True;
+        FErrorString := 'Could not execute: ' + FCommand + '.';
       end;
       // Only continue with reading from the pip if the command is running.
-      if cmdProcessStarted then
+      if not errorDetected then
       begin
         // Read all output from the pipe into the buffer.
         repeat
@@ -436,12 +449,23 @@ begin
           end;
         until bytesRead = 0;
       end;
+      // Properly reap the child process. Otherwise it will remain as a zombie and we
+      // might run out of process handles.
+      cmdProcess.WaitOnExit;
       // Release the process instance.
       cmdProcess.Free;
       // All done so its time to transition to the idle state.
       FState := CRTS_IDLE;
-      // Trigger the OnDone event.
-      Synchronize(@SynchronizeDoneEvent);
+      // Trigger the OnDone event in case no error was detected.
+      if not errorDetected then
+      begin
+        Synchronize(@SynchronizeDoneEvent);
+      end
+      // Trigger the OnError event otherwise.
+      else
+      begin
+        Synchronize(@SynchronizeErrorEvent);
+      end;
     end
     else if FState = CRTS_IDLE then
     begin
@@ -499,6 +523,26 @@ begin
     FCommandRunner.FDoneEvent(FCommandRunner);
   end;
 end; //*** end of SynchronizeDoneEvent ***
+
+
+//***************************************************************************************
+// NAME:           SynchronizeErrorEvent
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Synchronizes to the main thread to execute the code inside this
+//                 procedure. This function should only be called from thread level,
+//                 so from Execute-method in the following manner: Synchronize(@<name>).
+//
+//***************************************************************************************
+procedure TCommandRunnerThread.SynchronizeErrorEvent;
+begin
+  // Only trigger the event if set.
+  if Assigned(FCommandRunner.FErrorEvent) then
+  begin
+    // Trigger the event.
+    FCommandRunner.FErrorEvent(FCommandRunner, FErrorString);
+  end;
+end; //*** end of SynchronizeUpdateEvent ***
 
 end.
 //******************************** end of commandrunner.pas *****************************

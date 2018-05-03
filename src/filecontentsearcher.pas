@@ -93,6 +93,7 @@ type
     function StartFileDetection: Boolean;
     function StartFileSearching(ListIdx: Integer): Boolean;
     procedure CommandRunnerOnDone(Sender: TObject);
+    procedure CommandRunnerOnError(Sender: TObject; ErrorInfo: String);
     procedure CommandRunnerOnUpdate(Sender: TObject; OutputLine: String);
   public
     constructor Create;
@@ -180,7 +181,8 @@ begin
   FCommandRunner := TCommandRunner.Create;
   // Configure the command runner event handlers.
   FCommandRunner.OnDone := @CommandRunnerOnDone;
-  FCommandRunner.OnUpdate :=@CommandRunnerOnUpdate;
+  FCommandRunner.OnError:= @CommandRunnerOnError;
+  FCommandRunner.OnUpdate := @CommandRunnerOnUpdate;
   // Create instance of the search settings.
   FSearchSettings := TSearchSettings.Create;
   // Create instance of the file list.
@@ -489,7 +491,28 @@ begin
 end; //*** end of CommandRunnerOnDone ***
 
 
+//**************************************************************************************
+// NAME:           CommandRunnerOnError
+// PARAMETER:      Sender Source of the event.
+//                 ErrorInfo Information about the error that occurred.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the command runner detected an
+//                 error.
+//
 //***************************************************************************************
+procedure TFileContentSearcher.CommandRunnerOnError(Sender: TObject; ErrorInfo: String);
+begin
+  // Could not start the file search. Go back to idle state and report the error.
+  FState := FCSS_IDLE;
+  // Trigger event handler, if configured.
+  if Assigned(FErrorEvent) then
+  begin
+    FErrorEvent(Self, ErrorInfo);
+  end;
+end; //*** end of CommandRunnerOnError ***
+
+
+//**************************************************************************************
 // NAME:           CommandRunnerOnUpdate
 // PARAMETER:      Sender Source of the event.
 // RETURN VALUE:   none
