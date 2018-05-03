@@ -223,18 +223,23 @@ function TFileContentSearcher.Start(SearchSettings: TSearchSettings): Boolean;
 begin
   // Initialize the result.
   Result := False;
-  // Store the search settings.
-  FSearchSettings.Directory := SearchSettings.Directory;
-  FSearchSettings.Recursive := SearchSettings.Recursive;
-  FSearchSettings.SearchText := SearchSettings.SearchText;
-  FSearchSettings.CaseSensitive := SearchSettings.CaseSensitive;
-  FSearchSettings.FilePattern := SearchSettings.FilePattern;
-  // Validate search settings before actually starting the search operation.
-  if (Trim(FSearchSettings.SearchText) <> '') and
-     (Trim(FSearchSettings.Directory) <> '')  then
+  // Only continue if we are idling.
+  if FState = FCSS_IDLE then
   begin
-    // Kick of the search operation by building a list of files that need to be searched.
-    Result := StartFileDetection;
+    // Store the search settings.
+    FSearchSettings.Directory := SearchSettings.Directory;
+    FSearchSettings.Recursive := SearchSettings.Recursive;
+    FSearchSettings.SearchText := SearchSettings.SearchText;
+    FSearchSettings.CaseSensitive := SearchSettings.CaseSensitive;
+    FSearchSettings.FilePattern := SearchSettings.FilePattern;
+    // Validate search settings before actually starting the search operation.
+    if (Trim(FSearchSettings.SearchText) <> '') and
+       (Trim(FSearchSettings.Directory) <> '')  then
+    begin
+      // Kick off the search operation by building a list of files that need to be
+      // searched.
+      Result := StartFileDetection;
+    end;
   end;
 end; //*** end of Start ***
 

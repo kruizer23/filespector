@@ -318,6 +318,7 @@ const
   BUF_SIZE = 128;
 var
   cmdProcess: TProcess;
+  cmdProcessExitCode: Integer;
   cmdSplitter: TStringList;
   cmdSplitterIdx: Integer;
   outputBuffer: array[0..(BUF_SIZE - 1)] of Byte;
@@ -422,13 +423,6 @@ begin
                   Synchronize(@SynchronizeUpdateEvent);
                 end;
               end;
-              // Check for termination and cancellation event.
-              if (Terminated) or (FState = CRTS_IDLE) then
-              begin
-                // Transition to idle state and stop looping.
-                FState := CRTS_IDLE;
-                Break;
-              end;
             until lfPos = 0;
             // Empty string stream now that its data has been processed.
             stringStream.Size := 0;
@@ -443,15 +437,21 @@ begin
           // Check for termination and cancellation event.
           if (Terminated) or (FState = CRTS_IDLE) then
           begin
-            // Transition to idle state and stop looping.
-            FState := CRTS_IDLE;
             Break;
           end;
         until bytesRead = 0;
       end;
       // Properly reap the child process. Otherwise it will remain as a zombie and we
-      // might run out of process handles.
-      cmdProcess.WaitOnExit;
+      // might run out of process handles. Note that WaitOnExit cannot be used here,
+      // because the loop that reads from the pipe might have been exited upon
+      // termination or cancellation request, while the command is still running. Calling
+      // WaitOnExit here would deadlock the thread, since the program won't exit if we
+      // don't empty out the pipe.
+      if cmdProcess.Running then
+      begin
+        cmdProcessExitCode := 0;
+        cmdProcess.Terminate(cmdProcessExitCode);
+      end;
       // Release the process instance.
       cmdProcess.Free;
       // All done so its time to transition to the idle state.
