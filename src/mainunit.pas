@@ -76,12 +76,14 @@ type
     PnlRecursive: TPanel;
     PnlDirectory: TPanel;
     PnlSearchPattern: TPanel;
+    PrgBarSearch: TProgressBar;
     SelectDirectoryDialog: TSelectDirectoryDialog;
     StatusBar: TStatusBar;
     procedure BtnBrowseClick(Sender: TObject);
     procedure BtnSearchClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     FUISetting: TUserInterfaceSetting;
     FSearchSettings: TSearchSettings;
@@ -93,6 +95,7 @@ type
     FFileWithLastHit: String;
     procedure InitializeUserInterface;
     procedure UpdateUserInterface;
+    procedure ReattachProgressbar;
     procedure UpdateSearchProgress(Reset: Boolean = False);
     procedure CollectSearchSettings;
     function  StartSearch: Boolean;
@@ -190,6 +193,20 @@ begin
   // Release the search settings instance.
   FSearchSettings.Free;
 end; //*** end of FormDestroy ***
+
+
+//***************************************************************************************
+// NAME:           FormResize
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the form is resized.
+//
+//***************************************************************************************
+procedure TMainForm.FormResize(Sender: TObject);
+begin
+  // Make sure the progress bar is properly located on the statusbar.
+  ReattachProgressbar;
+end; //*** end of FormResize ***
 
 
 //***************************************************************************************
@@ -323,6 +340,27 @@ end; //*** end of UpdateUserInterface ***
 
 
 //***************************************************************************************
+// NAME:           ReattachProgressbar
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Makes sure the program bar is correctly positioned on the statusbar.
+//                 Statusbar panels cannot hold components such as a progressbar. The
+//                 workaround is to simply reposition the progress bar whenever the size
+//                 of the form changes. This routines manages that. Note that the anchors
+//                 of the progressbar should all be set to False in the object inspector.
+//
+//***************************************************************************************
+procedure TMainForm.ReattachProgressbar;
+begin
+  // Reposition the progress bar on panel[0] of the statusbar.
+  PrgBarSearch.Top := StatusBar.Top + 2;
+  PrgBarSearch.Left := StatusBar.Left + 7;
+  PrgBarSearch.Height := StatusBar.Height - 4;
+  PrgBarSearch.Width := StatusBar.Panels[0].Width - 20;
+end; //*** end of ReattachProgressbar ***
+
+
+//***************************************************************************************
 // NAME:           UpdateSearchProgress
 // PARAMETER:      none
 // RETURN VALUE:   none
@@ -338,7 +376,6 @@ var
   filesWithHit: LongWord;
   progressPct: Integer;
 begin
-  { TODO : Integrate running indicator or progressbar. }
   // Initialize progress info to the reset values.
   totalFilesFound := 0;
   filesSearched := 0;
@@ -357,7 +394,7 @@ begin
       progressPct := (filesSearched * 100) div totalFilesFound;
   end;
   // Update progress information on the status bar.
-  StatusBar.Panels[0].Text := IntToStr(progressPct) + '%';
+  PrgBarSearch.Position := progressPct;
   StatusBar.Panels[1].Text := 'Search hits: ' + IntToStr(totalSearchHits);
   StatusBar.Panels[2].Text := 'Files with a search hit: ' + IntToStr(filesWithHit) +
                               ' of ' + IntToStr(totalFilesFound);
@@ -422,8 +459,6 @@ end; //*** end of StartSearch ***
 //
 //***************************************************************************************
 procedure TMainForm.FinishSearch;
-var
-  infoStr: String;
 begin
   // Update the user interface.
   FUISetting := UIS_DEFAULT;

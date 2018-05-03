@@ -8,7 +8,7 @@ object MainForm: TMainForm
   ClientHeight = 517
   ClientWidth = 838
   Constraints.MinHeight = 400
-  Constraints.MinWidth = 440
+  Constraints.MinWidth = 580
   Icon.Data = {
     3E42000000000100010040400000010020002842000016000000280000004000
     0000800000000100200000000000004000006400000064000000000000000000
@@ -544,6 +544,7 @@ object MainForm: TMainForm
   }
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnResize = FormResize
   Position = poScreenCenter
   LCLVersion = '1.8.2.0'
   object GbxSearchLocation: TGroupBox
@@ -764,7 +765,6 @@ object MainForm: TMainForm
       Width = 826
       Panels = <      
         item
-          Text = 'Progress'
           Width = 180
         end      
         item
@@ -776,6 +776,16 @@ object MainForm: TMainForm
           Width = 250
         end>
       SimplePanel = False
+    end
+    object PrgBarSearch: TProgressBar
+      Left = 7
+      Height = 15
+      Top = 223
+      Width = 161
+      Anchors = []
+      Smooth = True
+      Step = 1
+      TabOrder = 2
     end
   end
   object GbxSearchLimitation: TGroupBox
