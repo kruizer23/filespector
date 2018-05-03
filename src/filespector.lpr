@@ -56,18 +56,20 @@ uses
 //***************************************************************************************
 procedure WriteHelp;
 begin
-  WriteLn('Usage:');
-  WriteLn('  filespector [OPTION]... [DIRECTORY]');
+  WriteLn('Usage: filespector [OPTION] [DIRECTORY]');
   WriteLn('');
-  WriteLn('Help Options:');
-  WriteLn('  -?, --help                    Show help options');
+  WriteLn('Options:');
+  WriteLn('  -?             --help                    Show help options');
+  WriteLn('  -i [off|on]    --ignore-case[=off|on]    Ignore case during search');
+  WriteLn('  -r [off|on]    --recursive[=off|on]      Recurse into directories');
+  WriteLn('  -l [code]      --lang[=code]             Set user interface language');
   WriteLn('');
-  WriteLn('Application Options:');
-  WriteLn('  -c, --case-sensitive          Perform case-sensitive search');
-  WriteLn('  -i, --ignore-case             Perform case-insensitive search');
-  WriteLn('  -r, --recursive               Recurse into subdirectories');
-  WriteLn('  -n, --not-recursive           Do not recurse into subdirectories');
-  WriteLn('  -l, --lang=CODE               Set user interface language');
+  WriteLn('FileSpector is a GUI tool for quickly finding all text occurrences in multiple');
+  WriteLn('files in a directory, matching a specific file extension pattern.');
+  WriteLn('');
+  WriteLn('Examples:');
+  WriteLn('  filespector -i on -r off /home/user');
+  WriteLn('  filespector --recursive=on --lang=de /home/user');
   WriteLn('');
 end; //*** end of WriteHelp ***
 
@@ -81,7 +83,8 @@ end; //*** end of WriteHelp ***
 //***************************************************************************************
 procedure ProcessCommandLine;
 var
-  CheckResult: String;
+  checkResult: String;
+  optionValue: String;
 begin
   // Display help information if requested.
   if Application.HasOption('?', 'help') then
@@ -92,39 +95,47 @@ begin
     halt;
   end;
   // Initialize command line option related global vars.
-  CmdLineCaseOptionFound := False;
+  CmdLineIgnoreCaseOptionFound := False;
   CmdLineIgnoreCaseOption := False;
   CmdLineRecursiveOptionFound := False;
-  CmdLineNotRecursiveOption := False;
+  CmdLineRecursiveOption := False;
   CmdLineDirectoryOption := '';
   // Check the supported command line options.
-  CheckResult := Application.CheckOptions('?cirnl:', 'help case-sensitive ignore-case recursive not-recursive lang:');
+  checkResult := Application.CheckOptions('?i:r:l:', 'help ignore-case: recursive: lang:');
   // Only extract the command line options if valid ones were specified.
-  if CheckResult = '' then
+  if checkResult = '' then
   begin
-    // Extract case-sensitive option.
-    if Application.HasOption('c', 'case-sensitive') then
-    begin
-      CmdLineCaseOptionFound := True;
-      CmdLineIgnoreCaseOption := False;
-    end;
     // Extract ignore-case option.
     if Application.HasOption('i', 'ignore-case') then
     begin
-      CmdLineCaseOptionFound := True;
-      CmdLineIgnoreCaseOption := True;
+      // Extract the option value.
+      optionValue := Application.GetOptionValue('i', 'ignore-case');
+      if optionValue = 'off' then
+      begin
+        CmdLineIgnoreCaseOptionFound := True;
+        CmdLineIgnoreCaseOption := False;
+      end
+      else if optionValue = 'on' then
+      begin
+        CmdLineIgnoreCaseOptionFound := True;
+        CmdLineIgnoreCaseOption := True;
+      end;
     end;
     // Extract recursive search option.
     if Application.HasOption('r', 'recursive') then
     begin
-      CmdLineRecursiveOptionFound := True;
-      CmdLineNotRecursiveOption := False;
-    end;
-    // Extract not-recursive search option.
-    if Application.HasOption('n', 'not-recursive') then
-    begin
-      CmdLineRecursiveOptionFound := True;
-      CmdLineNotRecursiveOption := True;
+      // Extract the option value.
+      optionValue := Application.GetOptionValue('r', 'recursive');
+      if optionValue = 'off' then
+      begin
+        CmdLineRecursiveOptionFound := True;
+        CmdLineRecursiveOption := False;
+      end
+      else if optionValue = 'on' then
+      begin
+        CmdLineRecursiveOptionFound := True;
+        CmdLineRecursiveOption := True;
+      end;
     end;
     // Extract initial search directory.
     if ParamCount > 0 then
