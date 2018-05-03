@@ -15,8 +15,8 @@ done
 #
 # Perform the uninstall.
 #
-rm -f $DESTDIR/usr/bin/filecruncher
-rm -f $DESTDIR/usr/share/filecruncher/filecruncher.ico
-rm -f $DESTDIR/usr/share/applications/filecruncher.desktop
-rmdir $DESTDIR/usr/share/filecruncher
+rm -f $DESTDIR/usr/bin/filespector
+rm -f $DESTDIR/usr/share/filespector/filespector.ico
+rm -f $DESTDIR/usr/share/applications/filespector.desktop
+rmdir $DESTDIR/usr/share/filespector
 

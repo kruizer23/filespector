@@ -4,7 +4,7 @@ object MainForm: TMainForm
   Top = 263
   Width = 838
   ActiveControl = EdtSearchText
-  Caption = 'FileCruncher'
+  Caption = 'FileSpector'
   ClientHeight = 517
   ClientWidth = 838
   Constraints.MinHeight = 400

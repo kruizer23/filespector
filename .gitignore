@@ -1,5 +1,5 @@
-src/filecruncher
-src/filecruncher.lps
-src/filecruncher.res
-src/filecruncher.dbg
+src/filespector
+src/filespector.lps
+src/filespector.res
+src/filespector.dbg
 src/lib/*

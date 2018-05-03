@@ -16,10 +16,10 @@ done
 # Perform the install.
 #
 mkdir -p $DESTDIR/usr/bin
-cp src/filecruncher $DESTDIR/usr/bin/
-mkdir -p $DESTDIR/usr/share/filecruncher
-cp src/filecruncher.ico $DESTDIR/usr/share/filecruncher/
+cp src/filespector $DESTDIR/usr/bin/
+mkdir -p $DESTDIR/usr/share/filespector
+cp src/filespector.ico $DESTDIR/usr/share/filespector/
 mkdir -p $DESTDIR/usr/share/applications
-cp src/filecruncher.desktop $DESTDIR/usr/share/applications/
+cp src/filespector.desktop $DESTDIR/usr/share/applications/
 
 

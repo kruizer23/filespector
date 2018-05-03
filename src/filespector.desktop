@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
 Encoding=UTF-8
-Name=FileCruncher
+Name=FileSpector
 Categories=Utility;TextEditor;
 Comment=Find text occurences in multiple files
-Exec=/usr/bin/filecruncher
-Icon=/usr/share/filecruncher/filecruncher.ico
+Exec=/usr/bin/filespector
+Icon=/usr/share/filespector/filespector.ico
 Terminal=false

@@ -1,7 +1,7 @@
-program filecruncher;
+program filespector;
 //***************************************************************************************
 //  Description: Contains the main program entry.
-//    File Name: filecruncher.lpr
+//    File Name: filespector.lpr
 //
 //---------------------------------------------------------------------------------------
 //                          C O P Y R I G H T
@@ -16,12 +16,12 @@ program filecruncher;
 //---------------------------------------------------------------------------------------
 //                            L I C E N S E
 //---------------------------------------------------------------------------------------
-// This file is part of FileCruncher. FileCruncher is free software: you can redistribute
+// This file is part of FileSpector. FileSpector is free software: you can redistribute
 // it and/or modify it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
-// FileCruncher is distributed in the hope that it will be useful, but WITHOUT ANY
+// FileSpector is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 // PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
@@ -57,7 +57,7 @@ uses
 procedure WriteHelp;
 begin
   WriteLn('Usage:');
-  WriteLn('  filecruncher [OPTION]... [DIRECTORY]');
+  WriteLn('  filespector [OPTION]... [DIRECTORY]');
   WriteLn('');
   WriteLn('Help Options:');
   WriteLn('  -?, --help                    Show help options');
@@ -158,5 +158,5 @@ begin
   // Start running the application.
   Application.Run;
 end.
-//******************************** end of filecruncher.lpr ******************************
+//******************************** end of filespector.lpr *******************************
 

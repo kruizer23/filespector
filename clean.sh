@@ -3,6 +3,6 @@
 #
 # Remove all files and directories created during the build.
 # 
-rm -f src/filecruncher
-rm -f src/filecruncher.res
+rm -f src/filespector
+rm -f src/filespector.res
 rm -rf src/lib
