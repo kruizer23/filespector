@@ -56,7 +56,7 @@ uses
 //***************************************************************************************
 procedure WriteHelp;
 begin
-  WriteLn('Usage: filespector [OPTION] [DIRECTORY]');
+  WriteLn('Usage: filespector [OPTIONS] [DIRECTORY]');
   WriteLn('');
   WriteLn('Options:');
   WriteLn('  -?             --help                    Show help options');

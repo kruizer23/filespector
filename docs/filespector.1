@@ -1,6 +1,3 @@
-.\"Created with GNOME Manpages Editor
-.\"http://sourceforge.net/projects/gmanedit2
-
 .TH FILESPECTOR 1 "21 April 2018" "" "User Manual"
 
 .SH NAME
@@ -8,8 +5,35 @@ filespector \- Find text occurrences in multiple files
 
 .SH SYNOPSIS
 .B filespector
-.br
+[\fIOPTIONS\fR] [\fIDIRECTORY\fR]
+.BR
 
 .SH DESCRIPTION
-FileSpector is a GUI tool for quickly finding all text occurrences in multiple
+filespector is a GUI tool for quickly finding all text occurrences in multiple
 files in a directory, matching a specific file extension pattern.
+
+.SH OPTIONS
+.TP
+.PD 0
+\fB\-i\fR[\fIoff|on\fR]
+.TP
+.PD
+\fB\-\^\-ignore-case\fR[\fB=\fIoff|on\fR]
+Ignore case sensitivity of the text to search for.
+
+.TP
+.PD 0
+\fB\-r\fR[\fIoff|on\fR]
+.TP
+.PD
+\fB\-\^\-recursive\fR[\fB=\fIoff|on\fR]
+Recurse into subdirectories of the selected search directory.
+
+.TP
+.PD 0
+\fB\-l\fR[\fIcode\fR]
+.TP
+.PD
+\fB\-\^\-lang\fR[\fB=\fIcode\fR]
+Set the desired user interface language via the language code (i.e. 'en', 'de').
+
