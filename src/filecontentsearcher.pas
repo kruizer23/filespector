@@ -92,6 +92,7 @@ type
     FFileSearchHitEvent: TFileContentSearcherFileSearchHitEvent;
     function StartFileDetection: Boolean;
     function StartFileSearching(ListIdx: Integer): Boolean;
+    function FileIsExcluded(FileToCheck: String): Boolean;
     procedure CommandRunnerOnDone(Sender: TObject);
     procedure CommandRunnerOnError(Sender: TObject; ErrorInfo: String);
     procedure CommandRunnerOnUpdate(Sender: TObject; OutputLine: String);
@@ -409,6 +410,52 @@ end; //*** end of StartFileSearching ***
 
 
 //***************************************************************************************
+// NAME:           FileIsExcluded
+// PARAMETER:      FileToCheck Name of the file to check for exclusion.
+// RETURN VALUE:   none
+// DESCRIPTION:    Determines if a file should be excluded from the content search
+//                 operation.
+//
+//***************************************************************************************
+function TFileContentSearcher.FileIsExcluded(FileToCheck: String): Boolean;
+const
+  NUM_EXCLUSIONS = 4;
+  exclusionPatterns: array[1..NUM_EXCLUSIONS] of String = (
+    DirectorySeparator + '.svn',
+    DirectorySeparator + '.git',
+    DirectorySeparator + '.hg',
+    DirectorySeparator + '.bzr'
+  );
+var
+  idx: Integer;
+  directoryToCheck: String;
+begin
+  // Initialize the result.
+  Result := True;
+  // The file needs to at least exist, be readable and not binary for a text search.
+  if FileExists(FileToCheck) then
+  begin
+    if FileIsText(FileToCheck) and FileIsReadable(FileToCheck) then
+    begin
+      // File is okay so far. Update the result.
+      Result := False;
+      // Now check if the directory matches one of the exclusion patterns.
+      directoryToCheck := ExtractFileDir(FileToCheck);
+      for idx := 1 to NUM_EXCLUSIONS do
+      begin
+        if Pos(exclusionPatterns[idx], directoryToCheck) <> 0 then
+        begin
+          // This file should be exluded. Update the result and stop looping.
+          Result := True;
+          Break;
+        end;
+      end;
+    end;
+  end;
+end; //*** end of FileIsExcluded ***
+
+
+//***************************************************************************************
 // NAME:           CommandRunnerOnDone
 // PARAMETER:      Sender Source of the event.
 // RETURN VALUE:   none
@@ -532,19 +579,15 @@ begin
   // ---------------------  FCSS_BUILDING_FILE_LIST -------------------------------------
   if FState = FCSS_BUILDING_FILE_LIST then
   begin
-    // The expected output is a filename. Verify this by checking the existance of it,
-    // making sure it is not a binary file and checking that it is readable.
-    if FileExists(OutputLine) then
+    // Check if this file is okay for a content search.
+    if not FileIsExcluded(OutputLine) then
     begin
-      if FileIsText(OutputLine) and FileIsReadable(OutputLine) then
+      // Add it to the internal file list.
+      FFileList.Add(OutputLine);
+      // Trigger event handler, if configured.
+      if Assigned(FFileFoundEvent) then
       begin
-        // Add it to the internal file list.
-        FFileList.Add(OutputLine);
-        // Trigger event handler, if configured.
-        if Assigned(FFileFoundEvent) then
-        begin
-          FFileFoundEvent(Self, OutputLine);
-        end;
+        FFileFoundEvent(Self, OutputLine);
       end;
     end;
   end
