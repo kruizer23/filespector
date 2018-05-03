@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 939
+  Left = 742
   Height = 517
-  Top = 263
+  Top = 206
   Width = 838
   ActiveControl = EdtSearchText
   Caption = 'FileSpector'
@@ -743,7 +743,7 @@ object MainForm: TMainForm
     TabOrder = 4
     object MmoResults: TMemo
       Left = 7
-      Height = 225
+      Height = 206
       Top = 5
       Width = 812
       Align = alClient
@@ -756,6 +756,26 @@ object MainForm: TMainForm
       ParentFont = False
       ScrollBars = ssAutoBoth
       TabOrder = 0
+    end
+    object StatusBar: TStatusBar
+      Left = 0
+      Height = 19
+      Top = 221
+      Width = 826
+      Panels = <      
+        item
+          Text = 'Progress'
+          Width = 180
+        end      
+        item
+          Text = 'Search hits: 0'
+          Width = 140
+        end      
+        item
+          Text = 'Files with a search hit: 0'
+          Width = 250
+        end>
+      SimplePanel = False
     end
   end
   object GbxSearchLimitation: TGroupBox

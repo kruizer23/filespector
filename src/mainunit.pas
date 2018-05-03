@@ -51,6 +51,9 @@ type
                             UIS_SEARCHING );
 
   //------------------------------ TMainForm --------------------------------------------
+
+  { TMainForm }
+
   TMainForm = class(TForm)
     BtnBrowse: TButton;
     BtnSearch: TButton;
@@ -74,6 +77,7 @@ type
     PnlDirectory: TPanel;
     PnlSearchPattern: TPanel;
     SelectDirectoryDialog: TSelectDirectoryDialog;
+    StatusBar: TStatusBar;
     procedure BtnBrowseClick(Sender: TObject);
     procedure BtnSearchClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -83,12 +87,13 @@ type
     FSearchSettings: TSearchSettings;
     FFileContentSearcher: TFileContentSearcher;
     FTotalFilesSearchCount: LongWord;
+    FFilesSearchedCount: LongWord;
     FFilesWithHitCount: LongWord;
     FTotalSearchHitCount: LongWord;
     FFileWithLastHit: String;
-    FSearchStartTime: TDateTime;
     procedure InitializeUserInterface;
     procedure UpdateUserInterface;
+    procedure UpdateSearchProgress(Reset: Boolean = False);
     procedure CollectSearchSettings;
     function  StartSearch: Boolean;
     procedure FinishSearch;
@@ -124,8 +129,6 @@ implementation
 
 { TMainForm }
 
-{ TODO : Perhaps add progressbar or -label on the row with the search-button. }
-
 //***************************************************************************************
 // NAME:           FormCreate
 // PARAMETER:      Sender Source of the event.
@@ -157,10 +160,10 @@ begin
   // Initialize fields to their default values.
   FUISetting := UIS_DEFAULT;
   FTotalFilesSearchCount := 0;
+  FFilesSearchedCount := 0;
   FFilesWithHitCount := 0;
   FTotalSearchHitCount := 0;
   FFileWithLastHit := '';
-  FSearchStartTime := Now;
   // Update search settings based on the info specified as command line options.
   if CmdLineIgnoreCaseOptionFound then
     FSearchSettings.CaseSensitive := not CmdLineIgnoreCaseOption;
@@ -320,6 +323,48 @@ end; //*** end of UpdateUserInterface ***
 
 
 //***************************************************************************************
+// NAME:           UpdateSearchProgress
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Updates the user interface based on the latest status of the search
+//                 operation.
+//
+//***************************************************************************************
+procedure TMainForm.UpdateSearchProgress(Reset: Boolean);
+var
+  totalFilesFound: LongWord;
+  filesSearched: LongWord;
+  totalSearchHits: LongWord;
+  filesWithHit: LongWord;
+  progressPct: Integer;
+begin
+  { TODO : Integrate running indicator or progressbar. }
+  // Initialize progress info to the reset values.
+  totalFilesFound := 0;
+  filesSearched := 0;
+  totalSearchHits := 0;
+  filesWithHit := 0;
+  progressPct := 0;
+  // Only update progress info values if no reset was requested and if a search operation
+  // is running.
+  if (not Reset) and (FUISetting = UIS_SEARCHING) then
+  begin
+    totalFilesFound := FTotalFilesSearchCount;
+    filesSearched := FFilesSearchedCount;
+    totalSearchHits := FTotalSearchHitCount;
+    filesWithHit := FFilesWithHitCount;
+    if totalFilesFound > 0 then
+      progressPct := (filesSearched * 100) div totalFilesFound;
+  end;
+  // Update progress information on the status bar.
+  StatusBar.Panels[0].Text := IntToStr(progressPct) + '%';
+  StatusBar.Panels[1].Text := 'Search hits: ' + IntToStr(totalSearchHits);
+  StatusBar.Panels[2].Text := 'Files with a search hit: ' + IntToStr(filesWithHit) +
+                              ' of ' + IntToStr(totalFilesFound);
+end; //*** end of UpdateSearchProgress ***
+
+
+//***************************************************************************************
 // NAME:           CollectSearchSettings
 // PARAMETER:      none
 // RETURN VALUE:   none
@@ -349,6 +394,7 @@ begin
   Result := False;
   // Initialize fields used for search tracking and statistics.
   FTotalFilesSearchCount := 0;
+  FFilesSearchedCount := 0;
   FFilesWithHitCount := 0;
   FTotalSearchHitCount := 0;
   FFileWithLastHit := '';
@@ -359,8 +405,6 @@ begin
   // Attempt to start the search operation.
   if FFileContentSearcher.Start(FSearchSettings) then
   begin
-    // Set the start time.
-    FSearchStartTime := Now;
     // Update the user interface.
     FUISetting := UIS_SEARCHING;
     UpdateUserInterface;
@@ -384,12 +428,6 @@ begin
   // Update the user interface.
   FUISetting := UIS_DEFAULT;
   UpdateUserInterface;
-  // Show search statistics.
-  infoStr := IntToStr(FTotalSearchHitCount) + ' hits found in ' +
-             IntToStr(FFilesWithHitCount) + ' of ' + IntToStr(FTotalFilesSearchCount) +
-             ' files (took ' + IntToStr(MilliSecondsBetween(Now, FSearchStartTime)) +
-             ' ms)';
-  MmoResults.Lines.Add('----- ' + infoStr + ' -----');
 end; //*** end of FinishSearch ***
 
 
@@ -440,6 +478,8 @@ end; //*** end of HandleSearchError ***
 //***************************************************************************************
 procedure TMainForm.ClearSearchResults;
 begin
+  // Reset the search progress information
+  UpdateSearchProgress(True);
   // Remove all lines with search results.
   MmoResults.Lines.Clear;
 end; //*** end of ClearSearchResults ***
@@ -528,6 +568,8 @@ begin
   FoundFile := FoundFile;
   // Update total files found counter.
   FTotalFilesSearchCount := FTotalFilesSearchCount + 1;
+  // Update the search progress information
+  UpdateSearchProgress;
 end; //*** end of FileContentSearcherOnFileFound ***
 
 
@@ -542,9 +584,12 @@ end; //*** end of FileContentSearcherOnFileFound ***
 //***************************************************************************************
 procedure TMainForm.FileContentSearcherOnFileSearchStarted(Sender: TObject; SearchFile: String);
 begin
-  // Nothing needs to be done here for now.
   // Suppress hint for unused parameter.
   SearchFile := SearchFile;
+  // Increment searched file counter.
+  FFilesSearchedCount := FFilesSearchedCount + 1;
+  // Update the search progress information
+  UpdateSearchProgress;
 end; //*** end of FileContentSearcherOnFileSearchStarted ***
 
 
@@ -575,6 +620,8 @@ begin
   FTotalSearchHitCount := FTotalSearchHitCount + 1;
   // Show the search hit information in the results view.
   AddSearchOccurenceToResults(LineNumber, HitLine, SearchFile);
+  // Update the search progress information
+  UpdateSearchProgress;
 end; //*** end of FileContentSearcherOnFileSearchHit ***
 
 end.
