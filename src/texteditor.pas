@@ -157,31 +157,57 @@ end; //*** end of Locate ***
 procedure TTextEditor.Open(TextFile: String; LineNumber: LongWord);
 var
   runProgram: TProcess;
+  fileToOpen: String;
+  lineToJumpTo: LongWord;
 begin
-  // Only open the text editor if one could be located.
-  if FEditor <> '' then
+  // Initialize the line to jump to.
+  lineToJumpTo := LineNumber;
+  // Initialize file to open to an invalid value.
+  fileToOpen := '';
+  // Validate the specified file. It should exists and be readable.
+  if TextFile <> '' then
   begin
-    // Create process instance.
-    runProgram := TProcess.Create(nil);
-    // Set the executable name.
-    runProgram.Executable := FEditor;
-    // Add the text file as a parameter, if it exists and is readable.
-    if TextFile <> '' then
+    if (FileExists(TextFile)) and (FileIsReadable(TextFile)) then
     begin
-      if (FileExists(TextFile)) and (FileIsReadable(TextFile)) then
-      begin
-        // First add the line number parameters if possible and requested.
-        if (LineNumber > 0) and (FLineNumberOptPrefix <> '') then
-        begin
-          runProgram.Parameters.Add(FLineNumberOptPrefix + IntToStr(LineNumber));
-        end;
-        // Add the text file.
-        runProgram.Parameters.Add(TextFile);
-      end;
+      fileToOpen := TextFile;
     end;
-    runProgram.Execute;
-    runProgram.Free;
   end;
+  // Create process instance.
+  runProgram := TProcess.Create(nil);
+  // Set the text editor executable. If none was found, fallback to xdg-open.
+  runProgram.Executable := FEditor;
+  if FEditor = '' then
+  begin
+    // The xdg-open method requires a filename parameter.
+    if fileToOpen <> '' then
+    begin
+      // xdg-open opens a file or URL in the user's preferred application. Since the
+      // actual program is unknown, the command line option for jumping to a specific
+      // line is not known and cannot be used. Disable this feature by setting the
+      // linenumber to 0. Thi is also the reason that xdg-open is only used as a fall-
+      // back method.
+      runProgram.Executable := 'xdg-open';
+      lineToJumpTo := 0;
+    end;
+  end;
+  // Add parameters for linenumber to jump to and the file to open, if a valid file was
+  // specified.
+  if fileToOpen <> '' then
+  begin
+    if (lineToJumpTo > 0) and (FLineNumberOptPrefix <> '') then
+    begin
+      runProgram.Parameters.Add(FLineNumberOptPrefix + IntToStr(lineToJumpTo));
+    end;
+    // Add the text file.
+    runProgram.Parameters.Add(fileToOpen);
+  end;
+  // Open the text editor, if a valid executable was set.
+  if runProgram.Executable <> '' then
+  begin
+    runProgram.Execute;
+  end;
+  // Releas the process instance.
+  runProgram.Free;
 end; //*** end of Open ***/
 
 end.
