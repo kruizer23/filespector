@@ -79,7 +79,7 @@ constructor TSearchSettings.Create;
 begin
   // Call inherited constructor.
   inherited Create;
-  // Initialize fields to their default values,
+  // Initialize fields to their default values.
   FDirectory := '';
   FRecursive := True;
   FSearchText := '';

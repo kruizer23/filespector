@@ -42,7 +42,8 @@ uses
     cmem, // the c memory manager is on some systems much faster for multi-threading
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, MainUnit, SearchSettings, CommandRunner, FileContentSearcher
+  Forms, MainUnit, SearchSettings, CommandRunner, FileContentSearcher,
+  TextEditor
   { you can add units after this }, SysUtils;
 
 {$R *.res}
