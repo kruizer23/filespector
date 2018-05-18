@@ -1,12 +1,12 @@
 object MainForm: TMainForm
-  Left = 742
-  Height = 517
-  Top = 206
-  Width = 838
+  Left = 413
+  Height = 550
+  Top = 285
+  Width = 1000
   ActiveControl = EdtSearchText
   Caption = 'FileSpector'
-  ClientHeight = 517
-  ClientWidth = 838
+  ClientHeight = 550
+  ClientWidth = 1000
   Constraints.MinHeight = 400
   Constraints.MinWidth = 580
   Icon.Data = {
@@ -551,29 +551,29 @@ object MainForm: TMainForm
     Left = 5
     Height = 82
     Top = 0
-    Width = 828
+    Width = 990
     Align = alTop
     BorderSpacing.Left = 5
     BorderSpacing.Right = 5
     Caption = 'Search in'
     ClientHeight = 64
-    ClientWidth = 826
+    ClientWidth = 988
     TabOrder = 0
     object PnlDirectory: TPanel
       Left = 0
       Height = 32
       Top = 0
-      Width = 826
+      Width = 988
       Align = alTop
       BevelOuter = bvNone
       Caption = 'PnlDirectory'
       ClientHeight = 32
-      ClientWidth = 826
+      ClientWidth = 988
       Color = clForm
       ParentColor = False
       TabOrder = 0
       object BtnBrowse: TButton
-        Left = 739
+        Left = 901
         Height = 28
         Top = 2
         Width = 80
@@ -591,7 +591,7 @@ object MainForm: TMainForm
         Height = 28
         Hint = 'Enter the base directory for the search operation or click the browse-button to select one'
         Top = 2
-        Width = 668
+        Width = 830
         Align = alClient
         BorderSpacing.Around = 2
         Constraints.MinHeight = 28
@@ -619,12 +619,12 @@ object MainForm: TMainForm
       Left = 0
       Height = 24
       Top = 32
-      Width = 826
+      Width = 988
       Align = alTop
       BevelOuter = bvNone
       Caption = 'PnlRecursive'
       ClientHeight = 24
-      ClientWidth = 826
+      ClientWidth = 988
       Color = clForm
       ParentColor = False
       TabOrder = 1
@@ -650,24 +650,24 @@ object MainForm: TMainForm
     Left = 5
     Height = 82
     Top = 82
-    Width = 828
+    Width = 990
     Align = alTop
     BorderSpacing.Left = 5
     BorderSpacing.Right = 5
     Caption = 'Search for'
     ClientHeight = 64
-    ClientWidth = 826
+    ClientWidth = 988
     TabOrder = 1
     object PnlSearchText: TPanel
       Left = 0
       Height = 32
       Top = 0
-      Width = 826
+      Width = 988
       Align = alTop
       BevelOuter = bvNone
       Caption = 'PnlSearchText'
       ClientHeight = 32
-      ClientWidth = 826
+      ClientWidth = 988
       Color = clForm
       ParentColor = False
       TabOrder = 0
@@ -690,7 +690,7 @@ object MainForm: TMainForm
         Height = 28
         Hint = 'Enter the text to search for in the files present in the specified directory'
         Top = 2
-        Width = 750
+        Width = 912
         Align = alClient
         BorderSpacing.Right = 5
         BorderSpacing.Around = 2
@@ -704,12 +704,12 @@ object MainForm: TMainForm
       Left = 0
       Height = 24
       Top = 32
-      Width = 826
+      Width = 988
       Align = alTop
       BevelOuter = bvNone
       Caption = 'PnlCaseSensitive'
       ClientHeight = 24
-      ClientWidth = 826
+      ClientWidth = 988
       Color = clForm
       ParentColor = False
       TabOrder = 1
@@ -731,38 +731,22 @@ object MainForm: TMainForm
   end
   object GbxSearchResults: TGroupBox
     Left = 5
-    Height = 258
+    Height = 291
     Top = 254
-    Width = 828
+    Width = 990
     Align = alClient
     BorderSpacing.Left = 5
     BorderSpacing.Right = 5
     BorderSpacing.Bottom = 5
     Caption = 'Search results'
-    ClientHeight = 240
-    ClientWidth = 826
+    ClientHeight = 273
+    ClientWidth = 988
     TabOrder = 4
-    object MmoResults: TMemo
-      Left = 7
-      Height = 206
-      Top = 5
-      Width = 812
-      Align = alClient
-      BorderSpacing.Left = 2
-      BorderSpacing.Right = 2
-      BorderSpacing.Bottom = 5
-      BorderSpacing.Around = 5
-      Font.Height = -12
-      Font.Name = 'Hack'
-      ParentFont = False
-      ScrollBars = ssAutoBoth
-      TabOrder = 0
-    end
     object StatusBar: TStatusBar
       Left = 0
       Height = 19
-      Top = 221
-      Width = 826
+      Top = 254
+      Width = 988
       Panels = <      
         item
           Width = 180
@@ -778,38 +762,73 @@ object MainForm: TMainForm
       SimplePanel = False
     end
     object PrgBarSearch: TProgressBar
-      Left = 7
+      Left = 24
       Height = 15
-      Top = 223
+      Top = 255
       Width = 161
       Anchors = []
       Smooth = True
       Step = 1
+      TabOrder = 1
+    end
+    object LvwResults: TListView
+      Left = 7
+      Height = 239
+      Top = 5
+      Width = 974
+      Align = alClient
+      AutoWidthLastColumn = True
+      BorderSpacing.Left = 2
+      BorderSpacing.Right = 2
+      BorderSpacing.Bottom = 5
+      BorderSpacing.Around = 5
+      Columns = <      
+        item
+          Caption = 'File'
+          Width = 140
+        end      
+        item
+          Alignment = taRightJustify
+          Caption = 'Line'
+          Width = 60
+        end      
+        item
+          Caption = 'Contents'
+          Width = 525
+        end      
+        item
+          Caption = 'Directory'
+          Width = 322
+        end>
+      ReadOnly = True
+      RowSelect = True
+      ScrollBars = ssAutoBoth
       TabOrder = 2
+      ViewStyle = vsReport
     end
   end
   object GbxSearchLimitation: TGroupBox
     Left = 5
     Height = 55
     Top = 164
-    Width = 828
+    Width = 990
     Align = alTop
     BorderSpacing.Left = 5
     BorderSpacing.Right = 5
     Caption = 'Search limitation'
     ClientHeight = 37
-    ClientWidth = 826
+    ClientWidth = 988
     TabOrder = 2
     object PnlSearchPattern: TPanel
       Left = 0
       Height = 32
       Top = 0
-      Width = 826
+      Width = 988
       Align = alTop
       BevelOuter = bvNone
       Caption = 'PnlSearchPattern'
       ClientHeight = 32
-      ClientWidth = 826
+      ClientWidth = 988
       Color = clForm
       ParentColor = False
       TabOrder = 0
@@ -835,11 +854,15 @@ object MainForm: TMainForm
         Width = 355
         Align = alLeft
         ItemHeight = 0
-        ItemIndex = 0
         Items.Strings = (
           '*.*'
-          '*.c|*.cpp|*.cc|*.h|*.hpp'
-          '*.php|*.css|*.html|*.html'
+          '*.c|*.cc|*.cpp|*.h|*.hh|*.hpp'
+          '*.php|*.html|*.htm|*.css|*.js|*.json|*.xml'
+          '*.java'
+          '*.cs|*.vala'
+          '*.txt|*.log|*.cfg|*.ini'
+          '*.sh|*.py|*.rb|*.pl|*.cmd|*.bash'
+          '*.pas|*.lpr|*.lpi|*.pp|*.lfm|*.lpk|*.inc'
         )
         ParentShowHint = False
         ShowHint = True
@@ -852,17 +875,17 @@ object MainForm: TMainForm
     Left = 0
     Height = 35
     Top = 219
-    Width = 838
+    Width = 1000
     Align = alTop
     BevelOuter = bvNone
     Caption = 'PnlBody'
     ClientHeight = 35
-    ClientWidth = 838
+    ClientWidth = 1000
     Color = clForm
     ParentColor = False
     TabOrder = 3
     object BtnSearch: TButton
-      Left = 746
+      Left = 908
       Height = 28
       Top = 7
       Width = 80

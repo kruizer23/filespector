@@ -69,7 +69,7 @@ type
     LblDirectory: TLabel;
     LblSearchText: TLabel;
     LblSearchPattern: TLabel;
-    MmoResults: TMemo;
+    LvwResults: TListView;
     PnlBody: TPanel;
     PnlCaseSensitive: TPanel;
     PnlSearchText: TPanel;
@@ -105,6 +105,8 @@ type
     procedure ClearSearchResults;
     procedure AddSearchFileToResults(Filename: String);
     procedure AddSearchOccurenceToResults(LineNumber: LongWord; LineContents: String; SearchedFile: String);
+    procedure ResultsViewAddRow(LineContents: String; LineNumber: LongWord = 0; SearchedFile: String = '');
+    procedure ResultsViewClearRows;
     procedure FileContentSearcherOnDone(Sender: TObject);
     procedure FileContentSearcherOnError(Sender: TObject; ErrorInfo: String);
     procedure FileContentSearcherOnFileFound(Sender: TObject; FoundFile: String);
@@ -391,13 +393,14 @@ begin
     totalSearchHits := FTotalSearchHitCount;
     filesWithHit := FFilesWithHitCount;
     if totalFilesFound > 0 then
+    begin
       progressPct := (filesSearched * 100) div totalFilesFound;
+    end;
   end;
-  // Update progress information on the status bar.
   PrgBarSearch.Position := progressPct;
   StatusBar.Panels[1].Text := 'Search hits: ' + IntToStr(totalSearchHits);
   StatusBar.Panels[2].Text := 'Files with a search hit: ' + IntToStr(filesWithHit) +
-                              ' of ' + IntToStr(totalFilesFound);
+                              ' out of ' + IntToStr(totalFilesFound);
 end; //*** end of UpdateSearchProgress ***
 
 
@@ -516,7 +519,7 @@ begin
   // Reset the search progress information
   UpdateSearchProgress(True);
   // Remove all lines with search results.
-  MmoResults.Lines.Clear;
+  ResultsViewClearRows;
 end; //*** end of ClearSearchResults ***
 
 
@@ -530,15 +533,17 @@ end; //*** end of ClearSearchResults ***
 //***************************************************************************************
 procedure TMainForm.AddSearchFileToResults(Filename: String);
 begin
-  // Display filename on a new line.
-  MmoResults.Lines.Add(Filename);
+  // Nothing needs to be done here for now. Keep the event handler for possible future
+  // new functionality.
+  // Suppress warning due to unused parameter.
+  Filename := Filename;
 end; //*** end of AddSearchFileToResults ***
 
 
 //***************************************************************************************
 // NAME:           AddSearchOccurenceToResults
 // PARAMETER:      LineNumber Line number in the file that the match occurred on.
-//                 LineContetns Contents of the line that the match occurred on.
+//                 LineContents Contents of the line that the match occurred on.
 //                 SearchedFile Filename of the file that containts the match.
 // RETURN VALUE:   none
 // DESCRIPTION:    Adds the detected match of the search through the file to the user
@@ -546,16 +551,66 @@ end; //*** end of AddSearchFileToResults ***
 //
 //***************************************************************************************
 procedure TMainForm.AddSearchOccurenceToResults(LineNumber: LongWord; LineContents: String; SearchedFile: String);
-var
-  lineEntry: String;
 begin
-  // Suppress hint due to unused parameter.
-  SearchedFile := SearchedFile;
-  // Construct the entry.
-  lineEntry := Format('  %6u: ', [LineNumber]) + LineContents;
-  // Add the entry as a new line.
-  MmoResults.Lines.Add(lineEntry);
+  // Add the information as a new row in the results view.
+  ResultsViewAddRow(LineContents, LineNumber, SearchedFile);
 end; //*** end of AddSearchOccurenceToResults ***
+
+
+//***************************************************************************************
+// NAME:           ResultsViewAddRow
+// PARAMETER:      LineContents Contents of the line that the match occurred on.
+//                 LineNumber Line number in the file that the match occurred on.
+//                 SearchedFile Filename of the file that containts the match.
+// RETURN VALUE:   none
+// DESCRIPTION:    Adds the detected match of the search through the file as a new row
+//                 to the results list view.
+//
+//***************************************************************************************
+procedure TMainForm.ResultsViewAddRow(LineContents: String; LineNumber: LongWord ; SearchedFile: String);
+var
+  fileName: String;
+  dirName: String;
+begin
+  // Initialize local variables.
+  fileName := '';
+  dirName := '';
+  // Split the filename into just the filename and its directory if it is valid.
+  if SearchedFile <> '' then
+  begin
+    fileName := ExtractFileName(SearchedFile);
+    dirName := ExtractFileDir(SearchedFile);
+  end;
+  // Add the new row to the listview.
+  with LvwResults.Items.Add do
+  begin
+     Caption := fileName;
+     if LineNumber > 0 then
+     begin
+       SubItems.Add(IntToStr(LineNumber));
+     end
+     else
+     begin
+        SubItems.Add('');
+     end;
+     SubItems.Add(LineContents);
+     SubItems.Add(dirName);
+  end;
+end; //*** end of ResultsViewAddRow ***
+
+
+//***************************************************************************************
+// NAME:           ResultsViewAddRow
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Removes all rows with content from the results list view.
+//
+//***************************************************************************************
+procedure TMainForm.ResultsViewClearRows;
+begin
+  // Clear all rows from the listview.
+  LvwResults.Clear;
+end; //*** end of ResultsViewClearRows ****
 
 
 //***************************************************************************************
