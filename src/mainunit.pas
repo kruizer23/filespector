@@ -39,7 +39,8 @@ interface
 //***************************************************************************************
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls, DateUtils, LCLType, SearchSettings, FileContentSearcher;
+  ExtCtrls, ComCtrls, DateUtils, LCLType, SearchSettings, FileContentSearcher,
+  TextEditor;
 
 
 //***************************************************************************************
@@ -84,9 +85,11 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure LvwResultsDblClick(Sender: TObject);
   private
     FUISetting: TUserInterfaceSetting;
     FSearchSettings: TSearchSettings;
+    FTextEditor: TTextEditor;
     FFileContentSearcher: TFileContentSearcher;
     FTotalFilesSearchCount: LongWord;
     FFilesSearchedCount: LongWord;
@@ -106,6 +109,7 @@ type
     procedure AddSearchFileToResults(Filename: String);
     procedure AddSearchOccurenceToResults(LineNumber: LongWord; LineContents: String; SearchedFile: String);
     procedure ResultsViewAddRow(LineContents: String; LineNumber: LongWord = 0; SearchedFile: String = '');
+    function  ResultsViewGetRowInfo(RowIdx: LongWord; var SearchedFile: String; var LineContents: String; var LineNumber: LongWord):Boolean;
     procedure ResultsViewClearRows;
     procedure FileContentSearcherOnDone(Sender: TObject);
     procedure FileContentSearcherOnError(Sender: TObject; ErrorInfo: String);
@@ -154,6 +158,8 @@ begin
   FSearchSettings := TSearchSettings.Create;
   // Initialize default search settings.
   FSearchSettings.Directory :=  GetCurrentDir;
+  // Create instance of the text editor.
+  FTextEditor := TTextEditor.Create;
   // Create instance of the file content searcher.
   FFileContentSearcher := TFileContentSearcher.Create;
   // Configure event handlers.
@@ -192,6 +198,8 @@ procedure TMainForm.FormDestroy(Sender: TObject);
 begin
   // Release the file content search instance.
   FFileContentSearcher.Free;
+  // Release the text editor instance.
+  FTextEditor.Free;
   // Release the search settings instance.
   FSearchSettings.Free;
 end; //*** end of FormDestroy ***
@@ -209,6 +217,38 @@ begin
   // Make sure the progress bar is properly located on the statusbar.
   ReattachProgressbar;
 end; //*** end of FormResize ***
+
+
+//***************************************************************************************
+// NAME:           LvwResultsDblClick
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when a double-click event occured in
+//                 the list view.
+//
+//***************************************************************************************
+procedure TMainForm.LvwResultsDblClick(Sender: TObject);
+var
+  searchedFile: String;
+  lineContents: String;
+  lineNumber: LongWord;
+begin
+  // Initialize locals.
+  searchedFile := '';
+  lineContents := '';
+  lineNumber := 0;
+  // Only continue if a row is selected in the list view.
+  if LvwResults.Selected <> nil then
+  begin
+    // Attempt to extract the contents of the selected row.
+    if ResultsViewGetRowInfo(LvwResults.Selected.Index, searchedFile, lineContents,
+                             lineNumber) then
+    begin
+      // Attempt to open the file at the specific line number with a text editor.
+      FTextEditor.Open(searchedFile, lineNumber);
+    end;
+  end;
+end; //*** end of LvwResultsDblClick ***
 
 
 //***************************************************************************************
@@ -544,7 +584,7 @@ end; //*** end of AddSearchFileToResults ***
 // NAME:           AddSearchOccurenceToResults
 // PARAMETER:      LineNumber Line number in the file that the match occurred on.
 //                 LineContents Contents of the line that the match occurred on.
-//                 SearchedFile Filename of the file that containts the match.
+//                 SearchedFile Filename of the file that contains the match.
 // RETURN VALUE:   none
 // DESCRIPTION:    Adds the detected match of the search through the file to the user
 //                 interface.
@@ -561,7 +601,7 @@ end; //*** end of AddSearchOccurenceToResults ***
 // NAME:           ResultsViewAddRow
 // PARAMETER:      LineContents Contents of the line that the match occurred on.
 //                 LineNumber Line number in the file that the match occurred on.
-//                 SearchedFile Filename of the file that containts the match.
+//                 SearchedFile Filename of the file that contains the match.
 // RETURN VALUE:   none
 // DESCRIPTION:    Adds the detected match of the search through the file as a new row
 //                 to the results list view.
@@ -595,8 +635,43 @@ begin
      end;
      SubItems.Add(LineContents);
      SubItems.Add(dirName);
+     // Automatically scroll to the newly added item to make sure it is visible.
+     MakeVisible(False);
   end;
 end; //*** end of ResultsViewAddRow ***
+
+
+//***************************************************************************************
+// NAME:           ResultsViewGetRowInfo
+// PARAMETER:      RowIdx Index of the row to get info from.
+//                 SearchedFile Filename of the file that contains the match.
+//                 LineContents Contents of the line that the match occurred on.
+//                 LineNumber Line number in the file that the match occurred on.
+// RETURN VALUE:   True if successful, False otherwise.
+// DESCRIPTION:    Extracts information from a row with the selected index on the results
+//                 list view.
+//
+//***************************************************************************************
+function TMainForm.ResultsViewGetRowInfo(RowIdx: LongWord; var SearchedFile: String; var LineContents: String; var LineNumber: LongWord):Boolean;
+begin
+  // Initialize the result.
+  Result := False;
+  // Only continue if the specified index is valid.
+  if RowIdx < LvwResults.Items.Count then
+  begin
+    // Extract the information.
+    SearchedFile := LvwResults.Items[RowIdx].SubItems[2] + DirectorySeparator +
+                    LvwResults.Items[RowIdx].Caption;
+    LineContents := LvwResults.Items[RowIdx].SubItems[1];
+    try
+      LineNumber := StrToInt(LvwResults.Items[RowIdx].SubItems[0]);
+    except
+      LineNumber := 0;
+    end;
+    // Update the result.
+    Result := True;
+  end;
+end; //*** end of ResultsViewGetRowInfo ***
 
 
 //***************************************************************************************

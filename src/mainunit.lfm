@@ -805,6 +805,7 @@ object MainForm: TMainForm
       ScrollBars = ssAutoBoth
       TabOrder = 2
       ViewStyle = vsReport
+      OnDblClick = LvwResultsDblClick
     end
   end
   object GbxSearchLimitation: TGroupBox
