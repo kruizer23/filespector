@@ -231,14 +231,34 @@ end; //*** end of FormResize ***
 //
 //***************************************************************************************
 procedure TMainForm.LvwResultsColumnClick(Sender: TObject; Column: TListColumn);
+var
+  colIdx: Integer;
 begin
-  // Set this column as the one to be sorted on.
+  // Set this column as the one to be sorted on so it can be accessed in the OnCompare
+  // event to determine the column to sort on.
   LvwResults.SortColumn := Column.Index;
-  // Invert the sort direction.
-  {if LvwResults.SortDirection = sdAscending then
-    LvwResults.SortDirection := sdDescending
+  // Use the tag field to set all other columns to "do not sort" (0).
+  for colIdx := 0 to (LvwResults.Columns.Count - 1) do
+  begin
+     if LvwResults.Columns[colIdx] <> Column then
+     begin
+       LvwResults.Columns[colIdx].Tag := 0;
+     end;
+  end;
+  // Is the current column not yet sorted?
+  if Column.Tag = 0 then
+  begin
+    // Configure it for ascending sort order (1).
+    Column.Tag := 1;
+  end
+  // Column has been sorted in the past.
   else
-    LvwResults.SortDirection := sdAscending;}
+  begin
+     // In this case invert the sort order. (1) for ascending and (-1) for descending.
+     Column.Tag := Column.Tag * -1;
+  end;
+  // Sort the items in the listview. This will invoke the OnCompare event if the SortType
+  // is set to stNone.
   LvwResults.AlphaSort;
 end; //*** end of LvwResultsColumnClick ***
 
@@ -265,6 +285,10 @@ var
   item1IntVal: LongWord;
   item2IntVal: LongWord;
 begin
+  // Suppress warning due to unused parameter.
+  Data := Data;
+  // Initialize the result.
+  Compare := 0;
   // The file column contains text and can use a default text comparison.
   if LvwResults.SortColumn = 0 then
   begin
@@ -273,7 +297,6 @@ begin
   // The line column contains an integer and requires a number comparison.
   else if LvwResults.SortColumn = 1 then
   begin
-    Compare := 0;
     try
       item1IntVal := StrToInt(Item1.SubItems[0]);
       item2IntVal := StrToInt(Item2.SubItems[0]);
@@ -288,15 +311,22 @@ begin
     finally
     end;
   end
-  // The contents column contains text and can use a default text comparison.
+  // The contents column contains text and can use a default text comparison. it might
+  // start with spaces or tabs, so make sure to trim it first.
   else if LvwResults.SortColumn = 2 then
   begin
-    Compare := CompareStr(Item1.SubItems[1] , Item2.SubItems[1]);
+    Compare := CompareStr(Trim(Item1.SubItems[1]), Trim(Item2.SubItems[1]));
   end
   // The directory column contains text and can use a default text comparison.
   else if LvwResults.SortColumn = 3 then
   begin
-    Compare := CompareStr(Item1.SubItems[2] , Item2.SubItems[2]);
+    Compare := CompareStr(Item1.SubItems[2], Item2.SubItems[2]);
+  end;
+  if (LvwResults.SortColumn >= 0) and
+     (LvwResults.SortColumn < LvwResults.Columns.Count) then
+  begin
+    // Handle sort order.
+    Compare := Compare * LvwResults.Columns[LvwResults.SortColumn].Tag;
   end;
 end;  //*** end of LvwResultsCompare ***
 
