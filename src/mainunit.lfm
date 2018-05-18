@@ -800,6 +800,7 @@ object MainForm: TMainForm
           Caption = 'Directory'
           Width = 322
         end>
+      PopupMenu = CtxMnuResultsView
       ReadOnly = True
       RowSelect = True
       ScrollBars = ssAutoBoth
@@ -906,7 +907,42 @@ object MainForm: TMainForm
   end
   object SelectDirectoryDialog: TSelectDirectoryDialog
     Options = [ofPathMustExist, ofEnableSizing, ofViewDetail]
-    left = 600
-    top = 32
+    left = 672
+    top = 352
+  end
+  object ActionList: TActionList
+    left = 792
+    top = 352
+    object ActCopySelectedLineToClipboard: TAction
+      Category = 'ResultsView'
+      Caption = 'Copy'
+      OnExecute = ActCopySelectedLineToClipboardExecute
+      ShortCut = 16451
+    end
+    object ActSaveAllLinesToFile: TAction
+      Category = 'ResultsView'
+      Caption = 'Save All'
+      OnExecute = ActSaveAllLinesToFileExecute
+      ShortCut = 16467
+    end
+  end
+  object CtxMnuResultsView: TPopupMenu
+    OnPopup = CtxMnuResultsViewPopup
+    left = 528
+    top = 352
+    object MnuItemCopySelectedLine: TMenuItem
+      Action = ActCopySelectedLineToClipboard
+    end
+    object MnuItemSaveAllLines: TMenuItem
+      Action = ActSaveAllLinesToFile
+    end
+  end
+  object SaveDialog: TSaveDialog
+    Title = 'Save Log-file as'
+    DefaultExt = '.*.log'
+    Filter = 'Log files (*.log)|*.log|All files (*.*)|*.*'
+    Options = [ofPathMustExist, ofEnableSizing, ofViewDetail]
+    left = 896
+    top = 352
   end
 end

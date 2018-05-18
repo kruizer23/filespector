@@ -39,8 +39,8 @@ interface
 //***************************************************************************************
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls, DateUtils, LCLType, SearchSettings, FileContentSearcher,
-  TextEditor;
+  ExtCtrls, ComCtrls, DateUtils, LCLType, ActnList, Menus, SearchSettings,
+  FileContentSearcher, TextEditor, Clipbrd;
 
 
 //***************************************************************************************
@@ -56,6 +56,9 @@ type
   { TMainForm }
 
   TMainForm = class(TForm)
+    ActCopySelectedLineToClipboard: TAction;
+    ActSaveAllLinesToFile: TAction;
+    ActionList: TActionList;
     BtnBrowse: TButton;
     BtnSearch: TButton;
     CbxCaseSensitive: TCheckBox;
@@ -71,17 +74,24 @@ type
     LblSearchText: TLabel;
     LblSearchPattern: TLabel;
     LvwResults: TListView;
+    MnuItemCopySelectedLine: TMenuItem;
+    MnuItemSaveAllLines: TMenuItem;
     PnlBody: TPanel;
     PnlCaseSensitive: TPanel;
     PnlSearchText: TPanel;
     PnlRecursive: TPanel;
     PnlDirectory: TPanel;
     PnlSearchPattern: TPanel;
+    CtxMnuResultsView: TPopupMenu;
     PrgBarSearch: TProgressBar;
+    SaveDialog: TSaveDialog;
     SelectDirectoryDialog: TSelectDirectoryDialog;
     StatusBar: TStatusBar;
+    procedure ActCopySelectedLineToClipboardExecute(Sender: TObject);
+    procedure ActSaveAllLinesToFileExecute(Sender: TObject);
     procedure BtnBrowseClick(Sender: TObject);
     procedure BtnSearchClick(Sender: TObject);
+    procedure CtxMnuResultsViewPopup(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -114,6 +124,7 @@ type
     procedure ResultsViewAddRow(LineContents: String; LineNumber: LongWord = 0; SearchedFile: String = '');
     function  ResultsViewGetRowInfo(RowIdx: LongWord; var SearchedFile: String; var LineContents: String; var LineNumber: LongWord):Boolean;
     procedure ResultsViewClearRows;
+    function  ConstructClipboardLine(LineContents: String; LineNumber: LongWord; SearchedFile: String): String;
     procedure FileContentSearcherOnDone(Sender: TObject);
     procedure FileContentSearcherOnError(Sender: TObject; ErrorInfo: String);
     procedure FileContentSearcherOnFileFound(Sender: TObject; FoundFile: String);
@@ -382,6 +393,91 @@ end; //*** end of BtnBrowseClick ***
 
 
 //***************************************************************************************
+// NAME:           ActCopySelectedLineToClipboardExecute
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the associated action should be
+//                 executed.
+//
+//***************************************************************************************
+procedure TMainForm.ActCopySelectedLineToClipboardExecute(Sender: TObject);
+var
+  searchedFile: String;
+  lineContents: String;
+  lineNumber: LongWord;
+  clipboardLine: String;
+begin
+  // Initialize locals.
+  searchedFile := '';
+  lineContents := '';
+  lineNumber := 0;
+  // Only continue if a row is selected in the list view.
+  if LvwResults.Selected <> nil then
+  begin
+    // Attempt to extract the contents of the selected row.
+    if ResultsViewGetRowInfo(LvwResults.Selected.Index, searchedFile, lineContents,
+                             lineNumber) then
+    begin
+      // Convert it to a clipboard line and add it to the clipboard.
+      clipboardLine := ConstructClipboardLine(lineContents, lineNumber, searchedFile);
+      Clipboard.AsText := Trim(clipboardLine) + LineEnding;
+    end;
+  end;
+end; //*** end of ActCopySelectedLineToClipboardExecute ***
+
+
+//***************************************************************************************
+// NAME:           ActionSaveAllLinesToFileExecute
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the associated action should be
+//                 executed.
+//
+//***************************************************************************************
+procedure TMainForm.ActSaveAllLinesToFileExecute(Sender: TObject);
+var
+  linesList: TStringList;
+  lineIdx: LongWord;
+  searchedFile: String;
+  lineContents: String;
+  lineNumber: LongWord;
+  clipboardLine: String;
+begin
+  // Initialize locals.
+  searchedFile := '';
+  lineContents := '';
+  lineNumber := 0;
+  // Set the initial directory to the work directory.
+  SaveDialog.InitialDir := GetCurrentDir;
+    // Only continue if there are actually contents in the list view.
+  if LvwResults.Items.Count > 0 then
+  begin
+    // Display the dialog to prompt the user to pick a file.
+    if SaveDialog.Execute then
+    begin
+      // Create instance of a string list.
+      linesList := TStringList.Create;
+      // Loop through all rows in the list view.
+      for lineIdx := 0 to (LvwResults.Items.Count - 1) do
+      begin
+        // Attempt to extract the contents of the selected row.
+        if ResultsViewGetRowInfo(lineIdx, searchedFile, lineContents, lineNumber) then
+        begin
+          // Convert it to a clipboard line and add it to the lines list.
+          clipboardLine := ConstructClipboardLine(lineContents, lineNumber, searchedFile);
+          linesList.Add(clipboardLine);
+        end;
+      end;
+      // Save the contents of the string list to the selected file.
+      linesList.SaveToFile(SaveDialog.FileName);
+      // Release the string list instance.
+      linesList.Free;
+    end;
+  end;
+end; //*** end of ActionSaveAllLinesToFileExecute ***
+
+
+//***************************************************************************************
 // NAME:           BtnSearchClick
 // PARAMETER:      Sender Source of the event.
 // RETURN VALUE:   none
@@ -411,6 +507,34 @@ begin
     CancelSearch;
   end;
 end; //*** end of BtnSearchClick ***
+
+
+//***************************************************************************************
+// NAME:           BtnSearchClick
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the context menu is about to
+//                 pop up.
+//
+//***************************************************************************************
+procedure TMainForm.CtxMnuResultsViewPopup(Sender: TObject);
+begin
+  // Enable all entries by default.
+  ActCopySelectedLineToClipboard.Enabled := True;
+  ActSaveAllLinesToFile.Enabled := True;
+
+  // Disable the copy line to clipboard action if no line is selected.
+  if LvwResults.Selected = nil then
+  begin
+    ActCopySelectedLineToClipboard.Enabled := False;
+  end;
+
+  // Disable the save lines to file action if there are no lines present.
+  if LvwResults.Items.Count <= 0 then
+  begin
+    ActSaveAllLinesToFile.Enabled := False;
+  end;
+end; //*** end of CtxMnuResultsViewPopup ***
 
 
 //***************************************************************************************
@@ -798,6 +922,23 @@ begin
   // Clear all rows from the listview.
   LvwResults.Clear;
 end; //*** end of ResultsViewClearRows ****
+
+
+//***************************************************************************************
+// NAME:           ConstructClipboardLine
+// PARAMETER:      LineContents Contents of the line that the match occurred on.
+//                 LineNumber Line number in the file that the match occurred on.
+//                 SearchedFile Filename of the file that contains the match.
+// RETURN VALUE:   Line formated for copying to the clipboard.
+// DESCRIPTION:    Construct the information from a row in the results view to a one
+//                 liner that can be copied to the clipboard (or saved to a file).
+//
+//***************************************************************************************
+function TMainForm.ConstructClipboardLine(LineContents: String; LineNumber: LongWord; SearchedFile: String): String;
+begin
+  // Construct the line.
+  Result := Trim(SearchedFile) + '(' + Trim(IntToStr(LineNumber)) + ') ' + Trim(LineContents);
+end; //*** end of ConstructClipboardLine ***
 
 
 //***************************************************************************************
