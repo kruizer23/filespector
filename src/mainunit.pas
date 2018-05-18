@@ -85,6 +85,9 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure LvwResultsColumnClick(Sender: TObject; Column: TListColumn);
+    procedure LvwResultsCompare(Sender: TObject; Item1, Item2: TListItem;
+      Data: Integer; var Compare: Integer);
     procedure LvwResultsDblClick(Sender: TObject);
   private
     FUISetting: TUserInterfaceSetting;
@@ -217,6 +220,85 @@ begin
   // Make sure the progress bar is properly located on the statusbar.
   ReattachProgressbar;
 end; //*** end of FormResize ***
+
+
+//***************************************************************************************
+// NAME:           LvwResultsColumnClick
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when a click event occured on a column
+//                 of the list view header.
+//
+//***************************************************************************************
+procedure TMainForm.LvwResultsColumnClick(Sender: TObject; Column: TListColumn);
+begin
+  // Set this column as the one to be sorted on.
+  LvwResults.SortColumn := Column.Index;
+  // Invert the sort direction.
+  {if LvwResults.SortDirection = sdAscending then
+    LvwResults.SortDirection := sdDescending
+  else
+    LvwResults.SortDirection := sdAscending;}
+  LvwResults.AlphaSort;
+end; //*** end of LvwResultsColumnClick ***
+
+
+//***************************************************************************************
+// NAME:           LvwResultsCompare
+// PARAMETER:      Sender Source of the event.
+//                 Item1 The first item to compare.
+//                 Item2 The second item to compare.
+//                 Data Not really sure what this one means. Not used.
+//                 Compare To store the result of the comparison:
+//                   -1 if Item1 < Item2
+//                    0 if Item1 = Item2
+//                    1 if Item1 > Item2
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when a compare of two items in a column
+//                 is requested for sorting purposes. Note that this event handler only
+//                 gets called when the listview's SortType is set to stNone.
+//
+//***************************************************************************************
+procedure TMainForm.LvwResultsCompare(Sender: TObject; Item1, Item2: TListItem;
+                                      Data: Integer; var Compare: Integer);
+var
+  item1IntVal: LongWord;
+  item2IntVal: LongWord;
+begin
+  // The file column contains text and can use a default text comparison.
+  if LvwResults.SortColumn = 0 then
+  begin
+    Compare := CompareStr(Item1.Caption, Item2.Caption);
+  end
+  // The line column contains an integer and requires a number comparison.
+  else if LvwResults.SortColumn = 1 then
+  begin
+    Compare := 0;
+    try
+      item1IntVal := StrToInt(Item1.SubItems[0]);
+      item2IntVal := StrToInt(Item2.SubItems[0]);
+      if item1IntVal < item2IntVal then
+      begin
+        Compare := -1;
+      end
+      else if item1IntVal > item2IntVal then
+      begin
+        Compare := 1;
+      end;
+    finally
+    end;
+  end
+  // The contents column contains text and can use a default text comparison.
+  else if LvwResults.SortColumn = 2 then
+  begin
+    Compare := CompareStr(Item1.SubItems[1] , Item2.SubItems[1]);
+  end
+  // The directory column contains text and can use a default text comparison.
+  else if LvwResults.SortColumn = 3 then
+  begin
+    Compare := CompareStr(Item1.SubItems[2] , Item2.SubItems[2]);
+  end;
+end;  //*** end of LvwResultsCompare ***
 
 
 //***************************************************************************************
