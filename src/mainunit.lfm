@@ -782,7 +782,6 @@ object MainForm: TMainForm
       Top = 5
       Width = 974
       Align = alClient
-      AutoWidthLastColumn = True
       BorderSpacing.Left = 2
       BorderSpacing.Right = 2
       BorderSpacing.Bottom = 5
@@ -802,6 +801,7 @@ object MainForm: TMainForm
           Width = 525
         end      
         item
+          AutoSize = True
           Caption = 'Directory'
           Width = 247
         end>
@@ -813,7 +813,7 @@ object MainForm: TMainForm
       ViewStyle = vsReport
       OnColumnClick = LvwResultsColumnClick
       OnCompare = LvwResultsCompare
-      OnDblClick = ActOpenInEditorExecute
+      OnDblClick = LvwResultsDblClick
       OnKeyUp = LvwResultsKeyUp
     end
   end

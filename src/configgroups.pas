@@ -50,6 +50,10 @@ type
   private
     FWidth: Integer;
     FHeight: Integer;
+    FResultsColumn0Width: Integer;
+    FResultsColumn1Width: Integer;
+    FResultsColumn2Width: Integer;
+    FResultsColumn3Width: Integer;
   public
     const GROUP_NAME='MainWindow';
     constructor Create;
@@ -58,6 +62,10 @@ type
     procedure SaveToFile(XmlConfig: TXMLConfig); override;
     property Width: Integer read FWidth write FWidth;
     property Height: Integer read FHeight write FHeight;
+    property ResultsColumn0Width: Integer read FResultsColumn0Width write FResultsColumn0Width;
+    property ResultsColumn1Width: Integer read FResultsColumn1Width write FResultsColumn1Width;
+    property ResultsColumn2Width: Integer read FResultsColumn2Width write FResultsColumn2Width;
+    property ResultsColumn3Width: Integer read FResultsColumn3Width write FResultsColumn3Width;
   end;
 
 
@@ -93,6 +101,10 @@ procedure TMainWindowConfig.Defaults;
 begin
   FWidth := 1000;
   FHeight := 550;
+  FResultsColumn0Width := 140;
+  FResultsColumn1Width := 60;
+  FResultsColumn2Width := 525;
+  FResultsColumn3Width := 245;
 end; //*** end of Defaults ***
 
 
@@ -111,6 +123,10 @@ begin
   // Load all settings.
   FWidth := XmlConfig.GetValue('width', FWidth);
   FHeight := XmlConfig.GetValue('height', FHeight);
+  FResultsColumn0Width := XmlConfig.GetValue('results_column0_width', FResultsColumn0Width);
+  FResultsColumn1Width := XmlConfig.GetValue('results_column1_width', FResultsColumn1Width);
+  FResultsColumn2Width := XmlConfig.GetValue('results_column2_width', FResultsColumn2Width);
+  FResultsColumn3Width := XmlConfig.GetValue('results_column3_width', FResultsColumn3Width);
   // Close this group's key.
   XmlConfig.CloseKey;
 end; //*** end of LoadFromFile ***/
@@ -131,6 +147,10 @@ begin
   // Store all settings.
   XmlConfig.SetValue('width', FWidth);
   XmlConfig.SetValue('height', FHeight);
+  XmlConfig.SetValue('results_column0_width', FResultsColumn0Width);
+  XmlConfig.SetValue('results_column1_width', FResultsColumn1Width);
+  XmlConfig.SetValue('results_column2_width', FResultsColumn2Width);
+  XmlConfig.SetValue('results_column3_width', FResultsColumn3Width);
   // Close this group's key.
   xmlConfig.CloseKey;
 end; //*** end of SaveToFile ***

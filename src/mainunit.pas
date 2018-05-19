@@ -52,6 +52,9 @@ type
                             UIS_SEARCHING );
 
   //------------------------------ TMainForm --------------------------------------------
+
+  { TMainForm }
+
   TMainForm = class(TForm)
     ActCopySelectedLineToClipboard: TAction;
     ActProgramAbout: TAction;
@@ -102,6 +105,7 @@ type
     procedure ActSearchExecute(Sender: TObject);
     procedure BtnBrowseClick(Sender: TObject);
     procedure CtxMnuResultsViewPopup(Sender: TObject);
+    procedure LvwResultsDblClick(Sender: TObject);
     procedure LvwResultsKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState
       );
     procedure OnKeyUpHandlerToStartSearch(Sender: TObject; var Key: Word;
@@ -123,6 +127,8 @@ type
     FFilesWithHitCount: LongWord;
     FTotalSearchHitCount: LongWord;
     FFileWithLastHit: String;
+    procedure LoadCurrentConfig;
+    procedure SaveCurrentConfig;
     procedure InitializeUserInterface;
     procedure UpdateUserInterface;
     procedure ReattachProgressbar;
@@ -186,8 +192,9 @@ begin
   // group instance(s).
   FCurrentConfig := TCurrentConfig.Create;
   FCurrentConfig.AddGroup(TMainWindowConfig.Create);
-  // Load the program's configuration from the configuration file.
-  FCurrentConfig.LoadFromFile;
+  // Load the programs configuration. Make sure to do this before processing the
+  // settings from the command-line, as the latter ones should get priority.
+  LoadCurrentConfig;
   // Create instances of the search settings.
   FSearchSettings := TSearchSettings.Create;
   // Initialize default search settings.
@@ -230,14 +237,14 @@ end; //*** end of FormCreate ***
 //***************************************************************************************
 procedure TMainForm.FormDestroy(Sender: TObject);
 begin
+  // Save the program's configuration.
+  SaveCurrentConfig;
   // Release the file content search instance.
   FFileContentSearcher.Free;
   // Release the text editor instance.
   FTextEditor.Free;
   // Release the search settings instance.
   FSearchSettings.Free;
-  // Save the program's configuration to the configuration file.
-  FCurrentConfig.SaveToFile;
   // Release the instance that manages the program's configuration.
   FCurrentConfig.Free;
 end; //*** end of FormDestroy ***
@@ -597,6 +604,31 @@ begin
   end;
 end; //*** end of CtxMnuResultsViewPopup ***
 
+//***************************************************************************************
+// NAME:           LvwResultsDblClick
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   None.
+// DESCRIPTION:    Event handler that gets called when a double-click event occurred on
+//                 the component.
+//
+//***************************************************************************************
+procedure TMainForm.LvwResultsDblClick(Sender: TObject);
+var
+  relativeCursosPos : TPoint;
+begin
+  // Get the position of the mouse cursor relative to the list view.
+  relativeCursosPos := LvwResults.ScreenToClient(Mouse.CursorPos);
+  // Only process the event if the mouse was actually on an item. Otherwise the editor
+  // will actually be opened if the header was double-clicked, for example for
+  // automatic column width sizing.
+  if LvwResults.GetItemAt(relativeCursosPos.X, relativeCursosPos.Y) <> nil then
+  //if LvwResults.GetItemAt(Mouse.CursorPos.X, Mouse.CursorPos.Y) <> nil then
+  begin
+    // Attempt to open the search hit in the selected row in a text editor.
+    ActOpenInEditorExecute(Sender);
+  end;
+end; //*** end of LvwResultsDblClick ***
+
 
 //***************************************************************************************
 // NAME:           LvwResultsKeyUp
@@ -649,6 +681,59 @@ begin
     ActSearchExecute(Sender);
   end;
 end; //*** end of OnKeyUpHandlerToStartSearch ***
+
+
+//***************************************************************************************
+// NAME:           LoadCurrentConfig
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Loads the current configuration from the file and processes the loaded
+//                 values.
+//
+//***************************************************************************************
+procedure TMainForm.LoadCurrentConfig;
+var
+  mainWindowConfig: TMainWindowConfig;
+begin
+  // Load the program's configuration from the configuration file.
+  FCurrentConfig.LoadFromFile;
+  // Set main window configuration settings.
+  mainWindowConfig := FCurrentConfig.Groups[TMainWindowConfig.GROUP_NAME]
+                      as TMainWindowConfig;
+  MainForm.Width := mainWindowConfig.Width;
+  MainForm.Height := mainWindowConfig.Height;
+  LvwResults.Column[0].Width := mainWindowConfig.ResultsColumn0Width;
+  LvwResults.Column[1].Width := mainWindowConfig.ResultsColumn1Width;
+  LvwResults.Column[2].Width :=mainWindowConfig.ResultsColumn2Width;
+  LvwResults.Column[3].Width :=mainWindowConfig.ResultsColumn3Width;
+  { TODO : Implement. }
+end; //*** end of LoadCurrentConfig ***
+
+
+//***************************************************************************************
+// NAME:           SaveCurrentConfig
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Stores the current configuration values and saves them to the file.
+//
+//***************************************************************************************
+procedure TMainForm.SaveCurrentConfig;
+var
+  mainWindowConfig: TMainWindowConfig;
+begin
+  // Store main window configuration settings.
+  mainWindowConfig := FCurrentConfig.Groups[TMainWindowConfig.GROUP_NAME]
+                      as TMainWindowConfig;
+  mainWindowConfig.Width := MainForm.Width;
+  mainWindowConfig.Height := MainForm.Height;
+  mainWindowConfig.ResultsColumn0Width := LvwResults.Column[0].Width;
+  mainWindowConfig.ResultsColumn1Width := LvwResults.Column[1].Width;
+  mainWindowConfig.ResultsColumn2Width := LvwResults.Column[2].Width;
+  mainWindowConfig.ResultsColumn3Width := LvwResults.Column[3].Width;
+  { TODO : Implement. }
+  // Save the program's configuration to the configuration file.
+  FCurrentConfig.SaveToFile;
+end; //*** end of SaveCurrentConfig ***
 
 
 //***************************************************************************************
