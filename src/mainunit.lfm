@@ -800,7 +800,7 @@ object MainForm: TMainForm
         end      
         item
           Caption = 'Directory'
-          Width = 322
+          Width = 247
         end>
       PopupMenu = CtxMnuResultsView
       ReadOnly = True
