@@ -73,11 +73,11 @@ implementation
 class function TVersionInfo.GetVersionStr(WithSpecifier: Boolean): String;
 begin
   // Convert the version numbers to a string in the format x.yy.zz.
-  Result := Format('%u.%.2u.%.2u', [VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH]);
+  Result := Format('%u.%u.%u', [VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH]);
   // Add the specifier if requested.
   if WithSpecifier then
   begin
-    Result := Result + VERSION_SPECIFIER;
+    Result := Result + ' ' + VERSION_SPECIFIER;
   end;
 end; //*** end of GetVersionStr ***
 

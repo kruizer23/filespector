@@ -43,8 +43,8 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, MainUnit, SearchSettings, CommandRunner, FileContentSearcher,
-  TextEditor
-  { you can add units after this }, SysUtils, VersionInfo;
+  TextEditor, VersionInfo, AboutUnit
+  { you can add units after this }, SysUtils;
 
 {$R *.res}
 
@@ -165,7 +165,6 @@ begin
   Application.Initialize;
   // Process the command line.
   ProcessCommandLine;
-  // Create the main form of the application.
   Application.CreateForm(TMainForm, MainForm);
   // Start running the application.
   Application.Run;

@@ -112,7 +112,6 @@ type
 
 
 implementation
-{ TODO : Try to make this a static class function so that it is in the TFileContentSearcher namespace. }
 //***************************************************************************************
 // NAME:           StringListFilenameCompare
 // PARAMETER:      Sender Source of the event.

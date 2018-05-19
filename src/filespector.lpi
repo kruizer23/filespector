@@ -100,7 +100,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="7">
+    <Units Count="8">
       <Unit0>
         <Filename Value="filespector.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -138,6 +138,14 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="VersionInfo"/>
       </Unit6>
+      <Unit7>
+        <Filename Value="aboutunit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="AboutForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="AboutUnit"/>
+      </Unit7>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

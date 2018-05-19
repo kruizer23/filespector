@@ -40,7 +40,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, DateUtils, LCLType, ActnList, Menus, SearchSettings,
-  FileContentSearcher, TextEditor, Clipbrd;
+  FileContentSearcher, TextEditor, AboutUnit, Clipbrd;
 
 
 //***************************************************************************************
@@ -52,9 +52,6 @@ type
                             UIS_SEARCHING );
 
   //------------------------------ TMainForm --------------------------------------------
-
-  { TMainForm }
-
   TMainForm = class(TForm)
     ActCopySelectedLineToClipboard: TAction;
     ActProgramAbout: TAction;
@@ -165,9 +162,9 @@ var
 implementation
 
 {$R *.lfm}
-
-{ TMainForm }
-
+//---------------------------------------------------------------------------------------
+//-------------------------------- TMainForm --------------------------------------------
+//---------------------------------------------------------------------------------------
 //***************************************************************************************
 // NAME:           FormCreate
 // PARAMETER:      Sender Source of the event.
@@ -451,8 +448,15 @@ end; //*** end of ActOpenInEditorExecute ***
 //
 //***************************************************************************************
 procedure TMainForm.ActProgramAboutExecute(Sender: TObject);
+var
+  aboutForm: TAboutForm;
 begin
-  { TODO : Implement ActProgramAboutExecute }
+  // Create instance of the about form.
+  aboutForm := TAboutForm.Create(Self);
+  // Show the form in a modal manner.
+  aboutForm.ShowModal;
+  // Rlease about form instance.
+  aboutForm.Free;
 end; //*** end of ActProgramAboutExecute ***
 
 

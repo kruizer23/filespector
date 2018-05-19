@@ -551,10 +551,11 @@ object MainForm: TMainForm
   object GbxSearchLocation: TGroupBox
     Left = 5
     Height = 82
-    Top = 0
+    Top = 5
     Width = 990
     Align = alTop
     BorderSpacing.Left = 5
+    BorderSpacing.Top = 5
     BorderSpacing.Right = 5
     Caption = 'Search in'
     ClientHeight = 64
@@ -651,10 +652,11 @@ object MainForm: TMainForm
   object GbxSearchSpecification: TGroupBox
     Left = 5
     Height = 82
-    Top = 82
+    Top = 92
     Width = 990
     Align = alTop
     BorderSpacing.Left = 5
+    BorderSpacing.Top = 5
     BorderSpacing.Right = 5
     Caption = 'Search for'
     ClientHeight = 64
@@ -734,21 +736,21 @@ object MainForm: TMainForm
   end
   object GbxSearchResults: TGroupBox
     Left = 5
-    Height = 266
-    Top = 254
+    Height = 251
+    Top = 269
     Width = 990
     Align = alClient
     BorderSpacing.Left = 5
     BorderSpacing.Right = 5
     BorderSpacing.Bottom = 5
     Caption = 'Search results'
-    ClientHeight = 248
+    ClientHeight = 233
     ClientWidth = 988
     TabOrder = 4
     object StatusBar: TStatusBar
       Left = 0
       Height = 19
-      Top = 229
+      Top = 214
       Width = 988
       Panels = <      
         item
@@ -767,7 +769,7 @@ object MainForm: TMainForm
     object PrgBarSearch: TProgressBar
       Left = 24
       Height = 15
-      Top = 231
+      Top = 217
       Width = 161
       Anchors = []
       Smooth = True
@@ -776,7 +778,7 @@ object MainForm: TMainForm
     end
     object LvwResults: TListView
       Left = 7
-      Height = 214
+      Height = 199
       Top = 5
       Width = 974
       Align = alClient
@@ -818,10 +820,11 @@ object MainForm: TMainForm
   object GbxSearchLimitation: TGroupBox
     Left = 5
     Height = 55
-    Top = 164
+    Top = 179
     Width = 990
     Align = alTop
     BorderSpacing.Left = 5
+    BorderSpacing.Top = 5
     BorderSpacing.Right = 5
     Caption = 'Search limitation'
     ClientHeight = 37
@@ -884,7 +887,7 @@ object MainForm: TMainForm
   object PnlBody: TPanel
     Left = 0
     Height = 35
-    Top = 219
+    Top = 234
     Width = 1000
     Align = alTop
     BevelOuter = bvNone
