@@ -57,6 +57,8 @@ type
 
   TMainForm = class(TForm)
     ActCopySelectedLineToClipboard: TAction;
+    ActProgramAbout: TAction;
+    ActProgramExit: TAction;
     ActOpenInEditor: TAction;
     ActSearch: TAction;
     ActSaveAllLinesToFile: TAction;
@@ -72,10 +74,16 @@ type
     GbxSearchSpecification: TGroupBox;
     GbxSearchResults: TGroupBox;
     GbxSearchLimitation: TGroupBox;
+    ImageList: TImageList;
     LblDirectory: TLabel;
     LblSearchText: TLabel;
     LblSearchPattern: TLabel;
     LvwResults: TListView;
+    MainMenu: TMainMenu;
+    MnuItemAbout: TMenuItem;
+    MnuItemExit: TMenuItem;
+    MnuItemHelp: TMenuItem;
+    MnuItemFile: TMenuItem;
     MnuItemCopySelectedLine: TMenuItem;
     MnuItemSaveAllLines: TMenuItem;
     PnlBody: TPanel;
@@ -91,6 +99,8 @@ type
     StatusBar: TStatusBar;
     procedure ActCopySelectedLineToClipboardExecute(Sender: TObject);
     procedure ActOpenInEditorExecute(Sender: TObject);
+    procedure ActProgramAboutExecute(Sender: TObject);
+    procedure ActProgramExitExecute(Sender: TObject);
     procedure ActSaveAllLinesToFileExecute(Sender: TObject);
     procedure ActSearchExecute(Sender: TObject);
     procedure BtnBrowseClick(Sender: TObject);
@@ -430,6 +440,35 @@ begin
     end;
   end;
 end; //*** end of ActOpenInEditorExecute ***
+
+
+//***************************************************************************************
+// NAME:           ActProgramAboutExecute
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the associated action should be
+//                 executed.
+//
+//***************************************************************************************
+procedure TMainForm.ActProgramAboutExecute(Sender: TObject);
+begin
+  { TODO : Implement ActProgramAboutExecute }
+end; //*** end of ActProgramAboutExecute ***
+
+
+//***************************************************************************************
+// NAME:           ActProgramExitExecute
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the associated action should be
+//                 executed.
+//
+//***************************************************************************************
+procedure TMainForm.ActProgramExitExecute(Sender: TObject);
+begin
+  // Close the program.
+  Close;
+end; //*** end of ActProgramExitExecute ***
 
 
 //***************************************************************************************
