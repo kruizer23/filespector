@@ -68,6 +68,25 @@ type
     property ResultsColumn3Width: Integer read FResultsColumn3Width write FResultsColumn3Width;
   end;
 
+  //------------------------------ TLastSearchConfig ------------------------------------
+  TLastSearchConfig = class (TConfigGroup)
+  private
+    FDirectory: String;
+    FRecursive: Integer;
+    FCaseSensitive: Integer;
+    FFilePattern: String;
+  public
+    const GROUP_NAME='LastSearch';
+    constructor Create;
+    procedure Defaults; override;
+    procedure LoadFromFile(XmlConfig: TXMLConfig); override;
+    procedure SaveToFile(XmlConfig: TXMLConfig); override;
+    property Directory: String read FDirectory write FDirectory;
+    property Recursive: Integer read FRecursive write FRecursive;
+    property CaseSensitive: Integer read FCaseSensitive write FCaseSensitive;
+    property FilePattern: String read FFilePattern write FFilePattern;
+  end;
+
 
 implementation
 //---------------------------------------------------------------------------------------
@@ -151,6 +170,85 @@ begin
   XmlConfig.SetValue('results_column1_width', FResultsColumn1Width);
   XmlConfig.SetValue('results_column2_width', FResultsColumn2Width);
   XmlConfig.SetValue('results_column3_width', FResultsColumn3Width);
+  // Close this group's key.
+  xmlConfig.CloseKey;
+end; //*** end of SaveToFile ***
+
+//---------------------------------------------------------------------------------------
+//-------------------------------- TLastSearchConfig ------------------------------------
+//---------------------------------------------------------------------------------------
+//***************************************************************************************
+// NAME:           Create
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Class constructor.
+//
+//***************************************************************************************
+constructor TLastSearchConfig.Create;
+begin
+  // Call inherited constructor.
+  inherited Create;
+  // Set fields.
+  FName := GROUP_NAME;
+  Defaults;
+end; //*** end of Create ***
+
+
+//***************************************************************************************
+// NAME:           Defaults
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Sets default values for this group's settings.
+//
+//***************************************************************************************
+procedure TLastSearchConfig.Defaults;
+begin
+  FDirectory := '';
+  FRecursive := 1;
+  FCaseSensitive := 0;
+  FFilePattern := '*.*';
+end; //*** end of Defaults ***
+
+
+//***************************************************************************************
+// NAME:           LoadFromFile
+// PARAMETER:      XmlConfig XML configuration instance.
+// RETURN VALUE:   none
+// DESCRIPTION:    Loads this group's configuration settings using the XML configuration
+//                 instance.
+//
+//***************************************************************************************
+procedure TLastSearchConfig.LoadFromFile(XmlConfig: TXMLConfig);
+begin
+  // Open this group's key.
+  XmlConfig.OpenKey(UnicodeString(Self.Name));
+  // Load all settings.
+  FDirectory := String(XmlConfig.GetValue('directory', UnicodeString(FDirectory)));
+  FRecursive := XmlConfig.GetValue('recursive', FRecursive);
+  FCaseSensitive := XmlConfig.GetValue('case_sensitive', FCaseSensitive);
+  FFilePattern := String(XmlConfig.GetValue('file_pattern', UnicodeString(FFilePattern)));
+  // Close this group's key.
+  XmlConfig.CloseKey;
+end; //*** end of LoadFromFile ***/
+
+
+//***************************************************************************************
+// NAME:           SaveToFile
+// PARAMETER:      XmlConfig XML configuration instance.
+// RETURN VALUE:   none
+// DESCRIPTION:    Saves this group's configuration settings using the XML configuration
+//                 instance.
+//
+//***************************************************************************************
+procedure TLastSearchConfig.SaveToFile(XmlConfig: TXMLConfig);
+begin
+  // Open this group's key.
+  XmlConfig.OpenKey(UnicodeString(Self.Name));
+  // Store all settings.
+  XmlConfig.SetValue('directory', UnicodeString(FDirectory));
+  XmlConfig.SetValue('recursive', FRecursive);
+  XmlConfig.SetValue('case_sensitive', FCaseSensitive);
+  XmlConfig.SetValue('file_pattern', UnicodeString(FFilePattern));
   // Close this group's key.
   xmlConfig.CloseKey;
 end; //*** end of SaveToFile ***

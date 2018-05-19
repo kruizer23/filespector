@@ -188,17 +188,19 @@ begin
   PnlSearchText.Caption := '';
   PnlCaseSensitive.Caption := '';
   PnlSearchPattern.Caption := '';
+  // Create instances of the search settings.
+  FSearchSettings := TSearchSettings.Create;
   // Create instance to manage the program's configuration and add the configuration
   // group instance(s).
   FCurrentConfig := TCurrentConfig.Create;
   FCurrentConfig.AddGroup(TMainWindowConfig.Create);
+  FCurrentConfig.AddGroup(TLastSearchConfig.Create);
   // Load the programs configuration. Make sure to do this before processing the
   // settings from the command-line, as the latter ones should get priority.
   LoadCurrentConfig;
-  // Create instances of the search settings.
-  FSearchSettings := TSearchSettings.Create;
-  // Initialize default search settings.
-  FSearchSettings.Directory :=  GetCurrentDir;
+  // Initialize default search directory if it is still empty.
+  if FSearchSettings.Directory = '' then
+    FSearchSettings.Directory :=  GetCurrentDir;
   // Create instance of the text editor.
   FTextEditor := TTextEditor.Create;
   // Create instance of the file content searcher.
@@ -243,10 +245,10 @@ begin
   FFileContentSearcher.Free;
   // Release the text editor instance.
   FTextEditor.Free;
-  // Release the search settings instance.
-  FSearchSettings.Free;
   // Release the instance that manages the program's configuration.
   FCurrentConfig.Free;
+  // Release the search settings instance.
+  FSearchSettings.Free;
 end; //*** end of FormDestroy ***
 
 
@@ -694,6 +696,7 @@ end; //*** end of OnKeyUpHandlerToStartSearch ***
 procedure TMainForm.LoadCurrentConfig;
 var
   mainWindowConfig: TMainWindowConfig;
+  lastSearchConfig: TLastSearchConfig;
 begin
   // Load the program's configuration from the configuration file.
   FCurrentConfig.LoadFromFile;
@@ -706,7 +709,17 @@ begin
   LvwResults.Column[1].Width := mainWindowConfig.ResultsColumn1Width;
   LvwResults.Column[2].Width :=mainWindowConfig.ResultsColumn2Width;
   LvwResults.Column[3].Width :=mainWindowConfig.ResultsColumn3Width;
-  { TODO : Implement. }
+  // Set last search configuration settings.
+  lastSearchConfig := FCurrentConfig.Groups[TLastSearchConfig.GROUP_NAME]
+                      as TLastSearchConfig;
+  FSearchSettings.Directory := lastSearchConfig.Directory;
+  FSearchSettings.Recursive:= False;
+  if lastSearchConfig.Recursive > 0 then
+    FSearchSettings.Recursive := True;
+  FSearchSettings.CaseSensitive := False;
+  if lastSearchConfig.CaseSensitive > 0 then
+    FSearchSettings.CaseSensitive := True;
+  FSearchSettings.FilePattern := lastSearchConfig.FilePattern;
 end; //*** end of LoadCurrentConfig ***
 
 
@@ -730,7 +743,6 @@ begin
   mainWindowConfig.ResultsColumn1Width := LvwResults.Column[1].Width;
   mainWindowConfig.ResultsColumn2Width := LvwResults.Column[2].Width;
   mainWindowConfig.ResultsColumn3Width := LvwResults.Column[3].Width;
-  { TODO : Implement. }
   // Save the program's configuration to the configuration file.
   FCurrentConfig.SaveToFile;
 end; //*** end of SaveCurrentConfig ***
@@ -744,37 +756,13 @@ end; //*** end of SaveCurrentConfig ***
 //
 //***************************************************************************************
 procedure TMainForm.InitializeUserInterface;
-var
-  idx: Integer;
-  filePatternMatchFound: Boolean;
 begin
   // Initialize the user interface, based on currently set search settings.
   EdtDirectory.Text := FSearchSettings.Directory;
   CbxRecursive.Checked := FSearchSettings.Recursive;
   EdtSearchText.Text := FSearchSettings.SearchText;
   CbxCaseSensitive.Checked := FSearchSettings.CaseSensitive;
-  // Try to find a matching file pattern entry in the combobox.
-  filePatternMatchFound := False;
-  for Idx := 0 to (CmbSearchPattern.Items.Count - 1) do
-  begin
-    // Is this entry a match to the file pattern in the current search settings?
-    if CmbSearchPattern.Items[idx] = FSearchSettings.FilePattern then
-    begin
-      // Select this item in the combobox.
-      CmbSearchPattern.ItemIndex := idx;
-      // Set flag.
-      filePatternMatchFound := True;
-      // Match found, no need to continue looping.
-      Break;
-    end;
-  end;
-  // Check if a matching entry in the combobox was found.
-  if not filePatternMatchFound then
-  begin
-    // Select the default file pattern from the combobox, which is the first entry.
-    CmbSearchPattern.ItemIndex := 0;
-    FSearchSettings.FilePattern := CmbSearchPattern.Items[CmbSearchPattern.ItemIndex];
-  end;
+  CmbSearchPattern.Text := FSearchSettings.FilePattern;
   // Clear search results
   ClearSearchResults;
   // Update the user interface based on the currently selected user interface setting.
@@ -944,7 +932,20 @@ end; //*** end of StartSearch ***
 //
 //***************************************************************************************
 procedure TMainForm.FinishSearch;
+var
+  lastSearchConfig: TLastSearchConfig;
 begin
+  // Store the last used search settings in the current config for persistency purposes.
+  lastSearchConfig := FCurrentConfig.Groups[TLastSearchConfig.GROUP_NAME]
+                      as TLastSearchConfig;
+  lastSearchConfig.Directory := FSearchSettings.Directory;
+  lastSearchConfig.Recursive := 0;
+  if FSearchSettings.Recursive then
+    lastSearchConfig.Recursive := 1;
+  lastSearchConfig.CaseSensitive := 0;
+  if FSearchSettings.CaseSensitive then
+    lastSearchConfig.CaseSensitive := 1;
+  lastSearchConfig.FilePattern := FSearchSettings.FilePattern;
   // Update the user interface.
   FUISetting := UIS_DEFAULT;
   UpdateUserInterface;
