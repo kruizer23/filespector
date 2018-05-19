@@ -57,6 +57,8 @@ type
 
   TMainForm = class(TForm)
     ActCopySelectedLineToClipboard: TAction;
+    ActOpenInEditor: TAction;
+    ActSearch: TAction;
     ActSaveAllLinesToFile: TAction;
     ActionList: TActionList;
     BtnBrowse: TButton;
@@ -88,17 +90,21 @@ type
     SelectDirectoryDialog: TSelectDirectoryDialog;
     StatusBar: TStatusBar;
     procedure ActCopySelectedLineToClipboardExecute(Sender: TObject);
+    procedure ActOpenInEditorExecute(Sender: TObject);
     procedure ActSaveAllLinesToFileExecute(Sender: TObject);
+    procedure ActSearchExecute(Sender: TObject);
     procedure BtnBrowseClick(Sender: TObject);
-    procedure BtnSearchClick(Sender: TObject);
     procedure CtxMnuResultsViewPopup(Sender: TObject);
+    procedure LvwResultsKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState
+      );
+    procedure OnKeyUpHandlerToStartSearch(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure LvwResultsColumnClick(Sender: TObject; Column: TListColumn);
     procedure LvwResultsCompare(Sender: TObject; Item1, Item2: TListItem;
       Data: Integer; var Compare: Integer);
-    procedure LvwResultsDblClick(Sender: TObject);
   private
     FUISetting: TUserInterfaceSetting;
     FSearchSettings: TSearchSettings;
@@ -343,38 +349,6 @@ end;  //*** end of LvwResultsCompare ***
 
 
 //***************************************************************************************
-// NAME:           LvwResultsDblClick
-// PARAMETER:      Sender Source of the event.
-// RETURN VALUE:   none
-// DESCRIPTION:    Event handler that gets called when a double-click event occured in
-//                 the list view.
-//
-//***************************************************************************************
-procedure TMainForm.LvwResultsDblClick(Sender: TObject);
-var
-  searchedFile: String;
-  lineContents: String;
-  lineNumber: LongWord;
-begin
-  // Initialize locals.
-  searchedFile := '';
-  lineContents := '';
-  lineNumber := 0;
-  // Only continue if a row is selected in the list view.
-  if LvwResults.Selected <> nil then
-  begin
-    // Attempt to extract the contents of the selected row.
-    if ResultsViewGetRowInfo(LvwResults.Selected.Index, searchedFile, lineContents,
-                             lineNumber) then
-    begin
-      // Attempt to open the file at the specific line number with a text editor.
-      FTextEditor.Open(searchedFile, lineNumber);
-    end;
-  end;
-end; //*** end of LvwResultsDblClick ***
-
-
-//***************************************************************************************
 // NAME:           BtnBrowseClick
 // PARAMETER:      Sender Source of the event.
 // RETURN VALUE:   none
@@ -427,7 +401,39 @@ end; //*** end of ActCopySelectedLineToClipboardExecute ***
 
 
 //***************************************************************************************
-// NAME:           ActionSaveAllLinesToFileExecute
+// NAME:           ActOpenInEditorExecute
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the associated action should be
+//                 executed.
+//
+//***************************************************************************************
+procedure TMainForm.ActOpenInEditorExecute(Sender: TObject);
+var
+  searchedFile: String;
+  lineContents: String;
+  lineNumber: LongWord;
+begin
+  // Initialize locals.
+  searchedFile := '';
+  lineContents := '';
+  lineNumber := 0;
+  // Only continue if a row is selected in the list view.
+  if LvwResults.Selected <> nil then
+  begin
+    // Attempt to extract the contents of the selected row.
+    if ResultsViewGetRowInfo(LvwResults.Selected.Index, searchedFile, lineContents,
+                             lineNumber) then
+    begin
+      // Attempt to open the file at the specific line number with a text editor.
+      FTextEditor.Open(searchedFile, lineNumber);
+    end;
+  end;
+end; //*** end of ActOpenInEditorExecute ***
+
+
+//***************************************************************************************
+// NAME:           ActSaveAllLinesToFileExecute
 // PARAMETER:      Sender Source of the event.
 // RETURN VALUE:   none
 // DESCRIPTION:    Event handler that gets called when the associated action should be
@@ -474,17 +480,18 @@ begin
       linesList.Free;
     end;
   end;
-end; //*** end of ActionSaveAllLinesToFileExecute ***
+end; //*** end of ActSaveAllLinesToFileExecute ***
 
 
 //***************************************************************************************
-// NAME:           BtnSearchClick
+// NAME:           ActStartSearchExecute
 // PARAMETER:      Sender Source of the event.
 // RETURN VALUE:   none
-// DESCRIPTION:    Event handler that gets called when the button is clicked.
+// DESCRIPTION:    Event handler that gets called when the associated action should be
+//                 executed.
 //
 //***************************************************************************************
-procedure TMainForm.BtnSearchClick(Sender: TObject);
+procedure TMainForm.ActSearchExecute(Sender: TObject);
 var
   boxStyle: Integer;
 begin
@@ -506,7 +513,7 @@ begin
     // Cancel the search operation.
     CancelSearch;
   end;
-end; //*** end of BtnSearchClick ***
+end; //*** end of ActStartSearchExecute ***
 
 
 //***************************************************************************************
@@ -535,6 +542,59 @@ begin
     ActSaveAllLinesToFile.Enabled := False;
   end;
 end; //*** end of CtxMnuResultsViewPopup ***
+
+
+//***************************************************************************************
+// NAME:           LvwResultsKeyUp
+// PARAMETER:      Sender Source of the event.
+//                 Key The key on the keyboard. For non-alphanumeric keys, you must use
+//                 virtual key codes to determine the key pressed.
+//                 Shift Indicates whether the Shift, Alt, or Ctrl keys are combined with
+//                 the keystroke
+// RETURN VALUE:   None.
+// DESCRIPTION:    Event handler that gets called when a key is released.
+//
+//***************************************************************************************
+procedure TMainForm.LvwResultsKeyUp(Sender: TObject; var Key: Word;
+                                    Shift: TShiftState);
+begin
+  // Suppress warning due to unused parameter.
+  Shift := Shift;
+  // Was the enter key pressed?
+  if Key = VK_RETURN then
+  begin
+    // Execute the associated action to open the file in a text editor.
+    ActOpenInEditorExecute(Sender);
+  end;
+end; //*** end of LvwResultsKeyUp ***
+
+
+//***************************************************************************************
+// NAME:           OnKeyUpHandlerToStartSearch
+// PARAMETER:      Sender Source of the event.
+//                 Key The key on the keyboard. For non-alphanumeric keys, you must use
+//                 virtual key codes to determine the key pressed.
+//                 Shift Indicates whether the Shift, Alt, or Ctrl keys are combined with
+//                 the keystroke
+// RETURN VALUE:   None.
+// DESCRIPTION:    Event handler that gets called when a key is released. This generic
+//                 version can be reused for all components that that should start
+//                 a search operation when the enter key is released.
+//
+//***************************************************************************************
+procedure TMainForm.OnKeyUpHandlerToStartSearch(Sender: TObject; var Key: Word;
+                                                Shift: TShiftState);
+begin
+  // Suppress warning due to unused parameter.
+  Shift := Shift;
+  // Was the enter key pressed?
+  if Key = VK_RETURN then
+  begin
+    // Execute the associated action to start searching. Note that this also automati-
+    // cally cancels the search if one is ongoing.
+    ActSearchExecute(Sender);
+  end;
+end; //*** end of OnKeyUpHandlerToStartSearch ***
 
 
 //***************************************************************************************
@@ -601,7 +661,10 @@ begin
     EdtSearchText.Enabled := False;
     CbxCaseSensitive.Enabled := False;
     CmbSearchPattern.Enabled := False;
-    BtnSearch.Caption := 'Cancel';
+    ActSearch.Caption := 'Cancel';
+    // Make the search button the active control during a search. This makes it possible
+    // for the user to cancel the search by pressing the Enter key.
+    ActiveControl := BtnSearch;
   end
   // The default setting must be selected.
   else
@@ -612,7 +675,11 @@ begin
     EdtSearchText.Enabled := True;
     CbxCaseSensitive.Enabled := True;
     CmbSearchPattern.Enabled := True;
-    BtnSearch.Caption := 'Search';
+    ActSearch.Caption := 'Search';
+    // Make the search text edit the active control. This makes it possible to enter
+    // a new search text right away after a search. Handy when a type was made or to
+    // continue searching for different terms.
+    ActiveControl := EdtSearchText;
   end;
 end; //*** end of UpdateUserInterface ***
 

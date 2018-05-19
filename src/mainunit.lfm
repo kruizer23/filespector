@@ -595,6 +595,7 @@ object MainForm: TMainForm
         Align = alClient
         BorderSpacing.Around = 2
         Constraints.MinHeight = 28
+        OnKeyUp = OnKeyUpHandlerToStartSearch
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
@@ -695,6 +696,7 @@ object MainForm: TMainForm
         BorderSpacing.Right = 5
         BorderSpacing.Around = 2
         Constraints.MinHeight = 28
+        OnKeyUp = OnKeyUpHandlerToStartSearch
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
@@ -808,7 +810,8 @@ object MainForm: TMainForm
       ViewStyle = vsReport
       OnColumnClick = LvwResultsColumnClick
       OnCompare = LvwResultsCompare
-      OnDblClick = LvwResultsDblClick
+      OnDblClick = ActOpenInEditorExecute
+      OnKeyUp = LvwResultsKeyUp
     end
   end
   object GbxSearchLimitation: TGroupBox
@@ -869,6 +872,7 @@ object MainForm: TMainForm
           '*.sh|*.py|*.rb|*.pl|*.cmd|*.bash'
           '*.pas|*.lpr|*.lpi|*.pp|*.lfm|*.lpk|*.inc'
         )
+        OnKeyUp = OnKeyUpHandlerToStartSearch
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
@@ -894,14 +898,12 @@ object MainForm: TMainForm
       Height = 28
       Top = 7
       Width = 80
+      Action = ActSearch
       Align = alRight
       BorderSpacing.Top = 5
       BorderSpacing.Right = 10
       BorderSpacing.Around = 2
-      Caption = 'Search'
       Constraints.MinHeight = 28
-      Default = True
-      OnClick = BtnSearchClick
       TabOrder = 0
     end
   end
@@ -924,6 +926,16 @@ object MainForm: TMainForm
       Caption = 'Save All'
       OnExecute = ActSaveAllLinesToFileExecute
       ShortCut = 16467
+    end
+    object ActSearch: TAction
+      Category = 'SearchOperations'
+      Caption = 'Search'
+      OnExecute = ActSearchExecute
+    end
+    object ActOpenInEditor: TAction
+      Category = 'ResultsView'
+      Caption = 'Open in Editor'
+      OnExecute = ActOpenInEditorExecute
     end
   end
   object CtxMnuResultsView: TPopupMenu
