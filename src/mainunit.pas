@@ -40,7 +40,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, DateUtils, LCLType, ActnList, Menus, SearchSettings,
-  FileContentSearcher, TextEditor, AboutUnit, Clipbrd;
+  FileContentSearcher, TextEditor, AboutUnit, Clipbrd, CurrentConfig, ConfigGroups;
 
 
 //***************************************************************************************
@@ -113,6 +113,7 @@ type
     procedure LvwResultsCompare(Sender: TObject; Item1, Item2: TListItem;
       Data: Integer; var Compare: Integer);
   private
+    FCurrentConfig: TCurrentConfig;
     FUISetting: TUserInterfaceSetting;
     FSearchSettings: TSearchSettings;
     FTextEditor: TTextEditor;
@@ -181,6 +182,12 @@ begin
   PnlSearchText.Caption := '';
   PnlCaseSensitive.Caption := '';
   PnlSearchPattern.Caption := '';
+  // Create instance to manage the program's configuration and add the configuration
+  // group instance(s).
+  FCurrentConfig := TCurrentConfig.Create;
+  FCurrentConfig.AddGroup(TMainWindowConfig.Create);
+  // Load the program's configuration from the configuration file.
+  FCurrentConfig.LoadFromFile;
   // Create instances of the search settings.
   FSearchSettings := TSearchSettings.Create;
   // Initialize default search settings.
@@ -229,6 +236,10 @@ begin
   FTextEditor.Free;
   // Release the search settings instance.
   FSearchSettings.Free;
+  // Save the program's configuration to the configuration file.
+  FCurrentConfig.SaveToFile;
+  // Release the instance that manages the program's configuration.
+  FCurrentConfig.Free;
 end; //*** end of FormDestroy ***
 
 
