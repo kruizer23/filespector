@@ -12,10 +12,10 @@ object AboutForm: TAboutForm
   Position = poOwnerFormCenter
   LCLVersion = '1.8.2.0'
   object BtnClose: TButton
-    Left = 336
+    Left = 326
     Height = 28
     Top = 288
-    Width = 80
+    Width = 90
     Caption = 'Close'
     Default = True
     ModalResult = 1
@@ -261,7 +261,7 @@ object AboutForm: TAboutForm
     Left = 15
     Height = 28
     Top = 288
-    Width = 80
+    Width = 90
     Caption = 'License'
     OnChange = TgbLicenseChange
     TabOrder = 0

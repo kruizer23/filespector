@@ -1,0 +1,200 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"X-Generator: Poedit 2.0.7\n"
+
+#: aboutunit.rscopyrightpost
+msgid "2018 by Frank Voorburg"
+msgstr "2018 von Frank Voorburg"
+
+#: aboutunit.rscopyrightpre
+msgid "Copyright"
+msgstr "Copyright"
+
+#: aboutunit.rsweblinkinfo
+msgid "Visit FileSpector on GitHub"
+msgstr "Seht euch FileSpector auf GitHub an"
+
+#: commandrunner.rserrorexecute
+msgid "Could not execute"
+msgstr "Konnte nicht ausgeführt werden"
+
+#: filecontentsearcher.rserrornostart
+msgid "Could not start the search operation for file"
+msgstr "Konnte Suchvorgang für die folgende Datei nicht starten:"
+
+#: mainunit.rsbuttoncaptioncancel
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: mainunit.rsbuttoncaptionsearch
+msgctxt "mainunit.rsbuttoncaptionsearch"
+msgid "Search"
+msgstr "Suchen"
+
+#: mainunit.rssearchgenericerrortitle
+msgid "Error detected"
+msgstr "Fehler festgestellt"
+
+#: mainunit.rssearchstarterrorinfo
+msgid "Invalid search settings detected. Please correct them and try again."
+msgstr "Ungültige Sucheinstellungen festgestellt. Bitte korrigieren und erneut versuchen."
+
+#: mainunit.rssearchstarterrortitle
+msgid "Problem detected"
+msgstr "Problem festgestellt"
+
+#: mainunit.rsstatusbarconnectortext
+msgid "out of"
+msgstr "von"
+
+#: mainunit.rsstatusbarfileswithhits
+msgid "Files with a search hit"
+msgstr "Dateien mit Suchtreffern"
+
+#: mainunit.rsstatusbarsearchhits
+msgid "Search hits"
+msgstr "Suchtreffer"
+
+#: taboutform.btnclose.caption
+msgid "Close"
+msgstr "Schließen"
+
+#: taboutform.caption
+msgid "About FileSpector"
+msgstr "Über FileSpector"
+
+#: taboutform.lblprogramname.caption
+msgctxt "taboutform.lblprogramname.caption"
+msgid "FileSpector"
+msgstr "FileSpector"
+
+#: taboutform.tgblicense.caption
+msgid "License"
+msgstr "Lizenz"
+
+#: tmainform.actcopyselectedlinetoclipboard.caption
+msgid "Copy"
+msgstr "Kopieren"
+
+#: tmainform.actopenineditor.caption
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: tmainform.actprogramabout.caption
+msgid "&About"
+msgstr "&Über"
+
+#: tmainform.actprogramexit.caption
+msgid "&Quit"
+msgstr "&Schließen"
+
+#: tmainform.actsavealllinestofile.caption
+msgid "Save All"
+msgstr "Alle speichern"
+
+#: tmainform.actsearch.caption
+msgctxt "tmainform.actsearch.caption"
+msgid "Search"
+msgstr "Suchen"
+
+#: tmainform.btnbrowse.caption
+msgid "Browse.."
+msgstr "Durchsuchen.."
+
+#: tmainform.caption
+msgctxt "tmainform.caption"
+msgid "FileSpector"
+msgstr "FileSpector"
+
+#: tmainform.cbxcasesensitive.caption
+msgid "Search case-sensitive"
+msgstr "Groß- und Kleinschreibung beachten"
+
+#: tmainform.cbxcasesensitive.hint
+msgid "Check this box to search case-sensitive"
+msgstr "Aktiviere dieses Kontrollkästchen, um abhängig von Groß- und Kleinschreibung zu suchen"
+
+#: tmainform.cbxrecursive.caption
+msgid "Include subdirectories"
+msgstr "Unterverzeichnisse einbeziehen"
+
+#: tmainform.cbxrecursive.hint
+msgid "Check this box to include subdirectories as well"
+msgstr "Aktiviere dieses Kontrollkästchen, um auch Unterverzeichnisse einzubeziehen"
+
+#: tmainform.cmbsearchpattern.hint
+msgid "Limit the search to files with a specific extension. Seperate multiple entries with |"
+msgstr "Suche auf Dateien mit einer bestimmten Dateiendung beschränken. Mehrere Einträge mit | trennen."
+
+#: tmainform.edtdirectory.hint
+msgid "Enter the base directory for the search operation or click the browse-button to select one"
+msgstr "Gib das Basisverzeichnis für den Suchvorgang ein oder klicke auf den Durchsuchen-Button, um eines auszuwählen"
+
+#: tmainform.edtsearchtext.hint
+msgid "Enter the text to search for in the files present in the specified directory"
+msgstr "Gib den Text ein, nach dem in den Dateien gesucht werden soll, die im angegebenen Verzeichnis vorhanden sind"
+
+#: tmainform.gbxsearchlimitation.caption
+msgid "Search limitation"
+msgstr "Suchbegrenzung"
+
+#: tmainform.gbxsearchlocation.caption
+msgid "Search in"
+msgstr "Suche in"
+
+#: tmainform.gbxsearchresults.caption
+msgid "Search results"
+msgstr "Suchergebnisse"
+
+#: tmainform.gbxsearchspecification.caption
+msgid "Search for"
+msgstr "Suche nach"
+
+#: tmainform.lbldirectory.caption
+msgid "Directory:"
+msgstr "Verzeichnis:"
+
+#: tmainform.lblsearchpattern.caption
+msgid "Pattern:"
+msgstr "Muster:"
+
+#: tmainform.lblsearchtext.caption
+msgid "Text:"
+msgstr "Text:"
+
+#: tmainform.lvwresults.columns[0].caption
+msgid "File"
+msgstr "Datei"
+
+#: tmainform.lvwresults.columns[1].caption
+msgid "Line"
+msgstr "Zeile"
+
+#: tmainform.lvwresults.columns[2].caption
+msgid "Contents"
+msgstr "Inhalt"
+
+#: tmainform.lvwresults.columns[3].caption
+msgid "Directory"
+msgstr "Verzeichnis"
+
+#: tmainform.mnuitemfile.caption
+msgid "&File"
+msgstr "&Datei"
+
+#: tmainform.mnuitemhelp.caption
+msgid "&Help"
+msgstr "&Hilfe"
+
+#: tmainform.savedialog.title
+msgid "Save Log-file as"
+msgstr "Protokolldatei speichern als"

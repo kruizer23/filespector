@@ -1,0 +1,200 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"X-Generator: Poedit 2.0.7\n"
+
+#: aboutunit.rscopyrightpost
+msgid "2018 by Frank Voorburg"
+msgstr "2018 door Frank Voorburg"
+
+#: aboutunit.rscopyrightpre
+msgid "Copyright"
+msgstr "Copyright"
+
+#: aboutunit.rsweblinkinfo
+msgid "Visit FileSpector on GitHub"
+msgstr "Bezoek FileSpector op GitHub"
+
+#: commandrunner.rserrorexecute
+msgid "Could not execute"
+msgstr "Kon niet worden uitgevoerd"
+
+#: filecontentsearcher.rserrornostart
+msgid "Could not start the search operation for file"
+msgstr "De zoekopdracht kon niet worden gestart voor bestand"
+
+#: mainunit.rsbuttoncaptioncancel
+msgid "Cancel"
+msgstr "Annuleer"
+
+#: mainunit.rsbuttoncaptionsearch
+msgctxt "mainunit.rsbuttoncaptionsearch"
+msgid "Search"
+msgstr "Zoek"
+
+#: mainunit.rssearchgenericerrortitle
+msgid "Error detected"
+msgstr "Fout opgetreden"
+
+#: mainunit.rssearchstarterrorinfo
+msgid "Invalid search settings detected. Please correct them and try again."
+msgstr "Ongeldige zoekopdracht instellingen gedetecteerd. Corrigeer deze and probeer het opnieuw."
+
+#: mainunit.rssearchstarterrortitle
+msgid "Problem detected"
+msgstr "Probleem opgetreden"
+
+#: mainunit.rsstatusbarconnectortext
+msgid "out of"
+msgstr "van"
+
+#: mainunit.rsstatusbarfileswithhits
+msgid "Files with a search hit"
+msgstr "Bestanden met een treffer"
+
+#: mainunit.rsstatusbarsearchhits
+msgid "Search hits"
+msgstr "Zoektreffers"
+
+#: taboutform.btnclose.caption
+msgid "Close"
+msgstr "Sluiten"
+
+#: taboutform.caption
+msgid "About FileSpector"
+msgstr "Over FileSpector"
+
+#: taboutform.lblprogramname.caption
+msgctxt "taboutform.lblprogramname.caption"
+msgid "FileSpector"
+msgstr "FileSpector"
+
+#: taboutform.tgblicense.caption
+msgid "License"
+msgstr "Licentie"
+
+#: tmainform.actcopyselectedlinetoclipboard.caption
+msgid "Copy"
+msgstr "Kopiëren"
+
+#: tmainform.actopenineditor.caption
+msgid "Edit"
+msgstr "Bewerken"
+
+#: tmainform.actprogramabout.caption
+msgid "&About"
+msgstr "&Over"
+
+#: tmainform.actprogramexit.caption
+msgid "&Quit"
+msgstr "&Afsluiten"
+
+#: tmainform.actsavealllinestofile.caption
+msgid "Save All"
+msgstr "Alles opslaan"
+
+#: tmainform.actsearch.caption
+msgctxt "tmainform.actsearch.caption"
+msgid "Search"
+msgstr "Zoek"
+
+#: tmainform.btnbrowse.caption
+msgid "Browse.."
+msgstr "Bladeren.."
+
+#: tmainform.caption
+msgctxt "tmainform.caption"
+msgid "FileSpector"
+msgstr "FileSpector"
+
+#: tmainform.cbxcasesensitive.caption
+msgid "Search case-sensitive"
+msgstr "Hoofdlettergevoelig zoeken"
+
+#: tmainform.cbxcasesensitive.hint
+msgid "Check this box to search case-sensitive"
+msgstr "Vink dit selectievakje aan om hoofdlettergevoelig te zoeken"
+
+#: tmainform.cbxrecursive.caption
+msgid "Include subdirectories"
+msgstr "Inclusief submappen"
+
+#: tmainform.cbxrecursive.hint
+msgid "Check this box to include subdirectories as well"
+msgstr "Vink dit selectievakje aan om ook in de submappen te zoeken"
+
+#: tmainform.cmbsearchpattern.hint
+msgid "Limit the search to files with a specific extension. Seperate multiple entries with |"
+msgstr "Beperk de zoekopdracht tot bestanden met een bepaalde extensie. Scheid meerdere invoer met een |"
+
+#: tmainform.edtdirectory.hint
+msgid "Enter the base directory for the search operation or click the browse-button to select one"
+msgstr "Geef de basis map op voor de zoekopdracht of klik op de bladeren-knop om een map uit te kiezen"
+
+#: tmainform.edtsearchtext.hint
+msgid "Enter the text to search for in the files present in the specified directory"
+msgstr "Voer de zoekterm in waarvoor moet worden gezocht in de opgegeven map"
+
+#: tmainform.gbxsearchlimitation.caption
+msgid "Search limitation"
+msgstr "Zoekbeperking"
+
+#: tmainform.gbxsearchlocation.caption
+msgid "Search in"
+msgstr "Zoek in"
+
+#: tmainform.gbxsearchresults.caption
+msgid "Search results"
+msgstr "Zoekresultaten"
+
+#: tmainform.gbxsearchspecification.caption
+msgid "Search for"
+msgstr "Zoek naar"
+
+#: tmainform.lbldirectory.caption
+msgid "Directory:"
+msgstr "Map:"
+
+#: tmainform.lblsearchpattern.caption
+msgid "Pattern:"
+msgstr "Patroon:"
+
+#: tmainform.lblsearchtext.caption
+msgid "Text:"
+msgstr "Tekst"
+
+#: tmainform.lvwresults.columns[0].caption
+msgid "File"
+msgstr "Bestand"
+
+#: tmainform.lvwresults.columns[1].caption
+msgid "Line"
+msgstr "Lijn"
+
+#: tmainform.lvwresults.columns[2].caption
+msgid "Contents"
+msgstr "Inhoud"
+
+#: tmainform.lvwresults.columns[3].caption
+msgid "Directory"
+msgstr "Map"
+
+#: tmainform.mnuitemfile.caption
+msgid "&File"
+msgstr "&Bestand"
+
+#: tmainform.mnuitemhelp.caption
+msgid "&Help"
+msgstr "&Help"
+
+#: tmainform.savedialog.title
+msgid "Save Log-file as"
+msgstr "Log-bestand opslaan als"

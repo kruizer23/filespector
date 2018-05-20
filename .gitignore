@@ -3,3 +3,4 @@ src/filespector.lps
 src/filespector.res
 src/filespector.dbg
 src/lib/*
+src/languages/*.mo
