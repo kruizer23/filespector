@@ -602,7 +602,6 @@ object MainForm: TMainForm
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        Text = '/home/voorburg'
       end
       object LblDirectory: TLabel
         Left = 7
