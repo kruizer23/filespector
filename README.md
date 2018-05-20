@@ -1,6 +1,8 @@
 # FileSpector
 FileSpector is a GUI tool for quickly finding all text occurrences in multiple files in a directory, matching a specific file extension pattern. It is developed for GNU/Linux systems. Its focus is on simplicity and easy-of-use, as opposed to feature-rich.
 
+![alt text](docs/images/screenshot_mainwindow_90pct.png "Screenshot of FileSpector's main window")
+
 ## Status
 
 The project is currently in the **beta** status, as it is still under development. Feel free to have a look at it, but keep in mind that it is not yet a finished product. Contributions are of course welcome.
