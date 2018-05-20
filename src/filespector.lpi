@@ -10,6 +10,24 @@
       <UseXPManifest Value="True"/>
       <Icon Value="0"/>
     </General>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="languages"/>
+      <ExcludedOriginals Count="12">
+        <Item1 Value="PnlBody"/>
+        <Item2 Value="PnlCaseSensitive"/>
+        <Item3 Value="PnlDirectory"/>
+        <Item4 Value="PnlRecursive"/>
+        <Item5 Value="PnlSearchPattern"/>
+        <Item6 Value="PnlSearchText"/>
+        <Item7 Value="Search hits placeholder"/>
+        <Item8 Value="Files with a search hit placeholder"/>
+        <Item9 Value="Copyright placeholder"/>
+        <Item10 Value="Version placeholder"/>
+        <Item11 Value="Visit on the Web placeholder"/>
+        <Item12 Value="*.*"/>
+      </ExcludedOriginals>
+    </i18n>
     <BuildModes Count="3">
       <Item1 Name="Default" Default="True"/>
       <Item2 Name="Debug">

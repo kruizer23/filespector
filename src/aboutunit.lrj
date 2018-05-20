@@ -1,0 +1,9 @@
+{"version":1,"strings":[
+{"hash":207675138,"name":"taboutform.caption","sourcebytes":[65,98,111,117,116,32,70,105,108,101,83,112,101,99,116,111,114],"value":"About FileSpector"},
+{"hash":4863637,"name":"taboutform.btnclose.caption","sourcebytes":[67,108,111,115,101],"value":"Close"},
+{"hash":170305986,"name":"taboutform.lblprogramname.caption","sourcebytes":[70,105,108,101,83,112,101,99,116,111,114],"value":"FileSpector"},
+{"hash":121023810,"name":"taboutform.lblversion.caption","sourcebytes":[86,101,114,115,105,111,110,32,112,108,97,99,101,104,111,108,100,101,114],"value":"Version placeholder"},
+{"hash":95140546,"name":"taboutform.lblcopyright.caption","sourcebytes":[67,111,112,121,114,105,103,104,116,32,112,108,97,99,101,104,111,108,100,101,114],"value":"Copyright placeholder"},
+{"hash":49923525,"name":"taboutform.tgblicense.caption","sourcebytes":[76,105,99,101,110,115,101],"value":"License"},
+{"hash":86294578,"name":"taboutform.lblweblink.caption","sourcebytes":[86,105,115,105,116,32,111,110,32,116,104,101,32,87,101,98,32,112,108,97,99,101,104,111,108,100,101,114],"value":"Visit on the Web placeholder"}
+]}

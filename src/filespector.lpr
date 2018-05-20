@@ -44,7 +44,7 @@ uses
   Interfaces, // this includes the LCL widgetset
   Forms, MainUnit, SearchSettings, CommandRunner, FileContentSearcher,
   TextEditor, VersionInfo, AboutUnit
-  { you can add units after this }, SysUtils;
+  { you can add units after this }, SysUtils, LCLTranslator;
 
 {$R *.res}
 
@@ -215,6 +215,8 @@ end; //*** end of ProcessCommandLine ***
 begin
   // Set flag to specify that every form must have a resource.
   RequireDerivedFormResource:=True;
+  // Set default language and enable localization support.
+  SetDefaultLang('', '');
   // Initialize the application.
   Application.Initialize;
   // Process the command line.

@@ -1,0 +1,191 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: aboutunit.rscopyrightpost
+msgid "2018 by Frank Voorburg"
+msgstr ""
+
+#: aboutunit.rscopyrightpre
+msgid "Copyright"
+msgstr ""
+
+#: aboutunit.rsweblinkinfo
+msgid "Visit FileSpector on GitHub"
+msgstr ""
+
+#: commandrunner.rserrorexecute
+msgid "Could not execute"
+msgstr ""
+
+#: filecontentsearcher.rserrornostart
+msgid "Could not start the search operation for file"
+msgstr ""
+
+#: mainunit.rsbuttoncaptioncancel
+msgid "Cancel"
+msgstr ""
+
+#: mainunit.rsbuttoncaptionsearch
+msgctxt "mainunit.rsbuttoncaptionsearch"
+msgid "Search"
+msgstr ""
+
+#: mainunit.rssearchgenericerrortitle
+msgid "Error detected"
+msgstr ""
+
+#: mainunit.rssearchstarterrorinfo
+msgid "Invalid search settings detected. Please correct them and try again."
+msgstr ""
+
+#: mainunit.rssearchstarterrortitle
+msgid "Problem detected"
+msgstr ""
+
+#: mainunit.rsstatusbarconnectortext
+msgid "out of"
+msgstr ""
+
+#: mainunit.rsstatusbarfileswithhits
+msgid "Files with a search hit"
+msgstr ""
+
+#: mainunit.rsstatusbarsearchhits
+msgid "Search hits"
+msgstr ""
+
+#: taboutform.btnclose.caption
+msgid "Close"
+msgstr ""
+
+#: taboutform.caption
+msgid "About FileSpector"
+msgstr ""
+
+#: taboutform.lblprogramname.caption
+msgctxt "taboutform.lblprogramname.caption"
+msgid "FileSpector"
+msgstr ""
+
+#: taboutform.tgblicense.caption
+msgid "License"
+msgstr ""
+
+#: tmainform.actcopyselectedlinetoclipboard.caption
+msgid "Copy"
+msgstr ""
+
+#: tmainform.actopenineditor.caption
+msgid "Edit"
+msgstr ""
+
+#: tmainform.actprogramabout.caption
+msgid "&About"
+msgstr ""
+
+#: tmainform.actprogramexit.caption
+msgid "&Quit"
+msgstr ""
+
+#: tmainform.actsavealllinestofile.caption
+msgid "Save All"
+msgstr ""
+
+#: tmainform.actsearch.caption
+msgctxt "tmainform.actsearch.caption"
+msgid "Search"
+msgstr ""
+
+#: tmainform.btnbrowse.caption
+msgid "Browse.."
+msgstr ""
+
+#: tmainform.caption
+msgctxt "tmainform.caption"
+msgid "FileSpector"
+msgstr ""
+
+#: tmainform.cbxcasesensitive.caption
+msgid "Search case-sensitive"
+msgstr ""
+
+#: tmainform.cbxcasesensitive.hint
+msgid "Check this box to search case-sensitive"
+msgstr ""
+
+#: tmainform.cbxrecursive.caption
+msgid "Include subdirectories"
+msgstr ""
+
+#: tmainform.cbxrecursive.hint
+msgid "Check this box to include subdirectories as well"
+msgstr ""
+
+#: tmainform.cmbsearchpattern.hint
+msgid "Limit the search to files with a specific extension. Seperate multiple entries with |"
+msgstr ""
+
+#: tmainform.edtdirectory.hint
+msgid "Enter the base directory for the search operation or click the browse-button to select one"
+msgstr ""
+
+#: tmainform.edtsearchtext.hint
+msgid "Enter the text to search for in the files present in the specified directory"
+msgstr ""
+
+#: tmainform.gbxsearchlimitation.caption
+msgid "Search limitation"
+msgstr ""
+
+#: tmainform.gbxsearchlocation.caption
+msgid "Search in"
+msgstr ""
+
+#: tmainform.gbxsearchresults.caption
+msgid "Search results"
+msgstr ""
+
+#: tmainform.gbxsearchspecification.caption
+msgid "Search for"
+msgstr ""
+
+#: tmainform.lbldirectory.caption
+msgid "Directory:"
+msgstr ""
+
+#: tmainform.lblsearchpattern.caption
+msgid "Pattern:"
+msgstr ""
+
+#: tmainform.lblsearchtext.caption
+msgid "Text:"
+msgstr ""
+
+#: tmainform.lvwresults.columns[0].caption
+msgid "File"
+msgstr ""
+
+#: tmainform.lvwresults.columns[1].caption
+msgid "Line"
+msgstr ""
+
+#: tmainform.lvwresults.columns[2].caption
+msgid "Contents"
+msgstr ""
+
+#: tmainform.lvwresults.columns[3].caption
+msgid "Directory"
+msgstr ""
+
+#: tmainform.mnuitemfile.caption
+msgid "&File"
+msgstr ""
+
+#: tmainform.mnuitemhelp.caption
+msgid "&Help"
+msgstr ""
+
+#: tmainform.savedialog.title
+msgid "Save Log-file as"
+msgstr ""
+
