@@ -80,6 +80,7 @@ type
     LblSearchPattern: TLabel;
     LvwResults: TListView;
     MainMenu: TMainMenu;
+    MnuItemOpenInEditor: TMenuItem;
     MnuItemAbout: TMenuItem;
     MnuItemExit: TMenuItem;
     MnuItemHelp: TMenuItem;
@@ -445,6 +446,7 @@ begin
   searchedFile := '';
   lineContents := '';
   lineNumber := 0;
+
   // Only continue if a row is selected in the list view.
   if LvwResults.Selected <> nil then
   begin
@@ -588,15 +590,44 @@ end; //*** end of ActStartSearchExecute ***
 //
 //***************************************************************************************
 procedure TMainForm.CtxMnuResultsViewPopup(Sender: TObject);
+var
+  relativeCursosPos: TPoint;
+  itemUnderCursor: TListItem;
 begin
   // Enable all entries by default.
+  ActOpenInEditor.Enabled := True;
   ActCopySelectedLineToClipboard.Enabled := True;
   ActSaveAllLinesToFile.Enabled := True;
 
-  // Disable the copy line to clipboard action if no line is selected.
+  // Some items in the context menu should only be available and execute on the row
+  // that the context menu pops up on. Find out on which item the contect menu popped
+  // up on. First, get the position of the mouse cursor relative to the list view.
+  relativeCursosPos := LvwResults.ScreenToClient(Mouse.CursorPos);
+  // Next, find the item under the cursor, if any.
+  itemUnderCursor := LvwResults.GetItemAt(relativeCursosPos.x, relativeCursosPos.y);
+  // Is there is no item under the cursor, then deselect whatever item is currently
+  // selected in the list view.
+  if itemUnderCursor = nil then
+  begin
+    LvwResults.Selected := nil;
+  end
+  // The cursor is on and item.
+  else
+  begin
+    // It is possible that another row is selected than the one the cursor is on. In this
+    // case, select the one that the cursor is on.
+    if itemUnderCursor <> LvwResults.Selected then
+    begin
+      LvwResults.Selected := itemUnderCursor;
+    end;
+  end;
+
+  // Disable the copy line to clipboard and open in editor actions, if no line is
+  // selected.
   if LvwResults.Selected = nil then
   begin
     ActCopySelectedLineToClipboard.Enabled := False;
+    ActOpenInEditor.Enabled := False;
   end;
 
   // Disable the save lines to file action if there are no lines present.
@@ -605,6 +636,7 @@ begin
     ActSaveAllLinesToFile.Enabled := False;
   end;
 end; //*** end of CtxMnuResultsViewPopup ***
+
 
 //***************************************************************************************
 // NAME:           LvwResultsDblClick
@@ -616,15 +648,14 @@ end; //*** end of CtxMnuResultsViewPopup ***
 //***************************************************************************************
 procedure TMainForm.LvwResultsDblClick(Sender: TObject);
 var
-  relativeCursosPos : TPoint;
+  relativeCursosPos: TPoint;
 begin
   // Get the position of the mouse cursor relative to the list view.
   relativeCursosPos := LvwResults.ScreenToClient(Mouse.CursorPos);
   // Only process the event if the mouse was actually on an item. Otherwise the editor
   // will actually be opened if the header was double-clicked, for example for
   // automatic column width sizing.
-  if LvwResults.GetItemAt(relativeCursosPos.X, relativeCursosPos.Y) <> nil then
-  //if LvwResults.GetItemAt(Mouse.CursorPos.X, Mouse.CursorPos.Y) <> nil then
+  if LvwResults.GetItemAt(relativeCursosPos.x, relativeCursosPos.y) <> nil then
   begin
     // Attempt to open the search hit in the selected row in a text editor.
     ActOpenInEditorExecute(Sender);

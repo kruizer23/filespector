@@ -7,7 +7,7 @@ The project is currently in the **pre-alpha** status, as it is still under devel
 
 ## Dependencies
 
-The packages **find** and **grep** are needed to run FileSpector. These are installed by default on most GNU/Linux distributions.
+The packages **find**, **grep** and **which** are needed to run FileSpector. These are installed by default on most GNU/Linux distributions.
 
 ## Building
 
