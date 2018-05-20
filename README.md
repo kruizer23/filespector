@@ -3,7 +3,7 @@ FileSpector is a GUI tool for quickly finding all text occurrences in multiple f
 
 ## Status
 
-The project is currently in the **pre-alpha** status, as it is still under development. Feel free to have a look at it, but keep in mind that it is not yet a finished product. Contributions are of course welcome.
+The project is currently in the **beta** status, as it is still under development. Feel free to have a look at it, but keep in mind that it is not yet a finished product. Contributions are of course welcome.
 
 ## Dependencies
 
