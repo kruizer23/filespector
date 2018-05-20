@@ -50,7 +50,7 @@ type
     const VERSION_MAJOR: Byte = 0;
     const VERSION_MINOR: Byte = 8;
     const VERSION_PATCH: Byte = 0;
-    const VERSION_SPECIFIER: String = 'Alpha';
+    const VERSION_SPECIFIER: String = 'Beta';
   public
     class function GetVersionStr(WithSpecifier: Boolean = True): String; static;
     class function GetVersionMajor: Byte; static;

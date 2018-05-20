@@ -113,6 +113,13 @@ type
 
 implementation
 //***************************************************************************************
+// Localization
+//***************************************************************************************
+resourcestring
+  RsErrorNoStart = 'Could not start the search operation for file';
+
+
+//***************************************************************************************
 // NAME:           StringListFilenameCompare
 // PARAMETER:      Sender Source of the event.
 // RETURN VALUE:   none
@@ -491,7 +498,7 @@ begin
         // Trigger event handler, if configured.
         if Assigned(FErrorEvent) then
         begin
-          FErrorEvent(Self, 'Could not start the search operation for file ' +
+          FErrorEvent(Self, RsErrorNoStart + ' ' +
                       ExtractFileName(FFileList[FCurrentFileIdx]) + '.');
         end;
       end;
@@ -523,7 +530,7 @@ begin
         // Trigger event handler, if configured.
         if Assigned(FErrorEvent) then
         begin
-          FErrorEvent(Self, 'Could not start the search operation for file ' +
+          FErrorEvent(Self, RsErrorNoStart + ' ' +
                       ExtractFileName(FFileList[FCurrentFileIdx]) + '.');
         end;
       end;

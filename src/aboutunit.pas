@@ -47,9 +47,6 @@ uses
 //***************************************************************************************
 type
   //------------------------------ TAboutForm -------------------------------------------
-
-  { TAboutForm }
-
   TAboutForm = class(TForm)
     BtnClose: TButton;
     ImgProgramIcon: TImage;
@@ -72,6 +69,14 @@ type
 implementation
 
 {$R *.lfm}
+//***************************************************************************************
+// Localization
+//***************************************************************************************
+resourcestring
+  RsCopyrightPre = 'Copyright';
+  RsCopyrightPost = '2018 by Frank Voorburg';
+  RsWeblinkInfo = 'Visit FileSpector on GitHub';
+
 //---------------------------------------------------------------------------------------
 //-------------------------------- TAboutForm -------------------------------------------
 //---------------------------------------------------------------------------------------
@@ -89,7 +94,9 @@ begin
   // Set the version information on the label.
   LblVersion.Caption := TVersionInfo.GetVersionStr();
   // Set copyright info.
-  LblCopyright.Caption := 'Copyright ' + #$C2#$A9 + ' 2018 by Frank Voorburg';
+  LblCopyright.Caption := RsCopyrightPre + ' ' + #$C2#$A9 + ' ' + RsCopyrightPost;
+  // Set visit on the web info.
+  LblWebLink.Caption := RsWeblinkInfo;
   // Align certain components horizontally on the form.
   ImgProgramIcon.Left := (Width div 2) - (ImgProgramIcon.Width div 2);
   // Add the license text to the memo.

@@ -52,9 +52,6 @@ type
                             UIS_SEARCHING );
 
   //------------------------------ TMainForm --------------------------------------------
-
-  { TMainForm }
-
   TMainForm = class(TForm)
     ActCopySelectedLineToClipboard: TAction;
     ActProgramAbout: TAction;
@@ -174,6 +171,21 @@ var
 implementation
 
 {$R *.lfm}
+
+//***************************************************************************************
+// Localization
+//***************************************************************************************
+resourcestring
+  RsSearchStartErrorInfo = 'Invalid search settings detected. Please correct them and try again.';
+  RsSearchStartErrorTitle = 'Problem detected';
+  RsButtonCaptionSearch = 'Search';
+  RsButtonCaptionCancel = 'Cancel';
+  RsSearchGenericErrorTitle = 'Error detected';
+  RsStatusBarSearchHits = 'Search hits';
+  RsStatusBarFilesWithHits = 'Files with a search hit';
+  RsStatusBarConnectorText = 'out of';
+
+
 //---------------------------------------------------------------------------------------
 //-------------------------------- TMainForm --------------------------------------------
 //---------------------------------------------------------------------------------------
@@ -598,8 +610,8 @@ begin
       // Configure the message box.
       boxStyle := MB_ICONINFORMATION + MB_OK;
       // Display the message box.
-      Application.MessageBox('Invalid search settings detected. Please correct them and try again.',
-                             'Problem detected', boxStyle);
+      Application.MessageBox(PChar(RsSearchStartErrorInfo),
+                             PChar(RsSearchStartErrorTitle), boxStyle);
       // This problem typically happens when the user did not enter a search text, so
       // automatically set that edit box as the active control, so the user can correct
       // the problem right awaz.
@@ -852,7 +864,7 @@ begin
     EdtSearchText.Enabled := False;
     CbxCaseSensitive.Enabled := False;
     CmbSearchPattern.Enabled := False;
-    ActSearch.Caption := 'Cancel';
+    ActSearch.Caption := RsButtonCaptionCancel;
     // Make the search button the active control during a search. This makes it possible
     // for the user to cancel the search by pressing the Enter key.
     ActiveControl := BtnSearch;
@@ -866,7 +878,7 @@ begin
     EdtSearchText.Enabled := True;
     CbxCaseSensitive.Enabled := True;
     CmbSearchPattern.Enabled := True;
-    ActSearch.Caption := 'Search';
+    ActSearch.Caption := RsButtonCaptionSearch;
     // Make the search text edit the active control. This makes it possible to enter
     // a new search text right away after a search. Handy when a type was made or to
     // continue searching for different terms.
@@ -932,9 +944,10 @@ begin
     end;
   end;
   PrgBarSearch.Position := progressPct;
-  StatusBar.Panels[1].Text := 'Search hits: ' + IntToStr(totalSearchHits);
-  StatusBar.Panels[2].Text := 'Files with a search hit: ' + IntToStr(filesWithHit) +
-                              ' out of ' + IntToStr(totalFilesFound);
+  StatusBar.Panels[1].Text := RsStatusBarSearchHits + ': ' + IntToStr(totalSearchHits);
+  StatusBar.Panels[2].Text := RsStatusBarFilesWithHits + ': ' + IntToStr(filesWithHit) +
+                              ' ' + RsStatusBarConnectorText + ' ' +
+                              IntToStr(totalFilesFound);
 end; //*** end of UpdateSearchProgress ***
 
 
@@ -1047,7 +1060,7 @@ begin
   // Configure the message box.
   boxStyle := MB_ICONERROR + MB_OK;
   // Display the message box.
-  Application.MessageBox(PChar(ErrorInfo), 'Error detected', boxStyle);
+  Application.MessageBox(PChar(ErrorInfo), PChar(RsSearchGenericErrorTitle), boxStyle);
   // Update the user interface.
   FUISetting := UIS_DEFAULT;
   UpdateUserInterface;

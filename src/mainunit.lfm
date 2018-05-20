@@ -757,19 +757,19 @@ object MainForm: TMainForm
           Width = 180
         end      
         item
-          Text = 'Search hits: 0'
+          Text = 'Search hits placeholder'
           Width = 140
         end      
         item
-          Text = 'Files with a search hit: 0'
+          Text = 'Files with a search hit placeholder'
           Width = 250
         end>
       SimplePanel = False
     end
     object PrgBarSearch: TProgressBar
-      Left = 24
+      Left = 8
       Height = 15
-      Top = 217
+      Top = 216
       Width = 161
       Anchors = []
       Smooth = True

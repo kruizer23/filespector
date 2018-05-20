@@ -119,6 +119,13 @@ type
   end;
 
 implementation
+//***************************************************************************************
+// Localization
+//***************************************************************************************
+resourcestring
+  RsErrorExecute = 'Could not execute';
+
+
 //---------------------------------------------------------------------------------------
 //-------------------------------- TCommandRunner ---------------------------------------
 //---------------------------------------------------------------------------------------
@@ -379,7 +386,7 @@ begin
         // Set error flag and store related info. The error event handler will be
         // triggered at a later point.
         errorDetected := True;
-        FErrorString := 'Could not execute: ' + FCommand + '.';
+        FErrorString := RsErrorExecute + ': ' + FCommand + '.';
       end;
       // Only continue with reading from the pip if the command is running.
       if not errorDetected then

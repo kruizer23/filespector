@@ -243,7 +243,7 @@ object AboutForm: TAboutForm
     Width = 401
     Alignment = taCenter
     AutoSize = False
-    Caption = 'Version Placeholder'
+    Caption = 'Version placeholder'
     ParentColor = False
   end
   object LblCopyright: TLabel
@@ -253,7 +253,7 @@ object AboutForm: TAboutForm
     Width = 400
     Alignment = taCenter
     AutoSize = False
-    Caption = 'Copyright Placeholder'
+    Caption = 'Copyright placeholder'
     ParentColor = False
     ParentFont = False
   end
@@ -273,7 +273,7 @@ object AboutForm: TAboutForm
     Width = 401
     Alignment = taCenter
     AutoSize = False
-    Caption = 'Visit FileSpector on GitHub'
+    Caption = 'Visit on the Web placeholder'
     Font.Color = 14448680
     ParentColor = False
     ParentFont = False
