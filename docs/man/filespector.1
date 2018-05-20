@@ -5,7 +5,7 @@ filespector \- Find text occurrences in multiple files
 
 .SH SYNOPSIS
 .B filespector
-[\fIOPTIONS\fR] [\fIDIRECTORY\fR]
+[\fIOPTIONS\fR]
 .BR
 
 .SH DESCRIPTION
@@ -15,11 +15,44 @@ files in a directory, matching a specific file extension pattern.
 .SH OPTIONS
 .TP
 .PD 0
+\fB\-a
+.TP
+.PD
+\fB\-\^\-autostart
+Automatically start searching after opening the application.
+
+.TP
+.PD 0
+\fB\-d\fR[\fIdir\fR]
+.TP
+.PD
+\fB\-\^\-directory\fR[\fB=\fIdir\fR]
+Set the base directory to search from. Surround with double-quotes, if it contains spaces.
+
+.TP
+.PD 0
 \fB\-i\fR[\fIoff|on\fR]
 .TP
 .PD
 \fB\-\^\-ignore-case\fR[\fB=\fIoff|on\fR]
 Ignore case sensitivity of the text to search for.
+
+.TP
+.PD 0
+\fB\-l\fR[\fIcode\fR]
+.TP
+.PD
+\fB\-\^\-lang\fR[\fB=\fIcode\fR]
+Set the desired user interface language via the language code (i.e. 'en', 'de').
+
+.TP
+.PD 0
+\fB\-p\fR[\fIpattern\fR]
+.TP
+.PD
+\fB\-\^\-pattern\fR[\fB=\fIpattern\fR]
+List of file extension patterns to match. Should be surrounded by double-quotes. 
+Multiple entries are seperated with a '|' (i.e. "*.txt|*,log").
 
 .TP
 .PD 0
@@ -31,9 +64,9 @@ Recurse into subdirectories of the selected search directory.
 
 .TP
 .PD 0
-\fB\-l\fR[\fIcode\fR]
+\fB\-s\fR[\fItext\fR]
 .TP
 .PD
-\fB\-\^\-lang\fR[\fB=\fIcode\fR]
-Set the desired user interface language via the language code (i.e. 'en', 'de').
-
+\fB\-\^\-searchterm\fR[\fB=\fItext\fR]
+The text to search for. Surround by double-quotes, if it contains spaces or other special
+characters.

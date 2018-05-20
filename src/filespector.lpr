@@ -57,20 +57,24 @@ uses
 //***************************************************************************************
 procedure WriteHelp;
 begin
-  WriteLn('Usage: filespector [OPTIONS] [DIRECTORY]');
+  WriteLn('Usage: filespector [OPTIONS]');
   WriteLn('');
   WriteLn('Options:');
   WriteLn('  -?             --help                    Show help options');
+  WriteLn('  -a             --autostart               Start search after opening');
+  WriteLn('  -d [dir]       --directory[=dir]         Directory to search in');
   WriteLn('  -i [off|on]    --ignore-case[=off|on]    Ignore case during search');
-  WriteLn('  -r [off|on]    --recursive[=off|on]      Recurse into directories');
   WriteLn('  -l [code]      --lang[=code]             Set user interface language');
+  WriteLn('  -p [pattern]   --pattern[=pattern]       File pattern to match');
+  WriteLn('  -r [off|on]    --recursive[=off|on]      Recurse into directories');
+  WriteLn('  -s [text]      --searchterm[=text]       Text to find in files');
   WriteLn('');
   WriteLn('FileSpector is a GUI tool for quickly finding all text occurrences in multiple');
   WriteLn('files in a directory, matching a specific file extension pattern.');
   WriteLn('');
   WriteLn('Examples:');
-  WriteLn('  filespector -i on -r off /home/user');
-  WriteLn('  filespector --recursive=on --lang=de /home/user');
+  WriteLn('  filespector -i on -r off -d /home/user -p "*.txt|*.log" -s "text to find"');
+  WriteLn('  filespector --lang=de --directory="/home/user/my files" --searchterm=findme');
   WriteLn('');
 end; //*** end of WriteHelp ***
 
@@ -101,11 +105,21 @@ begin
   CmdLineRecursiveOptionFound := False;
   CmdLineRecursiveOption := False;
   CmdLineDirectoryOption := '';
+  CmdLineAutoStartOption := False;
+  CmdLineFilePatternOption := '';
+  CmdLineSearchTextOption := '';
+
   // Check the supported command line options.
-  checkResult := Application.CheckOptions('?i:r:l:', 'help ignore-case: recursive: lang:');
+  checkResult := Application.CheckOptions('?ad:i:l:p:r:s:',
+        'help autostart directory: ignore-case: lang: pattern: recursive: searchterm:');
   // Only extract the command line options if valid ones were specified.
   if checkResult = '' then
   begin
+    // Extract autostart option.
+    if Application.HasOption('a', 'autostart') then
+    begin
+      CmdLineAutoStartOption := True;
+    end;
     // Extract ignore-case option.
     if Application.HasOption('i', 'ignore-case') then
     begin
@@ -138,13 +152,53 @@ begin
         CmdLineRecursiveOption := True;
       end;
     end;
-    // Extract initial search directory.
-    if ParamCount > 0 then
+    // Extract the initial search directory.
+    if Application.HasOption('d', 'directory') then
     begin
-      // Check if the last specified option is an existing directory.
-      if DirectoryExists(ParamStr(ParamCount)) then
+      // Extract the option value.
+      optionValue := Application.GetOptionValue('d', 'directory');
+      // Clean up.
+      Trim(optionValue);
+      if optionValue <> '' then
       begin
-        CmdLineDirectoryOption := ParamStr(ParamCount);
+        // A directory with spaces is specified with double-quotes around it. Remove
+        // these here again.
+        StringReplace(optionValue, '"', '', [rfReplaceAll]);
+        // Store the option value.
+        CmdLineDirectoryOption := optionValue;
+      end;
+    end;
+    // Extract the file pattern.
+    if Application.HasOption('p', 'pattern') then
+    begin
+      // Extract the option value.
+      optionValue := Application.GetOptionValue('p', 'pattern');
+      // Clean up.
+      Trim(optionValue);
+      if optionValue <> '' then
+      begin
+        // Multiple file pattern are seperated with a |. For this to work, the option
+        // value needs to be specified with double-quotes around it. Remove these here
+        // again.
+        StringReplace(optionValue, '"', '', [rfReplaceAll]);
+        // Store the option value.
+        CmdLineFilePatternOption := optionValue;
+      end;
+    end;
+    // Extract the search term.
+    if Application.HasOption('s', 'searchterm') then
+    begin
+      // Extract the option value.
+      optionValue := Application.GetOptionValue('s', 'searchterm');
+      // Clean up.
+      Trim(optionValue);
+      if optionValue <> '' then
+      begin
+        // A search term with spaces is specified with double-quotes around it. Remove
+        // these here again.
+        StringReplace(optionValue, '"', '', [rfReplaceAll]);
+        // Store the option value.
+        CmdLineSearchTextOption := optionValue;
       end;
     end;
   end;

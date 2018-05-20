@@ -106,6 +106,7 @@ type
     procedure ActSearchExecute(Sender: TObject);
     procedure BtnBrowseClick(Sender: TObject);
     procedure CtxMnuResultsViewPopup(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure LvwResultsDblClick(Sender: TObject);
     procedure LvwResultsKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState
       );
@@ -165,6 +166,9 @@ var
   CmdLineRecursiveOptionFound: Boolean;
   CmdLineRecursiveOption: Boolean;
   CmdLineDirectoryOption: String;
+  CmdLineAutoStartOption: Boolean;
+  CmdLineFilePatternOption: String;
+  CmdLineSearchTextOption: String;
 
 
 implementation
@@ -226,6 +230,10 @@ begin
     FSearchSettings.Recursive := CmdLineRecursiveOption;
   if CmdLineDirectoryOption <> '' then
     FSearchSettings.Directory := CmdLineDirectoryOption;
+  if CmdLineFilePatternOption <> '' then
+    FSearchSettings.FilePattern := CmdLineFilePatternOption;
+  if CmdLineSearchTextOption <> '' then
+    FSearchSettings.SearchText := CmdLineSearchTextOption;
   // Initialize the user interface.
   InitializeUserInterface;
 end; //*** end of FormCreate ***
@@ -251,6 +259,27 @@ begin
   // Release the search settings instance.
   FSearchSettings.Free;
 end; //*** end of FormDestroy ***
+
+
+//***************************************************************************************
+// NAME:           FormShow
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the form is shown.
+//
+//***************************************************************************************
+procedure TMainForm.FormShow(Sender: TObject);
+begin
+  // Should the search be started automatically?
+  if CmdLineAutoStartOption then
+  begin
+    // Reset the auto start flag as this should only be done once.
+    CmdLineAutoStartOption := False;
+    // Perform start of search. This assumes all needed search settings were specified
+    // on the command line.
+    ActSearchExecute(Self);
+  end;
+end; //*** end of FormShow ***
 
 
 //***************************************************************************************
@@ -571,6 +600,10 @@ begin
       // Display the message box.
       Application.MessageBox('Invalid search settings detected. Please correct them and try again.',
                              'Problem detected', boxStyle);
+      // This problem typically happens when the user did not enter a search text, so
+      // automatically set that edit box as the active control, so the user can correct
+      // the problem right awaz.
+      ActiveControl := EdtSearchText;
     end;
   end
   else
