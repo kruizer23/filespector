@@ -9,7 +9,7 @@ A wide range of command-line options are supported, making it possible to integr
 
 ## Installation
 
-The easiest way to install FileSpector is to head over to the [Releases](https://github.com/kruizer23/filespector/releases/) page. From there you can download DEB and RPM packages for most popular GNU/Linux distributions, such as Debian, Ubuntu, Fedora and openSUSE. If no package is available for your distribution, you can build and install FileSpector from source. This procedure is describe further down on this page.
+The easiest way to install FileSpector is to head over to the [Releases](https://github.com/kruizer23/filespector/releases/) page. From there you can download DEB and RPM packages for most popular GNU/Linux distributions, such as Debian, Ubuntu, Fedora and openSUSE. If no package is available for your distribution, you can build and install FileSpector directly from source code. This procedure is described further down on this page.
 
 ## Dependencies
 
