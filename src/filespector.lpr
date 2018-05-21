@@ -64,10 +64,10 @@ begin
   WriteLn('  -a             --autostart               Start search after opening');
   WriteLn('  -d [dir]       --directory[=dir]         Directory to search in');
   WriteLn('  -i [off|on]    --ignore-case[=off|on]    Ignore case during search');
-  WriteLn('  -l [code]      --lang[=code]             Set user interface language');
+  WriteLn('  -l [code]      --lang [code]             Set user interface language');
   WriteLn('  -p [pattern]   --pattern[=pattern]       File pattern to match');
   WriteLn('  -r [off|on]    --recursive[=off|on]      Recurse into directories');
-  WriteLn('  -s [text]      --searchterm [text]       Text to find in files');
+  WriteLn('  -s [text]      --searchterm[=text]       Text to find in files');
   WriteLn('');
   WriteLn('FileSpector is a GUI tool for quickly finding all text occurrences in multiple');
   WriteLn('files in a directory, matching a specific file extension pattern.');
