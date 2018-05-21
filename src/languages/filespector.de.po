@@ -107,8 +107,8 @@ msgid "Search"
 msgstr "Suchen"
 
 #: tmainform.btnbrowse.caption
-msgid "Browse.."
-msgstr "Durchsuchen.."
+msgid "Browse..."
+msgstr "Durchsuchen..."
 
 #: tmainform.caption
 msgctxt "tmainform.caption"

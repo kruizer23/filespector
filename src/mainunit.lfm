@@ -576,14 +576,14 @@ object MainForm: TMainForm
       ParentColor = False
       TabOrder = 0
       object BtnBrowse: TButton
-        Left = 891
+        Left = 886
         Height = 28
         Top = 2
-        Width = 90
+        Width = 95
         Align = alRight
         BorderSpacing.Right = 5
         BorderSpacing.Around = 2
-        Caption = 'Browse..'
+        Caption = 'Browse...'
         Constraints.MinHeight = 28
         Constraints.MinWidth = 80
         OnClick = BtnBrowseClick
@@ -594,7 +594,7 @@ object MainForm: TMainForm
         Height = 28
         Hint = 'Enter the base directory for the search operation or click the browse-button to select one'
         Top = 2
-        Width = 820
+        Width = 815
         Align = alClient
         BorderSpacing.Around = 2
         Constraints.MinHeight = 28
@@ -898,10 +898,10 @@ object MainForm: TMainForm
     ParentColor = False
     TabOrder = 3
     object BtnSearch: TButton
-      Left = 898
+      Left = 893
       Height = 28
       Top = 7
-      Width = 90
+      Width = 95
       Action = ActSearch
       Align = alRight
       BorderSpacing.Top = 5
