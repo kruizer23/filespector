@@ -226,7 +226,7 @@ object AboutForm: TAboutForm
   end
   object LblProgramName: TLabel
     Left = 16
-    Height = 17
+    Height = 24
     Top = 160
     Width = 400
     Alignment = taCenter
@@ -238,7 +238,7 @@ object AboutForm: TAboutForm
   end
   object LblVersion: TLabel
     Left = 15
-    Height = 17
+    Height = 24
     Top = 184
     Width = 401
     Alignment = taCenter
@@ -248,7 +248,7 @@ object AboutForm: TAboutForm
   end
   object LblCopyright: TLabel
     Left = 16
-    Height = 17
+    Height = 24
     Top = 234
     Width = 400
     Alignment = taCenter
@@ -268,7 +268,7 @@ object AboutForm: TAboutForm
   end
   object LblWebLink: TLabel
     Left = 15
-    Height = 17
+    Height = 24
     Top = 208
     Width = 401
     Alignment = taCenter
