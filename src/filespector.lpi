@@ -62,6 +62,8 @@
               <UseExternalDbgSyms Value="True"/>
             </Debugging>
             <Options>
+              <PassLinkerOptions Value="True"/>
+              <LinkerOptions Value="-pie"/>
               <Win32>
                 <GraphicApplication Value="True"/>
               </Win32>
