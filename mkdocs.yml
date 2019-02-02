@@ -1,0 +1,8 @@
+site_name: FileSpector User Manual
+site_description: User Manual for the FileSpector GUI tool.
+repo_url: https://github.com/kruizer23/filespector
+theme: readthedocs
+nav:
+  - Home: 'index.md'
+  - Installation: 'installation.md'
+  - File Manager Integration: 'filemanagers.md'
