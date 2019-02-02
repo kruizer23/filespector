@@ -4,22 +4,22 @@ TODO
 
 TODO
 
-## Dolphin
+# Dolphin
 
 TODO
 
-## Thunar
+# Thunar
 
 TODO
 
-## Nemo
+# Nemo
 
 TODO
 
-## Caja
+# Caja
 
 TODO
 
-## Double Commander
+# Double Commander
 
 TODO

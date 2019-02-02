@@ -6,3 +6,4 @@ nav:
   - Home: 'index.md'
   - Installation: 'installation.md'
   - File Manager Integration: 'filemanagers.md'
+  - Development: 'development.md'
