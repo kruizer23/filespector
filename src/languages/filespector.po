@@ -125,6 +125,10 @@ msgstr ""
 msgid "Limit the search to files with a specific extension. Seperate multiple entries with |"
 msgstr ""
 
+#: tmainform.cmbsearchpattern.text
+msgid "*"
+msgstr ""
+
 #: tmainform.edtdirectory.hint
 msgid "Enter the base directory for the search operation or click the browse-button to select one"
 msgstr ""

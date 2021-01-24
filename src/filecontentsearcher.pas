@@ -306,57 +306,46 @@ begin
     patternList.Delimiter := '|';
     patternList.DelimitedText := DelSpace(FSearchSettings.FilePattern);
   except
-    // Split operation failed. Resort to a default pattern for all file extensions.
+    // Split operation failed. Resort to a default pattern for all files.
     patternList.Clear;
-    patternList.Add('*.*');
+    patternList.Add('*');
   end;
+  // If no patterns were found, resort to a default pattern for all files.
   // Only continue if at least one pattern is in the list.
-  if patternList.Count > 0 then
+  if patternList.Count = 0 then
   begin
-    // Check all patterns. They should always start with '*.' and be at least 3 characters
-    // long.
-    for patternIdx := 0 to (patternList.Count - 1) do
-    begin
-      if (Pos('*.', patternList[patternIdx]) <> 1) or (Length(patternList[patternIdx]) < 3) then
-      begin
-        // Invalid pattern detected. Resort to a default pattern for all file extensions.
-        // Split operation failed. Resort to a default pattern for all file extensions.
-        patternList.Clear;
-        patternList.Add('*.*');
-        // Stop looping.
-        Break;
-      end;
-    end;
-    // Construct the command and its parameters.
-    command := 'find ' + directory + recursive + ' -mount -readable -type f';
-    // Add the patterns.
-    for patternIdx := 0 to (patternList.Count - 1) do
-    begin
-      if patternIdx = 0 then
-        command := command + ' -name "' + patternList[patternIdx] + '"'
-      else
-        command := command + ' -o -name "' + patternList[patternIdx] + '"';
-    end;
-    // Set the command.
-    FCommandRunner.Command := command;
-    // Update the state and result.
-    FState := FCSS_BUILDING_FILE_LIST;
-    Result := True;
-    // Start the command.
-    if not FCommandRunner.Start then
-    begin
-      // Update the state and result.
-      FState := FCSS_IDLE;
-      Result := False;
-    end
-    // Command successfully started.
+    patternList.Clear;
+    patternList.Add('*');
+  end;
+  // Construct the command and its parameters.
+  command := 'find ' + directory + recursive + ' -mount -readable -type f';
+  // Add the patterns.
+  for patternIdx := 0 to (patternList.Count - 1) do
+  begin
+    if patternIdx = 0 then
+      command := command + ' -name "' + patternList[patternIdx] + '"'
     else
+      command := command + ' -o -name "' + patternList[patternIdx] + '"';
+  end;
+  // Set the command.
+  FCommandRunner.Command := command;
+  // Update the state and result.
+  FState := FCSS_BUILDING_FILE_LIST;
+  Result := True;
+  // Start the command.
+  if not FCommandRunner.Start then
+  begin
+    // Update the state and result.
+    FState := FCSS_IDLE;
+    Result := False;
+  end
+  // Command successfully started.
+  else
+  begin
+    // Trigger event handler, if configured.
+    if Assigned(FStartedEvent) then
     begin
-      // Trigger event handler, if configured.
-      if Assigned(FStartedEvent) then
-      begin
-        FStartedEvent(Self);
-      end;
+      FStartedEvent(Self);
     end;
   end;
   // Release the list.

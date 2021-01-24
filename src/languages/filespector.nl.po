@@ -135,6 +135,10 @@ msgstr "Vink dit selectievakje aan om ook in de submappen te zoeken"
 msgid "Limit the search to files with a specific extension. Seperate multiple entries with |"
 msgstr "Beperk de zoekopdracht tot bestanden met een bepaalde extensie. Scheid meerdere invoer met een |"
 
+#: tmainform.cmbsearchpattern.text
+msgid "*"
+msgstr ""
+
 #: tmainform.edtdirectory.hint
 msgid "Enter the base directory for the search operation or click the browse-button to select one"
 msgstr "Geef de basis map op voor de zoekopdracht of klik op de bladeren-knop om een map uit te kiezen"
@@ -198,3 +202,4 @@ msgstr "&Help"
 #: tmainform.savedialog.title
 msgid "Save Log-file as"
 msgstr "Log-bestand opslaan als"
+

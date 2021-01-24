@@ -135,6 +135,10 @@ msgstr "Aktiviere dieses Kontrollkästchen, um auch Unterverzeichnisse einzubezi
 msgid "Limit the search to files with a specific extension. Seperate multiple entries with |"
 msgstr "Suche auf Dateien mit einer bestimmten Dateiendung beschränken. Mehrere Einträge mit | trennen."
 
+#: tmainform.cmbsearchpattern.text
+msgid "*"
+msgstr ""
+
 #: tmainform.edtdirectory.hint
 msgid "Enter the base directory for the search operation or click the browse-button to select one"
 msgstr "Gib das Basisverzeichnis für den Suchvorgang ein oder klicke auf den Durchsuchen-Button, um eines auszuwählen"
@@ -198,3 +202,4 @@ msgstr "&Hilfe"
 #: tmainform.savedialog.title
 msgid "Save Log-file as"
 msgstr "Protokolldatei speichern als"
+

@@ -107,9 +107,9 @@ const
   NUM_EDITORS = 7;
   knownEditors: array[1..2, 1..NUM_EDITORS] of String = (
     // first column contains the executable name.
-    ('kate',  'kwrite', 'gedit', 'xed', 'pluma', 'leafpad', 'mousepad'),
+    ('gedit', 'kate',  'kwrite', 'xed', 'pluma', 'leafpad', 'mousepad'),
     // second column contain the command line option prefix for jumping to a linenumber.
-    ('-l ' ,  '-l '   , '+'    , '+'  , '+'    , '--jump=', '')
+    ('+'    , '-l ' ,  '-l '   , '+'  , '+'    , '--jump=', '')
   );
 var
   idx: Integer;

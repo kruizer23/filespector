@@ -548,7 +548,7 @@ object MainForm: TMainForm
   OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.8.2.0'
+  LCLVersion = '2.0.0.4'
   object GbxSearchLocation: TGroupBox
     Left = 5
     Height = 82
@@ -636,7 +636,7 @@ object MainForm: TMainForm
         Height = 20
         Hint = 'Check this box to include subdirectories as well'
         Top = 2
-        Width = 150
+        Width = 157
         Align = alLeft
         BorderSpacing.Left = 65
         BorderSpacing.Around = 2
@@ -723,7 +723,7 @@ object MainForm: TMainForm
         Height = 20
         Hint = 'Check this box to search case-sensitive'
         Top = 2
-        Width = 147
+        Width = 153
         Align = alLeft
         BorderSpacing.Left = 65
         BorderSpacing.Around = 2
@@ -867,6 +867,7 @@ object MainForm: TMainForm
         ItemHeight = 0
         ItemIndex = 0
         Items.Strings = (
+          '*'
           '*.*'
           '*.c|*.cc|*.cpp|*.h|*.hh|*.hpp'
           '*.php|*.html|*.htm|*.css|*.js|*.json|*.xml'
@@ -880,7 +881,7 @@ object MainForm: TMainForm
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        Text = '*.*'
+        Text = '*'
       end
     end
   end

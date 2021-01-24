@@ -206,7 +206,7 @@ begin
   FDirectory := '';
   FRecursive := 1;
   FCaseSensitive := 0;
-  FFilePattern := '*.*';
+  FFilePattern := '*';
 end; //*** end of Defaults ***
 
 
