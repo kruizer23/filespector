@@ -95,6 +95,7 @@ type
     SaveDialog: TSaveDialog;
     SelectDirectoryDialog: TSelectDirectoryDialog;
     StatusBar: TStatusBar;
+    TimerStartSearch: TTimer;
     procedure ActCopySelectedLineToClipboardExecute(Sender: TObject);
     procedure ActOpenInEditorExecute(Sender: TObject);
     procedure ActProgramAboutExecute(Sender: TObject);
@@ -601,6 +602,9 @@ procedure TMainForm.ActSearchExecute(Sender: TObject);
 var
   boxStyle: Integer;
 begin
+  // Disable the timer, which might have been used to trigger this operation.
+  TimerStartSearch.Enabled := False;
+
   // The behavior of the event handler depends on the current user interface settings.
   if FUISetting = UIS_DEFAULT then
   begin
@@ -754,9 +758,16 @@ begin
   // Was the enter key pressed?
   if Key = VK_RETURN then
   begin
-    // Execute the associated action to start searching. Note that this also automati-
-    // cally cancels the search if one is ongoing.
-    ActSearchExecute(Sender);
+    // Theoretically we want to directly start the search operation here by calling
+    // ActSearchExecute(Sender);
+    // This works when the LCLWidgetType is set to the default GTK2. However, it doesn't
+    // work properly when the LCLWidgetType is set to QT5. The OnKeyUp handler does
+    // trigger, but the search doesn't actually start somehow.
+    // A workaround to fix this problem is to start a timer and in the OnTimer event
+    // start the search operation by calling ActSearchExecute(Sender);
+    // So all that is left to do here is reset and start the timer.
+    TimerStartSearch.Enabled := False;
+    TimerStartSearch.Enabled := True;
   end;
 end; //*** end of OnKeyUpHandlerToStartSearch ***
 

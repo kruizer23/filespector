@@ -636,7 +636,7 @@ object MainForm: TMainForm
         Height = 20
         Hint = 'Check this box to include subdirectories as well'
         Top = 2
-        Width = 157
+        Width = 165
         Align = alLeft
         BorderSpacing.Left = 65
         BorderSpacing.Around = 2
@@ -723,7 +723,7 @@ object MainForm: TMainForm
         Height = 20
         Hint = 'Check this box to search case-sensitive'
         Top = 2
-        Width = 153
+        Width = 161
         Align = alLeft
         BorderSpacing.Left = 65
         BorderSpacing.Around = 2
@@ -1167,5 +1167,12 @@ object MainForm: TMainForm
       30F7BA6630F7BA6630F7BA6530F7BA652FF7B9652EF7B9652EF7B9642EF7B964
       2EEFB7622CBDB7622E63FFFFFF00
     }
+  end
+  object TimerStartSearch: TTimer
+    Enabled = False
+    Interval = 50
+    OnTimer = ActSearchExecute
+    left = 192
+    top = 352
   end
 end

@@ -1,4 +1,12 @@
 -----------------------------------------------------------------------------------------
+2021-06-03 Frank Voorburg <voorburg@gmx.net>
+
+* Improved search pattern processing such that '*' is also supported.
+* Added support for automated build testing with Travis CI.
+* Added framework for automated documentation building with MkDocs and Travis CI.
+* Public release of version 0.8.1.
+
+-----------------------------------------------------------------------------------------
 2018-05-29 Frank Voorburg <voorburg@gmx.net>
 
 * Basic functionality implemented.
