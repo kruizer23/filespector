@@ -548,7 +548,7 @@ object MainForm: TMainForm
   OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.0.0.4'
+  LCLVersion = '2.0.12.0'
   object GbxSearchLocation: TGroupBox
     Left = 5
     Height = 82
@@ -636,7 +636,7 @@ object MainForm: TMainForm
         Height = 20
         Hint = 'Check this box to include subdirectories as well'
         Top = 2
-        Width = 165
+        Width = 157
         Align = alLeft
         BorderSpacing.Left = 65
         BorderSpacing.Around = 2
@@ -723,7 +723,7 @@ object MainForm: TMainForm
         Height = 20
         Hint = 'Check this box to search case-sensitive'
         Top = 2
-        Width = 161
+        Width = 153
         Align = alLeft
         BorderSpacing.Left = 65
         BorderSpacing.Around = 2
@@ -736,7 +736,7 @@ object MainForm: TMainForm
   end
   object GbxSearchResults: TGroupBox
     Left = 5
-    Height = 251
+    Height = 233
     Top = 269
     Width = 990
     Align = alClient
@@ -744,41 +744,12 @@ object MainForm: TMainForm
     BorderSpacing.Right = 5
     BorderSpacing.Bottom = 5
     Caption = 'Search results'
-    ClientHeight = 233
+    ClientHeight = 215
     ClientWidth = 988
     TabOrder = 4
-    object StatusBar: TStatusBar
-      Left = 0
-      Height = 19
-      Top = 214
-      Width = 988
-      Panels = <      
-        item
-          Width = 180
-        end      
-        item
-          Text = 'Search hits placeholder'
-          Width = 140
-        end      
-        item
-          Text = 'Files with a search hit placeholder'
-          Width = 250
-        end>
-      SimplePanel = False
-    end
-    object PrgBarSearch: TProgressBar
-      Left = 8
-      Height = 15
-      Top = 216
-      Width = 161
-      Anchors = []
-      Smooth = True
-      Step = 1
-      TabOrder = 1
-    end
     object LvwResults: TListView
       Left = 7
-      Height = 199
+      Height = 200
       Top = 5
       Width = 974
       Align = alClient
@@ -809,7 +780,7 @@ object MainForm: TMainForm
       ReadOnly = True
       RowSelect = True
       ScrollBars = ssAutoBoth
-      TabOrder = 2
+      TabOrder = 0
       ViewStyle = vsReport
       OnColumnClick = LvwResultsColumnClick
       OnCompare = LvwResultsCompare
@@ -912,15 +883,44 @@ object MainForm: TMainForm
       TabOrder = 0
     end
   end
+  object StatusBar: TStatusBar
+    Left = 0
+    Height = 18
+    Top = 507
+    Width = 1000
+    Panels = <    
+      item
+        Width = 180
+      end    
+      item
+        Text = 'Search hits placeholder'
+        Width = 140
+      end    
+      item
+        Text = 'Files with a search hit placeholder'
+        Width = 250
+      end>
+    SimplePanel = False
+  end
+  object PrgBarSearch: TProgressBar
+    Left = 7
+    Height = 15
+    Top = 509
+    Width = 161
+    Anchors = []
+    Smooth = True
+    Step = 1
+    TabOrder = 6
+  end
   object SelectDirectoryDialog: TSelectDirectoryDialog
     Options = [ofPathMustExist, ofEnableSizing, ofViewDetail]
-    left = 672
-    top = 352
+    Left = 672
+    Top = 352
   end
   object ActionList: TActionList
     Images = ImageList
-    left = 792
-    top = 352
+    Left = 792
+    Top = 352
     object ActCopySelectedLineToClipboard: TAction
       Category = 'ResultsView'
       Caption = 'Copy'
@@ -964,8 +964,8 @@ object MainForm: TMainForm
   object CtxMnuResultsView: TPopupMenu
     Images = ImageList
     OnPopup = CtxMnuResultsViewPopup
-    left = 528
-    top = 352
+    Left = 528
+    Top = 352
     object MnuItemOpenInEditor: TMenuItem
       Action = ActOpenInEditor
     end
@@ -981,13 +981,13 @@ object MainForm: TMainForm
     DefaultExt = '.*.log'
     Filter = 'Log files (*.log)|*.log|All files (*.*)|*.*'
     Options = [ofPathMustExist, ofEnableSizing, ofViewDetail]
-    left = 896
-    top = 352
+    Left = 896
+    Top = 352
   end
   object MainMenu: TMainMenu
     Images = ImageList
-    left = 403
-    top = 352
+    Left = 403
+    Top = 352
     object MnuItemFile: TMenuItem
       Caption = '&File'
       object MnuItemExit: TMenuItem
@@ -1002,8 +1002,8 @@ object MainForm: TMainForm
     end
   end
   object ImageList: TImageList
-    left = 296
-    top = 352
+    Left = 296
+    Top = 352
     Bitmap = {
       4C69050000001000000010000000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
       FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
@@ -1172,7 +1172,7 @@ object MainForm: TMainForm
     Enabled = False
     Interval = 50
     OnTimer = ActSearchExecute
-    left = 192
-    top = 352
+    Left = 192
+    Top = 352
   end
 end
