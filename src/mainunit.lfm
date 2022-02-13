@@ -723,7 +723,7 @@ object MainForm: TMainForm
         Height = 20
         Hint = 'Check this box to search case-sensitive'
         Top = 2
-        Width = 153
+        Width = 152
         Align = alLeft
         BorderSpacing.Left = 65
         BorderSpacing.Around = 2
@@ -736,7 +736,7 @@ object MainForm: TMainForm
   end
   object GbxSearchResults: TGroupBox
     Left = 5
-    Height = 233
+    Height = 228
     Top = 269
     Width = 990
     Align = alClient
@@ -744,12 +744,12 @@ object MainForm: TMainForm
     BorderSpacing.Right = 5
     BorderSpacing.Bottom = 5
     Caption = 'Search results'
-    ClientHeight = 215
+    ClientHeight = 210
     ClientWidth = 988
     TabOrder = 4
     object LvwResults: TListView
       Left = 7
-      Height = 200
+      Height = 195
       Top = 5
       Width = 974
       Align = alClient
@@ -885,9 +885,10 @@ object MainForm: TMainForm
   end
   object StatusBar: TStatusBar
     Left = 0
-    Height = 18
-    Top = 507
+    Height = 19
+    Top = 502
     Width = 1000
+    BorderSpacing.Bottom = 4
     Panels = <    
       item
         Width = 180
@@ -905,7 +906,7 @@ object MainForm: TMainForm
   object PrgBarSearch: TProgressBar
     Left = 7
     Height = 15
-    Top = 509
+    Top = 504
     Width = 161
     Anchors = []
     Smooth = True
