@@ -794,8 +794,8 @@ begin
   MainForm.Height := mainWindowConfig.Height;
   LvwResults.Column[0].Width := mainWindowConfig.ResultsColumn0Width;
   LvwResults.Column[1].Width := mainWindowConfig.ResultsColumn1Width;
-  LvwResults.Column[2].Width :=mainWindowConfig.ResultsColumn2Width;
-  LvwResults.Column[3].Width :=mainWindowConfig.ResultsColumn3Width;
+  LvwResults.Column[2].Width := mainWindowConfig.ResultsColumn2Width;
+  LvwResults.Column[3].Width := mainWindowConfig.ResultsColumn3Width;
   // Set last search configuration settings.
   lastSearchConfig := FCurrentConfig.Groups[TLastSearchConfig.GROUP_NAME]
                       as TLastSearchConfig;
@@ -912,10 +912,19 @@ end; //*** end of UpdateUserInterface ***
 procedure TMainForm.ReattachProgressbar;
 begin
   // Reposition the progress bar on panel[0] of the statusbar.
+  {$IFDEF LCLqt5}
+  // QT5 Widgetset shows borders around panel and makes the progress bar look misaligned.
+  // Correct for this.
+  PrgBarSearch.Top := StatusBar.Top + 3;
+  PrgBarSearch.Left := StatusBar.Left + 2;
+  PrgBarSearch.Width := StatusBar.Panels[0].Width;
+  PrgBarSearch.Height := StatusBar.Height - 6;
+  {$ELSE}
   PrgBarSearch.Top := StatusBar.Top + 2;
   PrgBarSearch.Left := StatusBar.Left + 7;
   PrgBarSearch.Height := StatusBar.Height - 4;
   PrgBarSearch.Width := StatusBar.Panels[0].Width - 20;
+  {$ENDIF}
 end; //*** end of ReattachProgressbar ***
 
 
