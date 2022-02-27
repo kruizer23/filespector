@@ -1,6 +1,5 @@
 # FileSpector
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Build Status](https://travis-ci.com/kruizer23/filespector.svg?branch=master)](https://travis-ci.com/kruizer23/filespector)
 
 FileSpector is a GUI tool for quickly finding all text occurrences in multiple files in a directory, matching a specific file extension pattern. It is developed for GNU/Linux systems. Its focus is on simplicity and easy-of-use, as opposed to feature-rich.
 
@@ -45,5 +44,4 @@ To remove FileSpector, you can run:
 ## Development
 
 For development work on FileSpector, it is recommended to work in the Lazarus IDE directly. Start Lazarus by selecting it from the application menu of your desktop environment. Next, select *Project → Open Project* from the program menu. Browse to the `./src` directory and select the `filespector.lpi` file. Build, run and debug FileSpector by simply clicking the green play-button in the toolbar or by selecting *Run → Run* from the program menu.
-
 
