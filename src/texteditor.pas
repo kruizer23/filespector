@@ -52,10 +52,18 @@ type
     FLineNumberOptPrefix: String;
     procedure Locate;
   public
+    const NUM_EDITORS = 7;
+    const DEFAULT_EDITORS: array[1..2, 1..NUM_EDITORS] of String = (
+      // first column contains the executable name.
+      ('kate', 'gedit', 'kwrite', 'xed', 'pluma', 'leafpad', 'mousepad'),
+      // second column contain the command line option prefix for jumping to a linenumber.
+      ('-l'  , '+'    , '-l '   , '+'  , '+'    , '--jump=', '')
+    );
     constructor Create;
     destructor  Destroy; override;
     procedure Open(TextFile: String =  ''; LineNumber: LongWord = 0);
-    property Editor: String read FEditor;
+    property Editor: String read FEditor write FEditor;
+    property LineNumberOptPrefix: String read FLineNumberOptPrefix write FLineNumberOptPrefix;
   end;
 
 implementation
@@ -103,14 +111,6 @@ end; //*** end of Destroy ***
 //
 //***************************************************************************************
 procedure TTextEditor.Locate;
-const
-  NUM_EDITORS = 7;
-  knownEditors: array[1..2, 1..NUM_EDITORS] of String = (
-    // first column contains the executable name.
-    ('kate', 'gedit', 'kwrite', 'xed', 'pluma', 'leafpad', 'mousepad'),
-    // second column contain the command line option prefix for jumping to a linenumber.
-    ('-l'  , '+'    , '-l '   , '+'  , '+'    , '--jump=', '')
-  );
 var
   idx: Integer;
   cmdOutput: String;
@@ -118,7 +118,7 @@ begin
   // Loop through all known editors to see if this once is installed on the system.
   for idx := 1 to NUM_EDITORS do
   begin
-    if RunCommand('which', [knownEditors[1][idx]], cmdOutput) then
+    if RunCommand('which', [DEFAULT_EDITORS[1][idx]], cmdOutput) then
     begin
       // The output might have \n and/or \r characters. Remove them first.
       cmdOutput := StringReplace(cmdOutput, #13, '', [rfReplaceAll]);
@@ -134,7 +134,7 @@ begin
             // Store the executable with path info.
             FEditor := cmdOutput;
             // Store the command line option prefix for opening at a specific line number
-            FLineNumberOptPrefix := knownEditors[2][idx];
+            FLineNumberOptPrefix := DEFAULT_EDITORS[2][idx];
             // No point in continuing the loop.
             Break;
           end;

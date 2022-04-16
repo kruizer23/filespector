@@ -213,16 +213,17 @@ begin
   FCurrentConfig := TCurrentConfig.Create;
   FCurrentConfig.AddGroup(TMainWindowConfig.Create);
   FCurrentConfig.AddGroup(TLastSearchConfig.Create);
+  FCurrentConfig.AddGroup(TTextEditorConfig.Create);
+  // Create instance of the text editor.
+  FTextEditor := TTextEditor.Create;
+  // Create instance of the file content searcher.
+  FFileContentSearcher := TFileContentSearcher.Create;
   // Load the programs configuration. Make sure to do this before processing the
   // settings from the command-line, as the latter ones should get priority.
   LoadCurrentConfig;
   // Initialize default search directory if it is still empty.
   if FSearchSettings.Directory = '' then
     FSearchSettings.Directory :=  GetCurrentDir;
-  // Create instance of the text editor.
-  FTextEditor := TTextEditor.Create;
-  // Create instance of the file content searcher.
-  FFileContentSearcher := TFileContentSearcher.Create;
   // Configure event handlers.
   FFileContentSearcher.OnDone := @FileContentSearcherOnDone;
   FFileContentSearcher.OnError := @FileContentSearcherOnError;
@@ -784,6 +785,7 @@ procedure TMainForm.LoadCurrentConfig;
 var
   mainWindowConfig: TMainWindowConfig;
   lastSearchConfig: TLastSearchConfig;
+  textEditorConfig: TTextEditorConfig;
 begin
   // Load the program's configuration from the configuration file.
   FCurrentConfig.LoadFromFile;
@@ -807,6 +809,14 @@ begin
   if lastSearchConfig.CaseSensitive > 0 then
     FSearchSettings.CaseSensitive := True;
   FSearchSettings.FilePattern := lastSearchConfig.FilePattern;
+  // Set the text editor settings.
+  textEditorConfig := FCurrentConfig.Groups[TTextEditorConfig.GROUP_NAME]
+                      as TTextEditorConfig;
+  if not textEditorConfig.AutoConfigEnabled then
+  begin
+    FTextEditor.Editor := textEditorConfig.Editor;
+    FTextEditor.LineNumberOptPrefix := textEditorConfig.LineNumberOptPrefix;
+  end;
 end; //*** end of LoadCurrentConfig ***
 
 

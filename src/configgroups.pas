@@ -87,6 +87,23 @@ type
     property FilePattern: String read FFilePattern write FFilePattern;
   end;
 
+  //------------------------------ TTextEditorConfig ----------------------------------
+  TTextEditorConfig = class (TConfigGroup)
+  private
+    FAutoConfigEnabled: Boolean;
+    FEditor: String;
+    FLineNumberOptPrefix: String;
+  public
+    const GROUP_NAME='TextEditor';
+    constructor Create;
+    procedure Defaults; override;
+    procedure LoadFromFile(XmlConfig: TXMLConfig); override;
+    procedure SaveToFile(XmlConfig: TXMLConfig); override;
+    property AutoConfigEnabled: Boolean read FAutoConfigEnabled write FAutoConfigEnabled;
+    property Editor: String read FEditor write FEditor;
+    property LineNumberOptPrefix: String read FLineNumberOptPrefix write FLineNumberOptPrefix;
+  end;
+
 
 implementation
 //---------------------------------------------------------------------------------------
@@ -174,6 +191,7 @@ begin
   xmlConfig.CloseKey;
 end; //*** end of SaveToFile ***
 
+
 //---------------------------------------------------------------------------------------
 //-------------------------------- TLastSearchConfig ------------------------------------
 //---------------------------------------------------------------------------------------
@@ -249,6 +267,83 @@ begin
   XmlConfig.SetValue('recursive', FRecursive);
   XmlConfig.SetValue('case_sensitive', FCaseSensitive);
   XmlConfig.SetValue('file_pattern', UnicodeString(FFilePattern));
+  // Close this group's key.
+  xmlConfig.CloseKey;
+end; //*** end of SaveToFile ***
+
+
+//---------------------------------------------------------------------------------------
+//-------------------------------- TTextEditorConfig ------------------------------------
+//---------------------------------------------------------------------------------------
+//***************************************************************************************
+// NAME:           Create
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Class constructor.
+//
+//***************************************************************************************
+constructor TTextEditorConfig.Create;
+begin
+  // Call inherited constructor.
+  inherited Create;
+  // Set fields.
+  FName := GROUP_NAME;
+  Defaults;
+end; //*** end of Create ***
+
+
+//***************************************************************************************
+// NAME:           Defaults
+// PARAMETER:      none
+// RETURN VALUE:   none
+// DESCRIPTION:    Sets default values for this group's settings.
+//
+//***************************************************************************************
+procedure TTextEditorConfig.Defaults;
+begin
+  FAutoConfigEnabled := True;
+  FEditor := '';
+  FLineNumberOptPrefix := '';
+end; //*** end of Defaults ***
+
+
+//***************************************************************************************
+// NAME:           LoadFromFile
+// PARAMETER:      XmlConfig XML configuration instance.
+// RETURN VALUE:   none
+// DESCRIPTION:    Loads this group's configuration settings using the XML configuration
+//                 instance.
+//
+//***************************************************************************************
+procedure TTextEditorConfig.LoadFromFile(XmlConfig: TXMLConfig);
+begin
+  // Open this group's key.
+  XmlConfig.OpenKey(UnicodeString(Self.Name));
+  // Load all settings.
+  FAutoConfigEnabled := XmlConfig.GetValue('auto_config_enabled', FAutoConfigEnabled);
+  FEditor := String(XmlConfig.GetValue('editor', UnicodeString(FEditor)));
+  FLineNumberOptPrefix := String(XmlConfig.GetValue('linenumber_opt_prefix', UnicodeString(FLineNumberOptPrefix)));
+  // Close this group's key.
+  XmlConfig.CloseKey;
+end; //*** end of LoadFromFile ***/
+
+
+//***************************************************************************************
+// NAME:           SaveToFile
+// PARAMETER:      XmlConfig XML configuration instance.
+// RETURN VALUE:   none
+// DESCRIPTION:    Saves this group's configuration settings using the XML configuration
+//                 instance.
+//
+//***************************************************************************************
+procedure TTextEditorConfig.SaveToFile(XmlConfig: TXMLConfig);
+begin
+  // Open this group's key.
+  XmlConfig.OpenKey(UnicodeString(Self.Name));
+  // Store all settings.
+  XmlConfig.SetValue('auto_config_enabled', FAutoConfigEnabled);
+  XmlConfig.SetValue('editor', UnicodeString(FEditor));
+  XmlConfig.SetValue('linenumber_opt_prefix', UnicodeString(FLineNumberOptPrefix));
   // Close this group's key.
   xmlConfig.CloseKey;
 end; //*** end of SaveToFile ***
