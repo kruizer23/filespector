@@ -1,6 +1,7 @@
+unit AboutUnit;
 //***************************************************************************************
-//  Description: Contains the main user interface for FileSpector.
-//    File Name: mainunit.pas
+//  Description: Contains the about dialog.
+//    File Name: aboutunit.pas
 //
 //---------------------------------------------------------------------------------------
 //                          C O P Y R I G H T
@@ -28,7 +29,6 @@
 // program.  If not, see <http://www.gnu.org/licenses/>.
 //
 //***************************************************************************************
-unit AboutUnit;
 {$IFDEF FPC}
 {$MODE objfpc}{$H+}
 {$ENDIF}

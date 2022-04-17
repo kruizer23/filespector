@@ -65,6 +65,7 @@ msgid "Search hits"
 msgstr "Suchtreffer"
 
 #: taboutform.btnclose.caption
+msgctxt "taboutform.btnclose.caption"
 msgid "Close"
 msgstr "Schließen"
 
@@ -90,12 +91,18 @@ msgid "Edit"
 msgstr "Bearbeiten"
 
 #: tmainform.actprogramabout.caption
+#, fuzzy
+#| msgid "&About"
 msgid "&About"
 msgstr "&Über"
 
 #: tmainform.actprogramexit.caption
 msgid "&Quit"
 msgstr "&Schließen"
+
+#: tmainform.actprogramsettings.caption
+msgid "&Preferences..."
+msgstr ""
 
 #: tmainform.actsavealllinestofile.caption
 msgid "Save All"
@@ -191,6 +198,10 @@ msgstr "Inhalt"
 msgid "Directory"
 msgstr "Verzeichnis"
 
+#: tmainform.mnuitemedit.caption
+msgid "&Edit"
+msgstr ""
+
 #: tmainform.mnuitemfile.caption
 msgid "&File"
 msgstr "&Datei"
@@ -202,4 +213,14 @@ msgstr "&Hilfe"
 #: tmainform.savedialog.title
 msgid "Save Log-file as"
 msgstr "Protokolldatei speichern als"
+
+#: tsettingsform.btnclose.caption
+#, fuzzy
+msgctxt "tsettingsform.btnclose.caption"
+msgid "Close"
+msgstr "Schließen"
+
+#: tsettingsform.caption
+msgid "Preferences"
+msgstr ""
 

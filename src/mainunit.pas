@@ -39,8 +39,8 @@ interface
 //***************************************************************************************
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls, DateUtils, LCLType, ActnList, Menus, SearchSettings,
-  FileContentSearcher, TextEditor, AboutUnit, Clipbrd, CurrentConfig, ConfigGroups;
+  ExtCtrls, ComCtrls, DateUtils, LCLType, ActnList, Menus, SearchSettings, Clipbrd,
+  FileContentSearcher, TextEditor, AboutUnit, SettingsUnit, CurrentConfig, ConfigGroups;
 
 
 //***************************************************************************************
@@ -52,8 +52,12 @@ type
                             UIS_SEARCHING );
 
   //------------------------------ TMainForm --------------------------------------------
+
+  { TMainForm }
+
   TMainForm = class(TForm)
     ActCopySelectedLineToClipboard: TAction;
+    ActProgramSettings: TAction;
     ActProgramAbout: TAction;
     ActProgramExit: TAction;
     ActOpenInEditor: TAction;
@@ -77,6 +81,8 @@ type
     LblSearchPattern: TLabel;
     LvwResults: TListView;
     MainMenu: TMainMenu;
+    MnuItemSettings: TMenuItem;
+    MnuItemEdit: TMenuItem;
     MnuItemOpenInEditor: TMenuItem;
     MnuItemAbout: TMenuItem;
     MnuItemExit: TMenuItem;
@@ -100,6 +106,7 @@ type
     procedure ActOpenInEditorExecute(Sender: TObject);
     procedure ActProgramAboutExecute(Sender: TObject);
     procedure ActProgramExitExecute(Sender: TObject);
+    procedure ActProgramSettingsExecute(Sender: TObject);
     procedure ActSaveAllLinesToFileExecute(Sender: TObject);
     procedure ActSearchExecute(Sender: TObject);
     procedure BtnBrowseClick(Sender: TObject);
@@ -520,7 +527,7 @@ begin
   aboutForm := TAboutForm.Create(Self);
   // Show the form in a modal manner.
   aboutForm.ShowModal;
-  // Rlease about form instance.
+  // Release about form instance.
   aboutForm.Free;
 end; //*** end of ActProgramAboutExecute ***
 
@@ -538,6 +545,53 @@ begin
   // Close the program.
   Close;
 end; //*** end of ActProgramExitExecute ***
+
+
+//***************************************************************************************
+// NAME:           ActProgramSettingsExecute
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the associated action should be
+//                 executed.
+//
+//***************************************************************************************
+procedure TMainForm.ActProgramSettingsExecute(Sender: TObject);
+var
+  settingsForm: TSettingsForm;
+  textEditorConfig: TTextEditorConfig;
+begin
+  // Initialize configuration variable for convenient access to the group.
+  textEditorConfig := FCurrentConfig.Groups[TTextEditorConfig.GROUP_NAME]
+                      as TTextEditorConfig;
+  // Create instance of the settings form.
+  settingsForm := TSettingsForm.Create(Self);
+  // Initialize the settings properties because on the currently configured values.
+  settingsForm.AutoConfigEnabled := textEditorConfig.AutoConfigEnabled;
+  settingsForm.LineNumberOptPrefix := textEditorConfig.LineNumberOptPrefix;
+  settingsForm.Editor := textEditorConfig.Editor;
+  // Show the form in a modal manner.
+  if settingsForm.ShowModal = mrOK then
+  begin
+    // Update this class' text editor object.
+    if settingsForm.AutoConfigEnabled then
+    begin
+      // Perform automatic configuration of the editor.
+      FTextEditor.Locate;
+    end
+    else
+    begin
+       // Store the user configured values.
+       FTextEditor.LineNumberOptPrefix := settingsForm.LineNumberOptPrefix;
+       FTextEditor.Editor := settingsForm.Editor;
+    end;
+    // Update the configuration of the settings for persistency.
+    textEditorConfig.AutoConfigEnabled := settingsForm.AutoConfigEnabled;
+    textEditorConfig.LineNumberOptPrefix := FTextEditor.LineNumberOptPrefix;
+    textEditorConfig.Editor := FTextEditor.Editor;
+  end;
+  // Release about form instance.
+  settingsForm.Free;
+end; //*** end of ActProgramSettingsExecute ***
 
 
 //***************************************************************************************
@@ -814,8 +868,8 @@ begin
                       as TTextEditorConfig;
   if not textEditorConfig.AutoConfigEnabled then
   begin
-    FTextEditor.Editor := textEditorConfig.Editor;
     FTextEditor.LineNumberOptPrefix := textEditorConfig.LineNumberOptPrefix;
+    FTextEditor.Editor := textEditorConfig.Editor;
   end;
 end; //*** end of LoadCurrentConfig ***
 

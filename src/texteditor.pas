@@ -50,7 +50,7 @@ type
   private
     FEditor: String;
     FLineNumberOptPrefix: String;
-    procedure Locate;
+    procedure SetEditor(Value: String);
   public
     const NUM_EDITORS = 7;
     const DEFAULT_EDITORS: array[1..2, 1..NUM_EDITORS] of String = (
@@ -62,7 +62,8 @@ type
     constructor Create;
     destructor  Destroy; override;
     procedure Open(TextFile: String =  ''; LineNumber: LongWord = 0);
-    property Editor: String read FEditor write FEditor;
+    procedure Locate;
+    property Editor: String read FEditor write SetEditor;
     property LineNumberOptPrefix: String read FLineNumberOptPrefix write FLineNumberOptPrefix;
   end;
 
@@ -115,6 +116,9 @@ var
   idx: Integer;
   cmdOutput: String;
 begin
+  // Reset the configuration.
+  FEditor := '';
+  FLineNumberOptPrefix := '';
   // Loop through all known editors to see if this once is installed on the system.
   for idx := 1 to NUM_EDITORS do
   begin
@@ -209,6 +213,49 @@ begin
   // Releas the process instance.
   runProgram.Free;
 end; //*** end of Open ***/
+
+
+//***************************************************************************************
+// NAME:           SetEditor
+// PARAMETER:      Value New value for the editor property.
+// RETURN VALUE:   none
+// DESCRIPTION:    Setter for the editor property.
+//
+//***************************************************************************************
+procedure TTextEditor.SetEditor(Value: String);
+var
+  cmdOutput: String;
+  validated: Boolean = False;
+begin
+  // Verify that the configured editor command actually exists with 'which'.
+  if RunCommand('which', Value, cmdOutput) then
+  begin
+    // The output might have \n and/or \r characters. Remove them first.
+    cmdOutput := StringReplace(cmdOutput, #13, '', [rfReplaceAll]);
+    cmdOutput := StringReplace(cmdOutput, #10, '', [rfReplaceAll]);
+    // The expected result is a pathname without spaces.
+    if (Pos(DirectorySeparator, cmdOutput) = 1) and (Pos(' ', cmdOutput) = 0) then
+    begin
+      // It should also be an existing file.
+      if FileExists(cmdOutput) then
+      begin
+        if FileIsExecutable(cmdOutput) and FileIsReadable(cmdOutput) then
+        begin
+          // Store the executable with path info.
+          FEditor := cmdOutput;
+          // Set flag that the editor was validated successfully.
+          validated := True;
+        end;
+      end;
+    end;
+  end;
+  // New editor validation failed?
+  if not validated then
+  begin
+    // Run automatic editor detection as a fallback.
+    Locate;
+  end;
+end; //*** end of SetEditor ***
 
 end.
 //******************************** end of texteditor.pas ********************************

@@ -34,7 +34,9 @@
 {"hash":310020,"name":"tmainform.actopenineditor.caption","sourcebytes":[69,100,105,116],"value":"Edit"},
 {"hash":2853892,"name":"tmainform.actprogramexit.caption","sourcebytes":[38,81,117,105,116],"value":"&Quit"},
 {"hash":44537540,"name":"tmainform.actprogramabout.caption","sourcebytes":[38,65,98,111,117,116],"value":"&About"},
+{"hash":203474142,"name":"tmainform.actprogramsettings.caption","sourcebytes":[38,80,114,101,102,101,114,101,110,99,101,115,46,46,46],"value":"&Preferences..."},
 {"hash":196785267,"name":"tmainform.savedialog.title","sourcebytes":[83,97,118,101,32,76,111,103,45,102,105,108,101,32,97,115],"value":"Save Log-file as"},
 {"hash":2805797,"name":"tmainform.mnuitemfile.caption","sourcebytes":[38,70,105,108,101],"value":"&File"},
+{"hash":2800388,"name":"tmainform.mnuitemedit.caption","sourcebytes":[38,69,100,105,116],"value":"&Edit"},
 {"hash":2812976,"name":"tmainform.mnuitemhelp.caption","sourcebytes":[38,72,101,108,112],"value":"&Help"}
 ]}
