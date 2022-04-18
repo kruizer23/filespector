@@ -12,8 +12,8 @@ msgstr ""
 "X-Generator: Poedit 3.0.1\n"
 
 #: aboutunit.rscopyrightpost
-msgid "2018 by Frank Voorburg"
-msgstr "2018 von Frank Voorburg"
+msgid "2018-2022 by Frank Voorburg"
+msgstr "2018-2022 von Frank Voorburg"
 
 #: aboutunit.rscopyrightpre
 msgid "Copyright"

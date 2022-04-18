@@ -2,7 +2,7 @@ msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
 #: aboutunit.rscopyrightpost
-msgid "2018 by Frank Voorburg"
+msgid "2018-2022 by Frank Voorburg"
 msgstr ""
 
 #: aboutunit.rscopyrightpre

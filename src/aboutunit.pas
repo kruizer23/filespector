@@ -74,7 +74,7 @@ implementation
 //***************************************************************************************
 resourcestring
   RsCopyrightPre = 'Copyright';
-  RsCopyrightPost = '2018 by Frank Voorburg';
+  RsCopyrightPost = '2018-2022 by Frank Voorburg';
   RsWeblinkInfo = 'Visit FileSpector on GitHub';
 
 //---------------------------------------------------------------------------------------

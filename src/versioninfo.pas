@@ -48,8 +48,8 @@ type
   TVersionInfo = class (TObject)
   private
     const VERSION_MAJOR: Byte = 0;
-    const VERSION_MINOR: Byte = 8;
-    const VERSION_PATCH: Byte = 2;
+    const VERSION_MINOR: Byte = 9;
+    const VERSION_PATCH: Byte = 0;
     const VERSION_SPECIFIER: String = '';
   public
     class function GetVersionStr(WithSpecifier: Boolean = True): String; static;

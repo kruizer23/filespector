@@ -1,4 +1,10 @@
 -----------------------------------------------------------------------------------------
+2022-04-18 Frank Voorburg <voorburg@gmx.net>
+
+* Supports text editor configuration.
+* Public release of version 0.9.0.
+
+-----------------------------------------------------------------------------------------
 2021-06-05 Frank Voorburg <voorburg@gmx.net>
 
 * Improvements for compatibility when targeting the QT5 LCL Widget set.
