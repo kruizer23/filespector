@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
-"Content-Type: text/plain; charset=UTF-8\n"
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"MIME-Version: 1.0\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Language: de\n"
-"X-Generator: Poedit 2.0.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: aboutunit.rscopyrightpost
 msgid "2018 by Frank Voorburg"
@@ -29,7 +29,7 @@ msgstr "Konnte nicht ausgeführt werden"
 
 #: filecontentsearcher.rserrornostart
 msgid "Could not start the search operation for file"
-msgstr "Konnte Suchvorgang für die folgende Datei nicht starten:"
+msgstr "Konnte Suchvorgang für die folgende Datei nicht starten"
 
 #: mainunit.rsbuttoncaptioncancel
 msgid "Cancel"
@@ -91,8 +91,6 @@ msgid "Edit"
 msgstr "Bearbeiten"
 
 #: tmainform.actprogramabout.caption
-#, fuzzy
-#| msgid "&About"
 msgid "&About"
 msgstr "&Über"
 
@@ -102,7 +100,7 @@ msgstr "&Schließen"
 
 #: tmainform.actprogramsettings.caption
 msgid "&Preferences..."
-msgstr ""
+msgstr "&Präferenzen..."
 
 #: tmainform.actsavealllinestofile.caption
 msgid "Save All"
@@ -144,7 +142,7 @@ msgstr "Suche auf Dateien mit einer bestimmten Dateiendung beschränken. Mehrere
 
 #: tmainform.cmbsearchpattern.text
 msgid "*"
-msgstr ""
+msgstr "*"
 
 #: tmainform.edtdirectory.hint
 msgid "Enter the base directory for the search operation or click the browse-button to select one"
@@ -200,7 +198,7 @@ msgstr "Verzeichnis"
 
 #: tmainform.mnuitemedit.caption
 msgid "&Edit"
-msgstr ""
+msgstr "&Bearbeiten"
 
 #: tmainform.mnuitemfile.caption
 msgid "&File"
@@ -215,18 +213,17 @@ msgid "Save Log-file as"
 msgstr "Protokolldatei speichern als"
 
 #: tsettingsform.btnclose.caption
-#, fuzzy
 msgctxt "tsettingsform.btnclose.caption"
 msgid "Close"
 msgstr "Schließen"
 
 #: tsettingsform.caption
 msgid "Preferences"
-msgstr ""
+msgstr "Präferenzen"
 
 #: tsettingsform.cbxautodetect.caption
 msgid "Automatically detect"
-msgstr ""
+msgstr "Automatisch erkennen"
 
 #: tsettingsform.cmbeditorplusarg.hint
 msgid ""
@@ -235,8 +232,11 @@ msgid ""
 "- OPTION is the argument needed to jump to a specific line number\n"
 "The text editor command receives two parameters: line number and filename. \n"
 msgstr ""
+"Eintragen als: BEFEHL OPTION\n"
+"- BEFEHL ist die ausführbare Datei des Texteditors\n"
+"- OPTION ist das benötigte Argument, um zu einer bestimmten Zeilennummer zu springen\n"
+"Der Texteditor bekommt beim Ausführen zwei Parameter mit: die Zeilennummer und den Dateinnamen.\n"
 
 #: tsettingsform.lblgrouptexteditor.caption
 msgid "Text editor"
-msgstr ""
-
+msgstr "Texteditor"

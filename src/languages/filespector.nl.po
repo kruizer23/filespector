@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
-"Content-Type: text/plain; charset=UTF-8\n"
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"MIME-Version: 1.0\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Language: nl\n"
-"X-Generator: Poedit 2.0.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: aboutunit.rscopyrightpost
 msgid "2018 by Frank Voorburg"
@@ -91,8 +91,6 @@ msgid "Edit"
 msgstr "Bewerken"
 
 #: tmainform.actprogramabout.caption
-#, fuzzy
-#| msgid "&About"
 msgid "&About"
 msgstr "&Over"
 
@@ -102,7 +100,7 @@ msgstr "&Afsluiten"
 
 #: tmainform.actprogramsettings.caption
 msgid "&Preferences..."
-msgstr ""
+msgstr "&Voorkeuren..."
 
 #: tmainform.actsavealllinestofile.caption
 msgid "Save All"
@@ -144,7 +142,7 @@ msgstr "Beperk de zoekopdracht tot bestanden met een bepaalde extensie. Scheid m
 
 #: tmainform.cmbsearchpattern.text
 msgid "*"
-msgstr ""
+msgstr "*"
 
 #: tmainform.edtdirectory.hint
 msgid "Enter the base directory for the search operation or click the browse-button to select one"
@@ -180,7 +178,7 @@ msgstr "Patroon:"
 
 #: tmainform.lblsearchtext.caption
 msgid "Text:"
-msgstr "Tekst"
+msgstr "Tekst:"
 
 #: tmainform.lvwresults.columns[0].caption
 msgid "File"
@@ -200,7 +198,7 @@ msgstr "Map"
 
 #: tmainform.mnuitemedit.caption
 msgid "&Edit"
-msgstr ""
+msgstr "&Bewerken"
 
 #: tmainform.mnuitemfile.caption
 msgid "&File"
@@ -215,18 +213,17 @@ msgid "Save Log-file as"
 msgstr "Log-bestand opslaan als"
 
 #: tsettingsform.btnclose.caption
-#, fuzzy
 msgctxt "tsettingsform.btnclose.caption"
 msgid "Close"
 msgstr "Sluiten"
 
 #: tsettingsform.caption
 msgid "Preferences"
-msgstr ""
+msgstr "Voorkeuren"
 
 #: tsettingsform.cbxautodetect.caption
 msgid "Automatically detect"
-msgstr ""
+msgstr "Automatisch detecteren"
 
 #: tsettingsform.cmbeditorplusarg.hint
 msgid ""
@@ -235,8 +232,11 @@ msgid ""
 "- OPTION is the argument needed to jump to a specific line number\n"
 "The text editor command receives two parameters: line number and filename. \n"
 msgstr ""
+"Formaat: COMMANDO OPTIE\n"
+"- COMMANDO is het programma van de teksteditor\n"
+"- OPTIE is het argument om naar een specifiek lijnnummer te springen\n"
+"Het teksteditor commando krijgt twee parameters: lijnnummer and bestandsnaam.\n"
 
 #: tsettingsform.lblgrouptexteditor.caption
 msgid "Text editor"
-msgstr ""
-
+msgstr "Teksteditor"
