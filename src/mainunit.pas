@@ -866,7 +866,17 @@ begin
   // Set the text editor settings.
   textEditorConfig := FCurrentConfig.Groups[TTextEditorConfig.GROUP_NAME]
                       as TTextEditorConfig;
-  if not textEditorConfig.AutoConfigEnabled then
+  // Automatically detect and configure the text editor?
+  if textEditorConfig.AutoConfigEnabled then
+  begin
+    // Perform automatic detection and configuration.
+    FTextEditor.Locate;
+    // Update the results in the settings for persistency.
+    textEditorConfig.LineNumberOptPrefix := FTextEditor.LineNumberOptPrefix;
+    textEditorConfig.Editor := FTextEditor.Editor;
+  end
+  // Restore the text editor settings from the configuration file.
+  else
   begin
     FTextEditor.LineNumberOptPrefix := textEditorConfig.LineNumberOptPrefix;
     FTextEditor.Editor := textEditorConfig.Editor;

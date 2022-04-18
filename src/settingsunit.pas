@@ -38,7 +38,8 @@ interface
 // Includes
 //***************************************************************************************
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
+  TextEditor;
 
 
 //***************************************************************************************
@@ -51,8 +52,14 @@ type
 
   TSettingsForm = class(TForm)
     BtnClose: TButton;
+    CbxAutoDetect: TCheckBox;
+    CmbEditorPlusArg: TComboBox;
+    GbxSettings: TGroupBox;
+    LblGroupTextEditor: TLabel;
     procedure BtnCloseClick(Sender: TObject);
+    procedure CbxAutoDetectChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     FAutoConfigEnabled: Boolean;
     FEditor: String;
@@ -78,12 +85,57 @@ implementation
 //
 //***************************************************************************************
 procedure TSettingsForm.FormCreate(Sender: TObject);
+var
+  idx: Integer;
+  entryStr: string;
 begin
   // Set default values for the properties.
   FAutoConfigEnabled := True;
   FEditor := '';
   FLineNumberOptPrefix := '';
+  // Add entries into the combobox.
+  CmbEditorPlusArg.Items.Clear;
+  // Loop through the array with commonly knowns text editors on a Linux system.
+  for idx := 1 to TTextEditor.NUM_EDITORS do
+  begin
+    // Try to get the editor's executable to check its presence.
+    entryStr := TTextEditor.GetEditorFullPath(TTextEditor.DEFAULT_EDITORS[1][idx]);
+    // Is this one present on the user's system?
+    if entryStr <> '' then
+    begin
+      // Append the argument to jump to a specific line number.
+      entryStr := entryStr + ' ' + TTextEditor.DEFAULT_EDITORS[2][idx];
+      // Add the resulting string as a new combobox entry.
+      CmbEditorPlusArg.Items.Add(entryStr);
+    end;
+  end;
 end; //*** end of FormCreate ***
+
+
+//***************************************************************************************
+// NAME:           FormShow
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the form is shown.
+//
+//***************************************************************************************
+procedure TSettingsForm.FormShow(Sender: TObject);
+begin
+  // Show the currently configured editor and its line number argument in the combobox.
+  CmbEditorPlusArg.Text := Editor + ' ' + LineNumberOptPrefix;
+  // Set the auto detect checkbox state.
+  CbxAutoDetect.Checked := AutoConfigEnabled;
+  // Enable/disable the combobox based on the auto detect checkbox state.
+  CmbEditorPlusArg.Enabled := not CbxAutoDetect.Checked;
+  // If nothing configured, then display the first editor detected on the system.
+  if Editor = '' then
+  begin
+    if CmbEditorPlusArg.Items.Count > 0 then
+    begin
+      CmbEditorPlusArg.Text := CmbEditorPlusArg.Items[0];
+    end;
+  end;
+end; //*** end of FormShow ***
 
 
 //***************************************************************************************
@@ -94,13 +146,53 @@ end; //*** end of FormCreate ***
 //
 //***************************************************************************************
 procedure TSettingsForm.BtnCloseClick(Sender: TObject);
+var
+  spacePos: Integer;
 begin
-  // TODO Update the properties based on what the user selected on the dialog. Currently
-  //      hardcoded to Xed for testing purposes.
-  FAutoConfigEnabled := False;
-  FEditor := 'xed';
-  FLineNumberOptPrefix := '+';
+  // Initialize the properties
+  FAutoConfigEnabled := CbxAutoDetect.Checked;
+  FEditor := '';
+  FLineNumberOptPrefix := '';
+  // Text editor command manually entered?
+  if not FAutoConfigEnabled then
+  begin
+    // It could be just a command or a command and its line number argument. In the
+    // latter case the text should contain a space.
+    spacePos := Pos(' ', CmbEditorPlusArg.Text);
+    // Was a space detected?
+    if spacePos > 0 then
+    begin
+      // Extract the editor command.
+      FEditor := LeftStr(CmbEditorPlusArg.Text, spacePos - 1);
+      // Extract the line number argument.
+      FLineNumberOptPrefix := RightStr(CmbEditorPlusArg.Text,
+                                       Length(CmbEditorPlusArg.Text) - spacePos);
+    end
+    // No space detected, so no line number arguement specified.
+    else
+    begin
+      FLineNumberOptPrefix := '';
+      FEditor := CmbEditorPlusArg.Text;
+    end;
+  end;
 end; //*** end of BtnCloseClick ***
+
+
+//***************************************************************************************
+// NAME:           CbxAutoDetectChange
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the checkbox state changes.
+//
+//***************************************************************************************
+procedure TSettingsForm.CbxAutoDetectChange(Sender: TObject);
+begin
+  // Update the configuration of the auto config property.
+  AutoConfigEnabled := CbxAutoDetect.Checked;
+  // Enable/disable the combobox based on the auto detect checkbox state.
+  CmbEditorPlusArg.Enabled := not CbxAutoDetect.Checked;
+end; //*** end of CbxAutoDetectChange ***
+
 
 end.
 //******************************** end of settingsunit.pas ******************************

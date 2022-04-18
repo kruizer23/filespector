@@ -63,6 +63,7 @@ type
     destructor  Destroy; override;
     procedure Open(TextFile: String =  ''; LineNumber: LongWord = 0);
     procedure Locate;
+    class function GetEditorFullPath(AEditor: String): String;
     property Editor: String read FEditor write SetEditor;
     property LineNumberOptPrefix: String read FLineNumberOptPrefix write FLineNumberOptPrefix;
   end;
@@ -114,7 +115,6 @@ end; //*** end of Destroy ***
 procedure TTextEditor.Locate;
 var
   idx: Integer;
-  cmdOutput: String;
 begin
   // Reset the configuration.
   FEditor := '';
@@ -122,28 +122,15 @@ begin
   // Loop through all known editors to see if this once is installed on the system.
   for idx := 1 to NUM_EDITORS do
   begin
-    if RunCommand('which', [DEFAULT_EDITORS[1][idx]], cmdOutput) then
+    // Try to get the editor's executable as a method to check for its presence.
+    FEditor := GetEditorFullPath(DEFAULT_EDITORS[1][idx]);
+    // Editor present on the system?
+    if FEditor <> '' then
     begin
-      // The output might have \n and/or \r characters. Remove them first.
-      cmdOutput := StringReplace(cmdOutput, #13, '', [rfReplaceAll]);
-      cmdOutput := StringReplace(cmdOutput, #10, '', [rfReplaceAll]);
-      // The expected result is a pathname without spaces.
-      if (Pos(DirectorySeparator, cmdOutput) = 1) and (Pos(' ', cmdOutput) = 0) then
-      begin
-        // It should also be an existing file.
-        if FileExists(cmdOutput) then
-        begin
-          if FileIsExecutable(cmdOutput) and FileIsReadable(cmdOutput) then
-          begin
-            // Store the executable with path info.
-            FEditor := cmdOutput;
-            // Store the command line option prefix for opening at a specific line number
-            FLineNumberOptPrefix := DEFAULT_EDITORS[2][idx];
-            // No point in continuing the loop.
-            Break;
-          end;
-        end;
-      end;
+      // Store the command line option prefix for opening at a specific line number
+      FLineNumberOptPrefix := DEFAULT_EDITORS[2][idx];
+      // All set, so no point in continuing the loop.
+      Break;
     end;
   end;
 end; //*** end of Locate ***
@@ -224,11 +211,41 @@ end; //*** end of Open ***/
 //***************************************************************************************
 procedure TTextEditor.SetEditor(Value: String);
 var
-  cmdOutput: String;
-  validated: Boolean = False;
+  editorWithFullPath: String;
 begin
-  // Verify that the configured editor command actually exists with 'which'.
-  if RunCommand('which', Value, cmdOutput) then
+  // Validate the editor by trying to get the full path of its executable.
+  editorWithFullPath := GetEditorFullPath(Value);
+  // Only update the editor field if the validation was successful.
+  if editorWithFullPath <> '' then
+  begin
+    // Store the executable with path info.
+    FEditor := editorWithFullPath;
+  end
+  // New editor validation failed.
+  else
+  begin
+    // Run automatic editor detection as a fallback.
+    Locate;
+  end;
+end; //*** end of SetEditor ***
+
+
+//***************************************************************************************
+// NAME:           GetEditorFullPath
+// PARAMETER:      AEditor Editor to get with the full path.
+// RETURN VALUE:   Editor with full path in case of success, '' in case of error.
+// DESCRIPTION:    Obtains the location of the editor with its full path. For example:
+//                 'gedit' would result in something like '/usr/bin/gedit'.
+//
+//***************************************************************************************
+class function TTextEditor.GetEditorFullPath(AEditor: String): String;
+var
+  cmdOutput: String;
+begin
+  // Initialize the result.
+  Result := '';
+  // Get the full path of the text editor's executable using 'which'.
+  if RunCommand('which', AEditor, cmdOutput) then
   begin
     // The output might have \n and/or \r characters. Remove them first.
     cmdOutput := StringReplace(cmdOutput, #13, '', [rfReplaceAll]);
@@ -241,21 +258,13 @@ begin
       begin
         if FileIsExecutable(cmdOutput) and FileIsReadable(cmdOutput) then
         begin
-          // Store the executable with path info.
-          FEditor := cmdOutput;
-          // Set flag that the editor was validated successfully.
-          validated := True;
+          // Found the full path to the text editor's executable. Update the result.
+          Result := cmdOutput;
         end;
       end;
     end;
   end;
-  // New editor validation failed?
-  if not validated then
-  begin
-    // Run automatic editor detection as a fallback.
-    Locate;
-  end;
-end; //*** end of SetEditor ***
+end; //*** end of GetEditorFullPath ***
 
 end.
 //******************************** end of texteditor.pas ********************************
