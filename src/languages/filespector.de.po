@@ -138,7 +138,7 @@ msgstr "Aktiviere dieses Kontrollkästchen, um auch Unterverzeichnisse einzubezi
 
 #: tmainform.cmbsearchpattern.hint
 msgid "Limit the search to files with a specific extension. Seperate multiple entries with |"
-msgstr "Suche auf Dateien mit einer bestimmten Dateiendung beschränken. Mehrere Einträge mit | trennen."
+msgstr "Suche auf Dateien mit einer bestimmten Dateiendung beschränken. Mehrere Einträge mit | trennen"
 
 #: tmainform.cmbsearchpattern.text
 msgid "*"
@@ -230,12 +230,12 @@ msgid ""
 "Specify as: COMMAND OPTION\n"
 "- COMMAND is the executable of the text editor\n"
 "- OPTION is the argument needed to jump to a specific line number\n"
-"The text editor command receives two parameters: line number and filename. \n"
+"The text editor command receives two parameters: line number and filename\n"
 msgstr ""
 "Eintragen als: BEFEHL OPTION\n"
 "- BEFEHL ist die ausführbare Datei des Texteditors\n"
 "- OPTION ist das benötigte Argument, um zu einer bestimmten Zeilennummer zu springen\n"
-"Der Texteditor bekommt beim Ausführen zwei Parameter mit: die Zeilennummer und den Dateinnamen.\n"
+"Der Texteditor bekommt beim Ausführen zwei Parameter mit: die Zeilennummer und den Dateinnamen\n"
 
 #: tsettingsform.lblgrouptexteditor.caption
 msgid "Text editor"
