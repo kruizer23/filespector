@@ -460,10 +460,11 @@ var
   SplitIdx: Integer;
 begin
   // TODO Remove test code and the button once done.
+  WriteLn('BtnTestClick:');
   HighlightSplit := THighlightSplit.Create('The fox chased the bunny!', 'the');
   for SplitIdx := 0 to (HighlightSplit.Count - 1) do
   begin
-    WriteLn(IntToStr(SplitIdx) + ': ' + HighlightSplit[SplitIdx].Text + ' - ' +
+    WriteLn(IntToStr(SplitIdx) + ': "' + HighlightSplit[SplitIdx].Text + '" - ' +
             BoolToStr(HighlightSplit[SplitIdx].Highlight));
   end;
   HighlightSplit.Free;

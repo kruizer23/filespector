@@ -38,7 +38,7 @@ interface
 // Includes
 //***************************************************************************************
 uses
-  Classes, SysUtils, Fgl;
+  Classes, SysUtils, Fgl, StrUtils;
 
 
 //***************************************************************************************
@@ -134,28 +134,61 @@ end; //*** end of Destroy ***
 procedure THighlightSplit.DoSplit;
 var
   Node: TNode;
+  UpperText: String;
+  UpperHighlight: String;
+  CurrentHighlightPos: Integer = 1;
+  LastCopiedPos: Integer = 0;
+  SplitStr: String;
 begin
-  // TODO Implement the actual split operation.
-  // Test string: 'The fox chased the bunny!', 'the'
-  Node := TNode.Create;
-  Node.Text := 'The';
-  Node.Highlight := True;
-  FSplits.Add(Node);
+  // Copy the text and highlight strings in their uppercase version to be able to search
+  // for the highlight substring case insensitive.
+  UpperText := UpperCase(FText);
+  UpperHighlight := UpperCase(FHighlight);
 
-  Node := TNode.Create;
-  Node.Text := ' fox chased ';
-  Node.Highlight := False;
-  FSplits.Add(Node);
+  // Enter splitting loop.
+  repeat
+    // Locate start of the highlight substring.
+    CurrentHighlightPos := PosEx(UpperHighlight, UpperText, CurrentHighlightPos);
+    // Highlight substring found?
+    if CurrentHighlightPos <> 0 then
+    begin
+      // Any non highlight substring before the current highlight that still needs
+      // to be copied?
+      if CurrentHighlightPos > (LastCopiedPos + 1) then
+      begin
+        // Create the node.
+        SplitStr := Copy(FText, LastCopiedPos + 1, CurrentHighlightPos - LastCopiedPos - 1);
+        Node := TNode.Create;
+        Node.Text := SplitStr;
+        Node.Highlight := False;
+        FSplits.Add(Node);
+        // Substring processed, so update the variable.
+        LastCopiedPos := CurrentHighlightPos - 1;
+      end;
 
-  Node := TNode.Create;
-  Node.Text := 'the';
-  Node.Highlight := True;
-  FSplits.Add(Node);
+      // Create the node.
+      SplitStr := Copy(FText, CurrentHighlightPos, Length(FHighlight));
+      Node := TNode.Create;
+      Node.Text := SplitStr;
+      Node.Highlight := True;
+      FSplits.Add(Node);
+      // Move forward until after the highlight.
+      Inc(CurrentHighlightPos, Length(FHighlight));
+      // Store the position of the last part that was copied.
+      LastCopiedPos := CurrentHighlightPos - 1;
+    end;
+  until CurrentHighlightPos = 0;
 
-  Node := TNode.Create;
-  Node.Text := ' bunny!';
-  Node.Highlight := False;
-  FSplits.Add(Node);
+  // Still a remainder substring left to be processed?
+  if LastCopiedPos < Length(FText) then
+  begin
+    // Create the node.
+    SplitStr := Copy(FText, LastCopiedPos + 1, Length(FText) - LastCopiedPos);
+    Node := TNode.Create;
+    Node.Text := SplitStr;
+    Node.Highlight := False;
+    FSplits.Add(Node);
+  end;
 end; //*** end of DoSplit ****
 
 

@@ -72,6 +72,10 @@
             </Options>
           </Linking>
           <Other>
+            <Verbosity>
+              <ShowNotes Value="False"/>
+              <ShowHints Value="False"/>
+            </Verbosity>
             <CustomOptions Value="-Sa
 -dUseCThreads"/>
           </Other>
@@ -107,6 +111,10 @@
             </Options>
           </Linking>
           <Other>
+            <Verbosity>
+              <ShowNotes Value="False"/>
+              <ShowHints Value="False"/>
+            </Verbosity>
             <CustomOptions Value="-dUseCThreads"/>
           </Other>
         </CompilerOptions>
@@ -216,6 +224,10 @@
       </Options>
     </Linking>
     <Other>
+      <Verbosity>
+        <ShowNotes Value="False"/>
+        <ShowHints Value="False"/>
+      </Verbosity>
       <CustomOptions Value="-Sa
 -dUseCThreads"/>
     </Other>
