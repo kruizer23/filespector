@@ -780,6 +780,7 @@ object MainForm: TMainForm
       ScrollBars = ssAutoBoth
       TabOrder = 0
       ViewStyle = vsReport
+      OnAdvancedCustomDrawSubItem = LvwResultsAdvancedCustomDrawSubItem
       OnColumnClick = LvwResultsColumnClick
       OnCompare = LvwResultsCompare
       OnDblClick = LvwResultsDblClick
@@ -850,15 +851,6 @@ object MainForm: TMainForm
         ShowHint = True
         TabOrder = 0
         Text = '*'
-      end
-      object BtnTest: TButton
-        Left = 584
-        Height = 25
-        Top = 0
-        Width = 75
-        Caption = 'Test'
-        OnClick = BtnTestClick
-        TabOrder = 1
       end
     end
   end

@@ -105,10 +105,6 @@ msgstr ""
 msgid "Browse..."
 msgstr ""
 
-#: tmainform.btntest.caption
-msgid "Test"
-msgstr ""
-
 #: tmainform.caption
 msgctxt "tmainform.caption"
 msgid "FileSpector"

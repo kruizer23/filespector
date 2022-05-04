@@ -115,10 +115,6 @@ msgstr "Suchen"
 msgid "Browse..."
 msgstr "Durchsuchen..."
 
-#: tmainform.btntest.caption
-msgid "Test"
-msgstr ""
-
 #: tmainform.caption
 msgctxt "tmainform.caption"
 msgid "FileSpector"
@@ -244,3 +240,4 @@ msgstr ""
 #: tsettingsform.lblgrouptexteditor.caption
 msgid "Text editor"
 msgstr "Texteditor"
+

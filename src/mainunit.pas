@@ -67,7 +67,6 @@ type
     ActionList: TActionList;
     BtnBrowse: TButton;
     BtnSearch: TButton;
-    BtnTest: TButton;
     CbxCaseSensitive: TCheckBox;
     CbxRecursive: TCheckBox;
     CmbSearchPattern: TComboBox;
@@ -112,9 +111,11 @@ type
     procedure ActSaveAllLinesToFileExecute(Sender: TObject);
     procedure ActSearchExecute(Sender: TObject);
     procedure BtnBrowseClick(Sender: TObject);
-    procedure BtnTestClick(Sender: TObject);
     procedure CtxMnuResultsViewPopup(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure LvwResultsAdvancedCustomDrawSubItem(Sender: TCustomListView;
+      Item: TListItem; SubItem: Integer; State: TCustomDrawState;
+      Stage: TCustomDrawStage; var DefaultDraw: Boolean);
     procedure LvwResultsDblClick(Sender: TObject);
     procedure LvwResultsKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState
       );
@@ -309,6 +310,97 @@ end; //*** end of FormShow ***
 //***************************************************************************************
 // NAME:           FormResize
 // PARAMETER:      Sender Source of the event.
+//                 Item Owner of the subitem.
+//                 SubItem Index (column) of the subitem.
+//                 State Draw state.
+//                 Stage Draw stage.
+//                 DefaultDraw Set to False if this routine handled the drawing.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when a subitem should be drawn on the
+//                 TListView.
+//
+//***************************************************************************************
+procedure TMainForm.LvwResultsAdvancedCustomDrawSubItem(
+  Sender: TCustomListView; Item: TListItem; SubItem: Integer;
+  State: TCustomDrawState; Stage: TCustomDrawStage; var DefaultDraw: Boolean);
+var
+  ItemRect: TRect;
+  ItemText: String;
+  TextCoords: TPoint;
+  HighlightSplit: THighlightSplit;
+  SplitIdx: Integer;
+begin
+  // Check parameters
+  Assert(Sender is TCustomListView);
+  Assert(SubItem > 0);
+
+  // Only custom draw the 'Contents' column.
+  if SubItem = 2 then
+  begin
+    // Suppress default drawing of the subitem, because this routine handles it.
+    DefaultDraw := False;
+
+    // Do all the painting in the pre-paint stage only, for run-time optimization.
+    if Stage <> cdPrePaint then
+    begin
+      Exit;
+    end;
+
+    // Get the cell's bounding rect
+    ItemRect := Item.DisplayRectSubItem(SubItem, drBounds);
+    // Get the item's text
+    ItemText := Item.SubItems[SubItem-1];
+
+    // Create splitter object that splits the entire string in substrings that either
+    // need to be drawn normally or with a highlight.
+    HighlightSplit := THighlightSplit.Create(ItemText, FSearchSettings.SearchText);
+
+    with Sender as TCustomListView do
+    begin
+      // Copy canvas' font height from the Sender
+      Canvas.Font.Height := GetFontData(Font.Handle).Height;
+      // Set brush style to clear to only draw the text and not fill the surrounding rect
+      Canvas.Brush.Style := bsClear;
+      // Set default font color
+      Canvas.Font.Color := clDefault;
+
+      // Adjust font color in case the item is selected
+      if [cdsSelected, cdsMarked] * State <> [] then
+      begin
+        Canvas.Font.Color := clHighlightText;
+      end;
+      // Setup coordinition for the text
+      TextCoords := ItemRect.TopLeft;
+      Inc(TextCoords.X, 5);
+      Inc(TextCoords.Y, 2);
+      {$IFDEF LCLqt5}
+      Dec(TextCoords.Y, 2);
+      {$ENDIF}
+
+      // Iterate over all the splits.
+      for SplitIdx := 0 to (HighlightSplit.Count - 1) do
+      begin
+        // Should this substring be highlighted?
+        if HighlightSplit[SplitIdx].Highlight then
+        begin
+          Canvas.Font.Style:= Canvas.Font.Style + [fsBold];
+        end;
+        // Draw the text of this split.
+        Canvas.TextOut(TextCoords.X, TextCoords.Y, HighlightSplit[SplitIdx].Text);
+        Inc(TextCoords.X, Canvas.TextWidth(HighlightSplit[SplitIdx].Text));
+        // Switch to the regualar font style.
+        Canvas.Font.Style:= Canvas.Font.Style - [fsBold];
+      end;
+    end;
+    // Release the splitter object.
+    HighlightSplit.Free;
+  end;
+end; //*** end of LvwResultsAdvancedCustomDrawSubItem ***
+
+
+//***************************************************************************************
+// NAME:           FormResize
+// PARAMETER:      Sender Source of the event.
 // RETURN VALUE:   none
 // DESCRIPTION:    Event handler that gets called when the form is resized.
 //
@@ -445,30 +537,6 @@ begin
     EdtDirectory.Text := SelectDirectoryDialog.FileName;
   end;
 end; //*** end of BtnBrowseClick ***
-
-
-//***************************************************************************************
-// NAME:           BtnTestClick
-// PARAMETER:      Sender Source of the event.
-// RETURN VALUE:   none
-// DESCRIPTION:    Event handler that gets called when the button is clicked.
-//
-//***************************************************************************************
-procedure TMainForm.BtnTestClick(Sender: TObject);
-var
-  HighlightSplit: THighlightSplit;
-  SplitIdx: Integer;
-begin
-  // TODO Remove test code and the button once done.
-  WriteLn('BtnTestClick:');
-  HighlightSplit := THighlightSplit.Create('The fox chased the bunny!', 'the');
-  for SplitIdx := 0 to (HighlightSplit.Count - 1) do
-  begin
-    WriteLn(IntToStr(SplitIdx) + ': "' + HighlightSplit[SplitIdx].Text + '" - ' +
-            BoolToStr(HighlightSplit[SplitIdx].Highlight));
-  end;
-  HighlightSplit.Free;
-end; //*** end of BtnTestClick ***
 
 
 //***************************************************************************************

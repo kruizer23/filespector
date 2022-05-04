@@ -25,7 +25,6 @@
 {"hash":146460282,"name":"tmainform.lblsearchpattern.caption","sourcebytes":[80,97,116,116,101,114,110,58],"value":"Pattern:"},
 {"hash":52218348,"name":"tmainform.cmbsearchpattern.hint","sourcebytes":[76,105,109,105,116,32,116,104,101,32,115,101,97,114,99,104,32,116,111,32,102,105,108,101,115,32,119,105,116,104,32,97,32,115,112,101,99,105,102,105,99,32,101,120,116,101,110,115,105,111,110,46,32,83,101,112,101,114,97,116,101,32,109,117,108,116,105,112,108,101,32,101,110,116,114,105,101,115,32,119,105,116,104,32,124],"value":"Limit the search to files with a specific extension. Seperate multiple entries with |"},
 {"hash":42,"name":"tmainform.cmbsearchpattern.text","sourcebytes":[42],"value":"*"},
-{"hash":371876,"name":"tmainform.btntest.caption","sourcebytes":[84,101,115,116],"value":"Test"},
 {"hash":122721769,"name":"tmainform.pnlbody.caption","sourcebytes":[80,110,108,66,111,100,121],"value":"PnlBody"},
 {"hash":125855074,"name":"tmainform.statusbar.panels[1].text","sourcebytes":[83,101,97,114,99,104,32,104,105,116,115,32,112,108,97,99,101,104,111,108,100,101,114],"value":"Search hits placeholder"},
 {"hash":102757298,"name":"tmainform.statusbar.panels[2].text","sourcebytes":[70,105,108,101,115,32,119,105,116,104,32,97,32,115,101,97,114,99,104,32,104,105,116,32,112,108,97,99,101,104,111,108,100,101,114],"value":"Files with a search hit placeholder"},
