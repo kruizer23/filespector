@@ -105,6 +105,10 @@ msgstr ""
 msgid "Browse..."
 msgstr ""
 
+#: tmainform.btntest.caption
+msgid "Test"
+msgstr ""
+
 #: tmainform.caption
 msgctxt "tmainform.caption"
 msgid "FileSpector"
@@ -220,7 +224,7 @@ msgid ""
 "Specify as: COMMAND OPTION\n"
 "- COMMAND is the executable of the text editor\n"
 "- OPTION is the argument needed to jump to a specific line number\n"
-"The text editor command receives two parameters: line number and filename\n"
+"The text editor command receives two parameters: line number and filename"
 msgstr ""
 
 #: tsettingsform.lblgrouptexteditor.caption

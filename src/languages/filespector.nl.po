@@ -115,6 +115,10 @@ msgstr "Zoek"
 msgid "Browse..."
 msgstr "Bladeren..."
 
+#: tmainform.btntest.caption
+msgid "Test"
+msgstr ""
+
 #: tmainform.caption
 msgctxt "tmainform.caption"
 msgid "FileSpector"
@@ -226,11 +230,17 @@ msgid "Automatically detect"
 msgstr "Automatisch detecteren"
 
 #: tsettingsform.cmbeditorplusarg.hint
+#, fuzzy
+#| msgid ""
+#| "Specify as: COMMAND OPTION\n"
+#| "- COMMAND is the executable of the text editor\n"
+#| "- OPTION is the argument needed to jump to a specific line number\n"
+#| "The text editor command receives two parameters: line number and filename\n"
 msgid ""
 "Specify as: COMMAND OPTION\n"
 "- COMMAND is the executable of the text editor\n"
 "- OPTION is the argument needed to jump to a specific line number\n"
-"The text editor command receives two parameters: line number and filename\n"
+"The text editor command receives two parameters: line number and filename"
 msgstr ""
 "Formaat: COMMANDO OPTIE\n"
 "- COMMANDO is het programma van de teksteditor\n"
@@ -240,3 +250,4 @@ msgstr ""
 #: tsettingsform.lblgrouptexteditor.caption
 msgid "Text editor"
 msgstr "Teksteditor"
+

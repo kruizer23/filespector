@@ -40,7 +40,8 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, DateUtils, LCLType, ActnList, Menus, SearchSettings, Clipbrd,
-  FileContentSearcher, TextEditor, AboutUnit, SettingsUnit, CurrentConfig, ConfigGroups;
+  FileContentSearcher, TextEditor, AboutUnit, SettingsUnit, CurrentConfig, ConfigGroups,
+  CustomUtil;
 
 
 //***************************************************************************************
@@ -66,6 +67,7 @@ type
     ActionList: TActionList;
     BtnBrowse: TButton;
     BtnSearch: TButton;
+    BtnTest: TButton;
     CbxCaseSensitive: TCheckBox;
     CbxRecursive: TCheckBox;
     CmbSearchPattern: TComboBox;
@@ -110,6 +112,7 @@ type
     procedure ActSaveAllLinesToFileExecute(Sender: TObject);
     procedure ActSearchExecute(Sender: TObject);
     procedure BtnBrowseClick(Sender: TObject);
+    procedure BtnTestClick(Sender: TObject);
     procedure CtxMnuResultsViewPopup(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure LvwResultsDblClick(Sender: TObject);
@@ -442,6 +445,29 @@ begin
     EdtDirectory.Text := SelectDirectoryDialog.FileName;
   end;
 end; //*** end of BtnBrowseClick ***
+
+
+//***************************************************************************************
+// NAME:           BtnTestClick
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the button is clicked.
+//
+//***************************************************************************************
+procedure TMainForm.BtnTestClick(Sender: TObject);
+var
+  HighlightSplit: THighlightSplit;
+  SplitIdx: Integer;
+begin
+  // TODO Remove test code and the button once done.
+  HighlightSplit := THighlightSplit.Create('The fox chased the bunny!', 'the');
+  for SplitIdx := 0 to (HighlightSplit.Count - 1) do
+  begin
+    WriteLn(IntToStr(SplitIdx) + ': ' + HighlightSplit[SplitIdx].Text + ' - ' +
+            BoolToStr(HighlightSplit[SplitIdx].Highlight));
+  end;
+  HighlightSplit.Free;
+end; //*** end of BtnTestClick ***
 
 
 //***************************************************************************************

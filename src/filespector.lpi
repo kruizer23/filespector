@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="11"/>
+    <Version Value="12"/>
     <General>
+      <Flags>
+        <CompatibilityMode Value="True"/>
+      </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <MainUnit Value="0"/>
       <Title Value="filespector"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -70,7 +72,8 @@
             </Options>
           </Linking>
           <Other>
-            <CustomOptions Value="-dUseCThreads"/>
+            <CustomOptions Value="-Sa
+-dUseCThreads"/>
           </Other>
         </CompilerOptions>
       </Item2>
@@ -123,7 +126,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="11">
+    <Units Count="12">
       <Unit0>
         <Filename Value="filespector.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -187,6 +190,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="SettingsUnit"/>
       </Unit10>
+      <Unit11>
+        <Filename Value="customutil.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="CustomUtil"/>
+      </Unit11>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -208,7 +216,8 @@
       </Options>
     </Linking>
     <Other>
-      <CustomOptions Value="-dUseCThreads"/>
+      <CustomOptions Value="-Sa
+-dUseCThreads"/>
     </Other>
   </CompilerOptions>
   <Debugging>

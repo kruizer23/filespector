@@ -44,7 +44,8 @@ uses
   Interfaces, // this includes the LCL widgetset
   Forms, MainUnit, SearchSettings, CommandRunner, FileContentSearcher,
   TextEditor, VersionInfo, AboutUnit
-  { you can add units after this }, SysUtils, LCLTranslator, SettingsUnit;
+  { you can add units after this }, SysUtils, LCLTranslator, SettingsUnit,
+  CustomUtil;
 
 {$R *.res}
 
