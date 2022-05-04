@@ -63,8 +63,6 @@
               <UseExternalDbgSyms Value="True"/>
             </Debugging>
             <Options>
-              <PassLinkerOptions Value="True"/>
-              <LinkerOptions Value="-pie"/>
               <Win32>
                 <GraphicApplication Value="True"/>
               </Win32>
@@ -103,8 +101,6 @@
             </Debugging>
             <LinkSmart Value="True"/>
             <Options>
-              <PassLinkerOptions Value="True"/>
-              <LinkerOptions Value="-pie"/>
               <Win32>
                 <GraphicApplication Value="True"/>
               </Win32>
@@ -216,8 +212,6 @@
     </SearchPaths>
     <Linking>
       <Options>
-        <PassLinkerOptions Value="True"/>
-        <LinkerOptions Value="-pie"/>
         <Win32>
           <GraphicApplication Value="True"/>
         </Win32>
