@@ -5,7 +5,7 @@ object MainForm: TMainForm
   Width = 1000
   ActiveControl = EdtSearchText
   Caption = 'FileSpector'
-  ClientHeight = 523
+  ClientHeight = 527
   ClientWidth = 1000
   Constraints.MinHeight = 400
   Constraints.MinWidth = 580
@@ -559,24 +559,24 @@ object MainForm: TMainForm
     BorderSpacing.Top = 5
     BorderSpacing.Right = 5
     Caption = 'Search in'
-    ClientHeight = 62
-    ClientWidth = 988
+    ClientHeight = 61
+    ClientWidth = 986
     TabOrder = 0
     object PnlDirectory: TPanel
       Left = 0
       Height = 32
       Top = 0
-      Width = 988
+      Width = 986
       Align = alTop
       BevelOuter = bvNone
       Caption = 'PnlDirectory'
       ClientHeight = 32
-      ClientWidth = 988
+      ClientWidth = 986
       Color = clForm
       ParentColor = False
       TabOrder = 0
       object BtnBrowse: TButton
-        Left = 886
+        Left = 884
         Height = 28
         Top = 2
         Width = 95
@@ -594,7 +594,7 @@ object MainForm: TMainForm
         Height = 28
         Hint = 'Enter the base directory for the search operation or click the browse-button to select one'
         Top = 2
-        Width = 813
+        Width = 811
         Align = alClient
         BorderSpacing.Around = 2
         Constraints.MinHeight = 28
@@ -621,12 +621,12 @@ object MainForm: TMainForm
       Left = 0
       Height = 24
       Top = 32
-      Width = 988
+      Width = 986
       Align = alTop
       BevelOuter = bvNone
       Caption = 'PnlRecursive'
       ClientHeight = 24
-      ClientWidth = 988
+      ClientWidth = 986
       Color = clForm
       ParentColor = False
       TabOrder = 1
@@ -635,7 +635,7 @@ object MainForm: TMainForm
         Height = 20
         Hint = 'Check this box to include subdirectories as well'
         Top = 2
-        Width = 163
+        Width = 160
         Align = alLeft
         BorderSpacing.Left = 65
         BorderSpacing.Around = 2
@@ -658,19 +658,19 @@ object MainForm: TMainForm
     BorderSpacing.Top = 5
     BorderSpacing.Right = 5
     Caption = 'Search for'
-    ClientHeight = 62
-    ClientWidth = 988
+    ClientHeight = 61
+    ClientWidth = 986
     TabOrder = 1
     object PnlSearchText: TPanel
       Left = 0
       Height = 32
       Top = 0
-      Width = 988
+      Width = 986
       Align = alTop
       BevelOuter = bvNone
       Caption = 'PnlSearchText'
       ClientHeight = 32
-      ClientWidth = 988
+      ClientWidth = 986
       Color = clForm
       ParentColor = False
       TabOrder = 0
@@ -692,7 +692,7 @@ object MainForm: TMainForm
         Height = 28
         Hint = 'Enter the text to search for in the files present in the specified directory'
         Top = 2
-        Width = 912
+        Width = 910
         Align = alClient
         BorderSpacing.Right = 5
         BorderSpacing.Around = 2
@@ -707,12 +707,12 @@ object MainForm: TMainForm
       Left = 0
       Height = 24
       Top = 32
-      Width = 988
+      Width = 986
       Align = alTop
       BevelOuter = bvNone
       Caption = 'PnlCaseSensitive'
       ClientHeight = 24
-      ClientWidth = 988
+      ClientWidth = 986
       Color = clForm
       ParentColor = False
       TabOrder = 1
@@ -721,7 +721,7 @@ object MainForm: TMainForm
         Height = 20
         Hint = 'Check this box to search case-sensitive'
         Top = 2
-        Width = 155
+        Width = 152
         Align = alLeft
         BorderSpacing.Left = 65
         BorderSpacing.Around = 2
@@ -734,7 +734,7 @@ object MainForm: TMainForm
   end
   object GbxSearchResults: TGroupBox
     Left = 5
-    Height = 224
+    Height = 226
     Top = 269
     Width = 990
     Align = alClient
@@ -742,14 +742,14 @@ object MainForm: TMainForm
     BorderSpacing.Right = 5
     BorderSpacing.Bottom = 5
     Caption = 'Search results'
-    ClientHeight = 204
-    ClientWidth = 988
+    ClientHeight = 205
+    ClientWidth = 986
     TabOrder = 4
     object LvwResults: TListView
       Left = 7
-      Height = 189
+      Height = 190
       Top = 5
-      Width = 974
+      Width = 972
       Align = alClient
       BorderSpacing.Left = 2
       BorderSpacing.Right = 2
@@ -770,9 +770,8 @@ object MainForm: TMainForm
           Width = 525
         end      
         item
-          AutoSize = True
           Caption = 'Directory'
-          Width = 247
+          Width = 245
         end>
       PopupMenu = CtxMnuResultsView
       ReadOnly = True
@@ -797,19 +796,19 @@ object MainForm: TMainForm
     BorderSpacing.Top = 5
     BorderSpacing.Right = 5
     Caption = 'Search limitation'
-    ClientHeight = 35
-    ClientWidth = 988
+    ClientHeight = 34
+    ClientWidth = 986
     TabOrder = 2
     object PnlSearchPattern: TPanel
       Left = 0
       Height = 32
       Top = 0
-      Width = 988
+      Width = 986
       Align = alTop
       BevelOuter = bvNone
       Caption = 'PnlSearchPattern'
       ClientHeight = 32
-      ClientWidth = 988
+      ClientWidth = 986
       Color = clForm
       ParentColor = False
       TabOrder = 0
@@ -883,8 +882,8 @@ object MainForm: TMainForm
   end
   object StatusBar: TStatusBar
     Left = 0
-    Height = 21
-    Top = 498
+    Height = 23
+    Top = 500
     Width = 1000
     BorderSpacing.Bottom = 4
     Panels = <    
@@ -904,7 +903,7 @@ object MainForm: TMainForm
   object PrgBarSearch: TProgressBar
     Left = 7
     Height = 15
-    Top = 502
+    Top = 506
     Width = 161
     Anchors = []
     Smooth = True
@@ -1145,6 +1144,12 @@ object MainForm: TMainForm
     Interval = 50
     OnTimer = ActSearchExecute
     Left = 192
+    Top = 352
+  end
+  object TimerStartup: TTimer
+    Interval = 100
+    OnTimer = TimerStartupTimer
+    Left = 72
     Top = 352
   end
 end

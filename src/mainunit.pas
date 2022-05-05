@@ -102,6 +102,7 @@ type
     SaveDialog: TSaveDialog;
     SelectDirectoryDialog: TSelectDirectoryDialog;
     StatusBar: TStatusBar;
+    TimerStartup: TTimer;
     TimerStartSearch: TTimer;
     procedure ActCopySelectedLineToClipboardExecute(Sender: TObject);
     procedure ActOpenInEditorExecute(Sender: TObject);
@@ -127,6 +128,7 @@ type
     procedure LvwResultsColumnClick(Sender: TObject; Column: TListColumn);
     procedure LvwResultsCompare(Sender: TObject; Item1, Item2: TListItem;
       Data: Integer; var Compare: Integer);
+    procedure TimerStartupTimer(Sender: TObject);
   private
     FCurrentConfig: TCurrentConfig;
     FUISetting: TUserInterfaceSetting;
@@ -138,6 +140,7 @@ type
     FFilesWithHitCount: LongWord;
     FTotalSearchHitCount: LongWord;
     FFileWithLastHit: String;
+    FSuppressSearchStart: Boolean;
     procedure LoadCurrentConfig;
     procedure SaveCurrentConfig;
     procedure InitializeUserInterface;
@@ -248,7 +251,10 @@ begin
   FFilesWithHitCount := 0;
   FTotalSearchHitCount := 0;
   FFileWithLastHit := '';
+  FSuppressSearchStart := True;
   // Update search settings based on the info specified as command line options.
+  if CmdLineAutoStartOption then
+    FSuppressSearchStart := False;
   if CmdLineIgnoreCaseOptionFound then
     FSearchSettings.CaseSensitive := not CmdLineIgnoreCaseOption;
   if CmdLineRecursiveOptionFound then
@@ -522,6 +528,25 @@ end;  //*** end of LvwResultsCompare ***
 
 
 //***************************************************************************************
+// NAME:           TimerStartupTimer
+// PARAMETER:      Sender Source of the event.
+// RETURN VALUE:   none
+// DESCRIPTION:    Event handler that gets called when the timer expired.
+//
+//***************************************************************************************
+procedure TMainForm.TimerStartupTimer(Sender: TObject);
+begin
+  // No longer suppress starting a new search. Note that this startup timer was needed
+  // for the following reason: When starting FileSpector from the terminal, the <ENTER>
+  // keypress for starting the application is sometimes already received by the
+  // OnKeyUpHandlerToStartSearch handler. With the help of this timer and the
+  // FSuppressSearchStart, this first <ENTER> that is received within the duration of the
+  // startup timer, is ignored. Solving the problem.
+  FSuppressSearchStart := False;
+end; //*** end of TimerStartupTimer ***
+
+
+//***************************************************************************************
 // NAME:           BtnBrowseClick
 // PARAMETER:      Sender Source of the event.
 // RETURN VALUE:   none
@@ -752,6 +777,10 @@ procedure TMainForm.ActSearchExecute(Sender: TObject);
 var
   boxStyle: Integer;
 begin
+  // Ignore the start of the search request, when it is suppressed.
+  if FSuppressSearchStart then
+    Exit;
+
   // Disable the timer, which might have been used to trigger this operation.
   TimerStartSearch.Enabled := False;
 
