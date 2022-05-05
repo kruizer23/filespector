@@ -29,7 +29,7 @@
 #|
 #****************************************************************************************
 # Set the application name
-APPNAME:=filespector
+APPNAME := filespector
 
 # Set the directories
 SRCDIR := src
@@ -44,6 +44,8 @@ endif
 ifeq ($(BUILDMODE),)
   BUILDMODE := Release
 endif	
+
+# TODO Add option to set the LCL widget set. Default to gtk2.
 	
 # Configure dependent executables with their full directory.
 LAZBUILD := $(shell which lazbuild)
@@ -74,11 +76,23 @@ clean:
 	rm -rf $(SRCDIR)/lib
 	rm -rf $(LOCDIR)/*.mo	
 
-
-	
+# Target to install the application. 
+# TODO Install the MO files.
+.PHONY: install
 install:
-	./install.sh DESTDIR=$(DESTDIR)
-
-uninstall:
-	./uninstall.sh DESTDIR=$(DESTDIR)
+	install -d $(DESTDIR)$(PREFIX)/bin/
+	install $(SRCDIR)/$(APPNAME) $(DESTDIR)$(PREFIX)/bin/
+	install -d $(DESTDIR)$(PREFIX)/share/$(APPNAME)
+	install $(SRCDIR)/$(APPNAME).ico $(DESTDIR)$(PREFIX)/share/$(APPNAME)
+	install -d $(DESTDIR)$(PREFIX)/share/applications
+	install $(SRCDIR)/$(APPNAME).desktop $(DESTDIR)$(PREFIX)/share/applications
 	
+# Target to uninstall the application. 
+# TODO Uninstall the MO files.
+.PHONY: uninstall
+uninstall:
+	rm -f $(DESTDIR)$(PREFIX)/bin/$(APPNAME)
+	rm -f $(DESTDIR)$(PREFIX)/share/$(APPNAME)/$(APPNAME).ico
+	rm -f $(DESTDIR)$(PREFIX)/share/applications/$(APPNAME).desktop
+	rmdir $(DESTDIR)$(PREFIX)/share/$(APPNAME)
+
