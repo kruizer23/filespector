@@ -5,7 +5,7 @@
 #|---------------------------------------------------------------------------------------
 #|                          C O P Y R I G H T
 #|---------------------------------------------------------------------------------------
-#|           Copyright (c) 2018 by Frank Voorburg   All rights reserved
+#|           Copyright (c) 2022 by Frank Voorburg   All rights reserved
 #|
 #|   This software has been carefully tested, but is not guaranteed for any particular
 #| purpose. The author does not offer any warranties and does not guarantee the accuracy,
@@ -45,8 +45,11 @@ ifeq ($(BUILDMODE),)
   BUILDMODE := Release
 endif	
 
-# TODO Add option to set the LCL widget set. Default to gtk2.
-	
+# Set the default widget set. Can be overridden like this "make WIDGETSET=qt5".
+ifeq ($(WIDGETSET),)
+  WIDGETSET := gtk2
+endif	
+
 # Configure dependent executables with their full directory.
 LAZBUILD := $(shell which lazbuild)
 MSGFMT := $(shell which msgfmt)
@@ -55,6 +58,8 @@ MSGFMT := $(shell which msgfmt)
 POFILES := $(wildcard $(LOCDIR)/*.po)
 # Build list with machine object translation files.
 MOFILES := $(patsubst %.po,%.mo,$(POFILES))
+# Build list with installation files of machine object translation files.
+MOINSTFILES := $(patsubst $(LOCDIR)/$(APPNAME).%.mo,$(DESTDIR)$(PREFIX)/share/locale/%/LC_MESSAGES/$(APPNAME).mo,$(MOFILES))
 
 # The "all" target for building the application and the machine object translation files.	
 .PHONY: all	
@@ -62,9 +67,9 @@ all: $(SRCDIR)/$(APPNAME) $(MOFILES)
 
 # Target for building the application	
 $(SRCDIR)/$(APPNAME): $(SRCDIR)/$(APPNAME).lpi 
-	$(LAZBUILD) --build-mode="$(BUILDMODE)" $(SRCDIR)/$(APPNAME).lpi 
+	$(LAZBUILD) --build-mode="$(BUILDMODE)" --widgetset=$(WIDGETSET) $(SRCDIR)/$(APPNAME).lpi 
 	
-# Target for building the machine object translation files.	
+# Pattern rule for building the machine object translation files.	
 $(MOFILES): %.mo: %.po
 	$(MSGFMT) -o $@ $<
 
@@ -76,10 +81,14 @@ clean:
 	rm -rf $(SRCDIR)/lib
 	rm -rf $(LOCDIR)/*.mo	
 
+# Pattern rule for installing the machine object translation files.
+$(MOINSTFILES): $(DESTDIR)$(PREFIX)/share/locale/%/LC_MESSAGES/$(APPNAME).mo: $(LOCDIR)/$(APPNAME).%.mo
+	install -d -m 755 $(dir $@)
+	install -pm 644 $< $@
+
 # Target to install the application. 
-# TODO Install the MO files.
 .PHONY: install
-install:
+install: $(MOINSTFILES)
 	install -d $(DESTDIR)$(PREFIX)/bin/
 	install $(SRCDIR)/$(APPNAME) $(DESTDIR)$(PREFIX)/bin/
 	install -d $(DESTDIR)$(PREFIX)/share/$(APPNAME)
@@ -88,11 +97,11 @@ install:
 	install $(SRCDIR)/$(APPNAME).desktop $(DESTDIR)$(PREFIX)/share/applications
 
 # Target to uninstall the application. 
-# TODO Uninstall the MO files.
 .PHONY: uninstall
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(APPNAME)
 	rm -f $(DESTDIR)$(PREFIX)/share/$(APPNAME)/$(APPNAME).ico
 	rm -f $(DESTDIR)$(PREFIX)/share/applications/$(APPNAME).desktop
-	rmdir $(DESTDIR)$(PREFIX)/share/$(APPNAME)
+	if [ -d "$(DESTDIR)$(PREFIX)/share/$(APPNAME)" ]; then rmdir $(DESTDIR)$(PREFIX)/share/$(APPNAME); fi	
+	rm -f $(MOINSTFILES)
 
