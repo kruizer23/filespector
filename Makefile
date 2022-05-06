@@ -61,7 +61,7 @@ MOFILES := $(patsubst %.po,%.mo,$(POFILES))
 all: $(SRCDIR)/$(APPNAME) $(MOFILES)
 
 # Target for building the application	
-$(SRCDIR)/$(APPNAME):
+$(SRCDIR)/$(APPNAME): $(SRCDIR)/$(APPNAME).lpi 
 	$(LAZBUILD) --build-mode="$(BUILDMODE)" $(SRCDIR)/$(APPNAME).lpi 
 	
 # Target for building the machine object translation files.	
@@ -86,7 +86,7 @@ install:
 	install $(SRCDIR)/$(APPNAME).ico $(DESTDIR)$(PREFIX)/share/$(APPNAME)
 	install -d $(DESTDIR)$(PREFIX)/share/applications
 	install $(SRCDIR)/$(APPNAME).desktop $(DESTDIR)$(PREFIX)/share/applications
-	
+
 # Target to uninstall the application. 
 # TODO Uninstall the MO files.
 .PHONY: uninstall
