@@ -1,11 +1,15 @@
-# Set the application name
+# Set the application name.
 APPNAME := filespector
 
-# Set the directories
+# Set the directories.
 SRCDIR := src
 LOCDIR := $(SRCDIR)/languages
 DOCDIR := docs
 MANDIR := $(DOCDIR)/man
+
+# Appstream related configuration.
+APPDIR := $(DOCDIR)/appstream
+APPID  := io.github.kruizer23.$(APPNAME)
 
 # Set the default prefix. Can be overridden like this "make PREFIX=/usr/local".
 ifeq ($(PREFIX),)
@@ -27,7 +31,7 @@ LAZBUILD := $(shell which lazbuild)
 MSGFMT := $(shell which msgfmt)
 PANDOC := $(shell which pandoc)
 
-# Collect all translation files
+# Collect all translation files.
 POFILES := $(wildcard $(LOCDIR)/*.po)
 # Build list with machine object translation files.
 MOFILES := $(patsubst %.po,%.mo,$(POFILES))
@@ -70,16 +74,19 @@ install: $(MOINSTFILES)
 	install -d $(DESTDIR)$(PREFIX)/bin/
 	install $(SRCDIR)/$(APPNAME) $(DESTDIR)$(PREFIX)/bin/
 	install -d $(DESTDIR)$(PREFIX)/share/$(APPNAME)
-	install $(SRCDIR)/$(APPNAME).ico $(DESTDIR)$(PREFIX)/share/$(APPNAME)
+	install -m 644 $(SRCDIR)/$(APPNAME).ico $(DESTDIR)$(PREFIX)/share/$(APPNAME)
 	install -d $(DESTDIR)$(PREFIX)/share/applications
-	install $(SRCDIR)/$(APPNAME).desktop $(DESTDIR)$(PREFIX)/share/applications
+	install -m 644 $(APPDIR)/$(APPID).desktop $(DESTDIR)$(PREFIX)/share/applications
+	install -d $(DESTDIR)$(PREFIX)/share/metainfo
+	install -m 644 $(APPDIR)/$(APPID).metainfo.xml $(DESTDIR)$(PREFIX)/share/metainfo
 
 # Target to uninstall the application. 
 .PHONY: uninstall
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(APPNAME)
 	rm -f $(DESTDIR)$(PREFIX)/share/$(APPNAME)/$(APPNAME).ico
-	rm -f $(DESTDIR)$(PREFIX)/share/applications/$(APPNAME).desktop
+	rm -f $(DESTDIR)$(PREFIX)/share/applications/$(APPID).desktop
+	rm -f $(DESTDIR)$(PREFIX)/share/metainfo/$(APPID).metainfo.xml	
 	if [ -d "$(DESTDIR)$(PREFIX)/share/$(APPNAME)" ]; then rmdir $(DESTDIR)$(PREFIX)/share/$(APPNAME); fi	
 	rm -f $(MOINSTFILES)
 

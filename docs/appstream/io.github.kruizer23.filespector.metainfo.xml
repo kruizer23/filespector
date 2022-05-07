@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.kruizer23.filespector</id>
+  
+  <name>FileSpector</name>
+  <summary>Find text occurrences in multiple files</summary>
+  
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  
+  <description>
+    <p>
+      FileSpector is a GUI tool for quickly finding all text occurrences in multiple files in a directory, matching a specific file extension pattern. It is developed for GNU/Linux systems. Its focus is on simplicity and ease-of-use, as opposed to feature-rich.
+    </p>
+    <p>
+      Double-clicking a line in the search results, opens the file in the text editor at the line containing the search term. FileSpector automatically detects the text editor installed on your GNU/Linux system.
+    </p>
+    <p>
+      A wide range of command-line options are supported, making it possible to integrate FileSpector with existing tools. You could for example add a &quot;Find in Files&quot; option to your file manager&apos;s pop-up menu, after right-clicking a directory.
+    </p>
+  </description>
+  
+  <launchable type="desktop-id">io.github.kruizer23.filespector.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>http://raw.githubusercontent.com/kruizer23/filespector/master/docs/images/screenshot_mainwindow.png</image>
+    </screenshot>
+  </screenshots>
+</component>

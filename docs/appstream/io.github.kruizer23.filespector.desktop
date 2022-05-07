@@ -1,9 +1,11 @@
 [Desktop Entry]
+Version=1.0
 Type=Application
 Encoding=UTF-8
 Name=FileSpector
-Categories=Utility;TextEditor;
 Comment=Find text occurrences in multiple files
-Exec=/usr/bin/filespector
+Categories=Utility;TextEditor;
+
 Icon=/usr/share/filespector/filespector.ico
+Exec=filespector
 Terminal=false
