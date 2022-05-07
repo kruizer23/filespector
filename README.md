@@ -53,11 +53,11 @@ The [Lazarus IDE](https://www.lazarus-ide.org/) was used to develop FileSpector.
 
 **openSUSE**: `sudo zypper install make gdb fpc fpc-src lazarus pandoc`
 
-Once Lazarus is installed, you can build FileSpector from the terminal using the following command:
+Once Lazarus is installed, you can build FileSpector from the terminal using:
 
 * `make clean all`
 
-After successfully building FileSpector, you can install it from the terminal using the following command:
+After successfully building FileSpector, you can install it from the terminal using:
 
 * `sudo make install`
 
