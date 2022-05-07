@@ -23,7 +23,7 @@ Through the command line options, you have full control over how FileSpector sta
 
 For example, you could add an option *Find in Files* to the context menu, when right-clicking on a directory in a file manager. With the help of the `--directory` command line option, FileSpector can launch and automatically initialize the search directory to the one you selected in your file manager.
 
-```bash
+```
 Usage: filespector [OPTIONS]
 
 Options:
@@ -45,13 +45,13 @@ Examples:
 
 The [Lazarus IDE](https://www.lazarus-ide.org/) was used to develop FileSpector. To install Lazarus, you can download DEB and RPM packages from [SourceForge](https://sourceforge.net/projects/lazarus/files/). However, it is recommended to install the version of Lazarus that is present in the package repositories of your GNU/Linux distribution. Here are the Lazarus installation instructions for most popular GNU/Linux distributions:
 
-**Debian**: `sudo apt install make gdb fpc fpc-source lazarus`
+**Debian**: `sudo apt install make gdb fpc fpc-source lazarus pandoc`
 
-**Ubuntu**: `sudo apt install make gdb fpc fpc-source lazarus lcl`
+**Ubuntu**: `sudo apt install make gdb fpc fpc-source lazarus lcl pandoc`
 
-**Fedora**: `sudo dnf install make gdb fpc fpc-src lazarus`
+**Fedora**: `sudo dnf install make gdb fpc fpc-src lazarus pandoc`
 
-**openSUSE**: `sudo zypper install make gdb fpc fpc-src lazarus`
+**openSUSE**: `sudo zypper install make gdb fpc fpc-src lazarus pandoc`
 
 Once Lazarus in installed, you can build FileSpector from the terminal using the following command:
 
