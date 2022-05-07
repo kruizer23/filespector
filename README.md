@@ -7,7 +7,7 @@ Double-clicking a line in the search results, opens the file in the text editor 
 
 A wide range of command-line options are supported, making it possible to integrate FileSpector with existing tools. You could for example add a "Find in Files" option to your file manager's pop-up menu, after right-clicking a directory.
 
-![alt text](docs/images/screenshot_mainwindow.png "Screenshot of FileSpector's main window")
+![alt text](assets/images/screenshot_mainwindow.png "Screenshot of FileSpector's main window")
 
 ## Installation
 

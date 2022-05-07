@@ -6,9 +6,10 @@ SRCDIR := sources
 LOCDIR := $(SRCDIR)/languages
 DOCDIR := docs
 MANDIR := $(DOCDIR)/man
+ASSSETSDIR := assets
 
 # Appstream related configuration.
-APPDIR := $(DOCDIR)/appstream
+APPDIR := $(ASSSETSDIR)/appstream
 APPID  := io.github.kruizer23.$(APPNAME)
 
 # Set the default prefix. Can be overridden like this "make PREFIX=/usr/local".
@@ -74,7 +75,7 @@ install: $(MOINSTFILES)
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install $(SRCDIR)/$(APPNAME) $(DESTDIR)$(PREFIX)/bin/
 	install -d $(DESTDIR)$(PREFIX)/share/pixmaps
-	install -m 644 $(DOCDIR)/images/$(APPNAME).png $(DESTDIR)$(PREFIX)/share/pixmaps
+	install -m 644 $(ASSSETSDIR)/images/$(APPNAME).png $(DESTDIR)$(PREFIX)/share/pixmaps
 	install -d $(DESTDIR)$(PREFIX)/share/applications
 	install -m 644 $(APPDIR)/$(APPID).desktop $(DESTDIR)$(PREFIX)/share/applications
 	install -d $(DESTDIR)$(PREFIX)/share/metainfo
