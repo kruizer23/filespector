@@ -1,7 +1,7 @@
-src/filespector
-src/filespector.lps
-src/filespector.res
-src/filespector.dbg
-src/lib/*
-src/languages/*.mo
+sources/filespector
+sources/filespector.lps
+sources/filespector.res
+sources/filespector.dbg
+sources/lib/*
+sources/languages/*.mo
 docs/man/filespector.1

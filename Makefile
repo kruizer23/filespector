@@ -2,7 +2,7 @@
 APPNAME := filespector
 
 # Set the directories.
-SRCDIR := src
+SRCDIR := sources
 LOCDIR := $(SRCDIR)/languages
 DOCDIR := docs
 MANDIR := $(DOCDIR)/man
