@@ -1,4 +1,14 @@
 -----------------------------------------------------------------------------------------
+2022-05-07 Frank Voorburg <voorburg@gmx.net>
+
+* Highlight search term in search results.
+* Added AppStream related files.
+* Reworked Makefile.
+* Reorganized directory structure.
+* Build man-page from markdown document.
+* Public release of version 1.0.0.
+
+-----------------------------------------------------------------------------------------
 2022-04-18 Frank Voorburg <voorburg@gmx.net>
 
 * Supports text editor configuration.
