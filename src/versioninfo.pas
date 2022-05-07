@@ -47,8 +47,8 @@ type
   //------------------------------ TVersionInfo -----------------------------------------
   TVersionInfo = class (TObject)
   private
-    const VERSION_MAJOR: Byte = 0;
-    const VERSION_MINOR: Byte = 9;
+    const VERSION_MAJOR: Byte = 1;
+    const VERSION_MINOR: Byte = 0;
     const VERSION_PATCH: Byte = 0;
     const VERSION_SPECIFIER: String = '';
   public
