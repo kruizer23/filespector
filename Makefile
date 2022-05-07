@@ -73,8 +73,8 @@ $(MOINSTFILES): $(DESTDIR)$(PREFIX)/share/locale/%/LC_MESSAGES/$(APPNAME).mo: $(
 install: $(MOINSTFILES)
 	install -d $(DESTDIR)$(PREFIX)/bin/
 	install $(SRCDIR)/$(APPNAME) $(DESTDIR)$(PREFIX)/bin/
-	install -d $(DESTDIR)$(PREFIX)/share/$(APPNAME)
-	install -m 644 $(SRCDIR)/$(APPNAME).ico $(DESTDIR)$(PREFIX)/share/$(APPNAME)
+	install -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/64x64/apps
+	install -m 644 $(DOCDIR)/images/$(APPNAME).png $(DESTDIR)$(PREFIX)/share/icons/hicolor/64x64/apps
 	install -d $(DESTDIR)$(PREFIX)/share/applications
 	install -m 644 $(APPDIR)/$(APPID).desktop $(DESTDIR)$(PREFIX)/share/applications
 	install -d $(DESTDIR)$(PREFIX)/share/metainfo
@@ -84,7 +84,7 @@ install: $(MOINSTFILES)
 .PHONY: uninstall
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(APPNAME)
-	rm -f $(DESTDIR)$(PREFIX)/share/$(APPNAME)/$(APPNAME).ico
+	rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/64x64/apps/$(APPNAME).png
 	rm -f $(DESTDIR)$(PREFIX)/share/applications/$(APPID).desktop
 	rm -f $(DESTDIR)$(PREFIX)/share/metainfo/$(APPID).metainfo.xml	
 	if [ -d "$(DESTDIR)$(PREFIX)/share/$(APPNAME)" ]; then rmdir $(DESTDIR)$(PREFIX)/share/$(APPNAME); fi	
