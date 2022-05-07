@@ -4,6 +4,8 @@ APPNAME := filespector
 # Set the directories
 SRCDIR := src
 LOCDIR := $(SRCDIR)/languages
+DOCDIR := docs
+MANDIR := $(DOCDIR)/man
 
 # Set the default prefix. Can be overridden like this "make PREFIX=/usr/local".
 ifeq ($(PREFIX),)
@@ -23,6 +25,7 @@ endif
 # Configure dependent executables with their full directory.
 LAZBUILD := $(shell which lazbuild)
 MSGFMT := $(shell which msgfmt)
+PANDOC := $(shell which pandoc)
 
 # Collect all translation files
 POFILES := $(wildcard $(LOCDIR)/*.po)
@@ -33,11 +36,15 @@ MOINSTFILES := $(patsubst $(LOCDIR)/$(APPNAME).%.mo,$(DESTDIR)$(PREFIX)/share/lo
 
 # The "all" target for building the application and the machine object translation files.	
 .PHONY: all	
-all: $(SRCDIR)/$(APPNAME) $(MOFILES)
+all: $(SRCDIR)/$(APPNAME) $(MOFILES) $(MANDIR)/$(APPNAME).1
 
-# Target for building the application	
+# Target for building the application.
 $(SRCDIR)/$(APPNAME): $(SRCDIR)/$(APPNAME).lpi 
-	$(LAZBUILD) --build-mode="$(BUILDMODE)" --widgetset=$(WIDGETSET) $(SRCDIR)/$(APPNAME).lpi 
+	$(LAZBUILD) --build-mode="$(BUILDMODE)" --widgetset=$(WIDGETSET) $(SRCDIR)/$(APPNAME).lpi
+	
+# Target for creating the MAN page from the markdown formatted source document.
+$(MANDIR)/$(APPNAME).1: $(MANDIR)/$(APPNAME).1.md
+	$(PANDOC) $< -s -t man -o $@
 	
 # Pattern rule for building the machine object translation files.	
 $(MOFILES): %.mo: %.po
@@ -48,6 +55,7 @@ $(MOFILES): %.mo: %.po
 clean:
 	rm -f $(SRCDIR)/$(APPNAME)
 	rm -f $(SRCDIR)/$(APPNAME).res
+	rm -f $(MANDIR)/$(APPNAME).1
 	rm -rf $(SRCDIR)/lib
 	rm -rf $(LOCDIR)/*.mo	
 

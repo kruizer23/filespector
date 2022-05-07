@@ -4,3 +4,4 @@ src/filespector.res
 src/filespector.dbg
 src/lib/*
 src/languages/*.mo
+docs/man/filespector.1
