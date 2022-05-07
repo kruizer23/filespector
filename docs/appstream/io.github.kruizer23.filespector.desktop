@@ -5,6 +5,6 @@ Encoding=UTF-8
 Name=FileSpector
 Comment=Find text occurrences in multiple files
 Categories=Utility;TextEditor;
-Icon=filespector
+Icon=/usr/share/filespector/filespector.ico
 Exec=filespector
 Terminal=false
